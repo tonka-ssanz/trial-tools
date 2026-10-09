@@ -10,7 +10,7 @@
 <style>
 :root {
   --bg: #f5f6f2; --surface: #ffffff; --ink: #1d2420; --muted: #5d6a62; --line: #d9ded7;
-  --accent: #2f6b4f; --accent-ink: #ffffff; --accent-soft: #e3efe8;
+  --accent: #2f6b4f; --accent-ink: #ffffff; --accent-soft: #e3efe8; --warn: #8a5a12;
   --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
@@ -18,12 +18,12 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #141916; --surface: #1c2320; --ink: #e6ebe7; --muted: #9aa8a0; --line: #2f3933;
-    --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; color-scheme: dark;
+    --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; --warn: #e0b060; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #141916; --surface: #1c2320; --ink: #e6ebe7; --muted: #9aa8a0; --line: #2f3933;
-  --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; color-scheme: dark;
+  --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; --warn: #e0b060; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
@@ -32,6 +32,8 @@ header { display: grid; gap: 10px; }
 .eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0; }
 h1 { font-family: var(--font-display); font-size: clamp(32px, 7vw, 48px); line-height: 1.05; margin: 0; text-wrap: balance; }
 .lede { margin: 0; color: var(--muted); max-width: 60ch; font-size: 17px; }
+.important { margin: 6px 0 0; max-width: 60ch; font-size: 16px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--warn); border-radius: 10px; padding: 12px 16px; }
+.important b { color: var(--warn); letter-spacing: .04em; }
 h2 { font-family: var(--font-display); font-size: 20px; margin: 0 0 12px; }
 .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .tool { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 16px; align-items: center; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); transition: border-color .15s; }
@@ -67,7 +69,8 @@ a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
   <header>
     <p class="eyebrow">SSANZ</p>
     <h1>Trial entry tools</h1>
-    <p class="lede">Turn a trial entries download into the lists you need. The spreadsheet tools give your file back with new tabs added, so you can run them one after another on the same file. The last one turns it into a Word document for the catalogue.</p>
+    <p class="lede">The interfaces on this page automate and simplify the process of taking downloaded trial entries and extracting the data you need in formats that you can use. The spreadsheet tools give your file back with new tabs added, so you can run them one after another on the same file. The final step produces the various formats of running orders in Word, that you may want to use for your trial.</p>
+    <p class="important"><b>IMPORTANT</b> - trial lists are produced in a random order. If you wish to move people around, you should do that manually before proceeding to step 4. Remember to move the entire line. Also, if you want to change the running order for different elements, duplicate the entire tab and reorder them there.</p>
   </header>
 
   <section>
@@ -104,7 +107,7 @@ a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
         <span class="num" aria-hidden="true">4</span>
         <div class="body">
           <h3><a href="trial-documents.html">Trial Documents</a></h3>
-          <p>Turns the trial tabs into Word documents (A4): running orders for the catalogue, callboards, and timekeepers&#x27; and judges&#x27; sheets with one element and judge per sheet. Level, date and session are entered once for all of them.</p>
+          <p>Turns the trial tabs into Word documents (A4): running orders for the catalogue, callboards, and timekeepers&#x27; and judges&#x27; sheets with one element and judge per sheet. Wherever possible data need only be entered once, however there are plenty of customisation options too, including the possibility of adding your logo.</p>
           <p class="gives">Makes: Running orders · Callboards · Timekeepers · Judges (.docx)</p>
         </div>
         <a class="open" href="trial-documents.html" aria-label="Open Trial Documents">Open →</a>
