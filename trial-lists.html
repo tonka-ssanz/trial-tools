@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trial Entry Trial Lists</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #f5f6f2;
+  --surface: #ffffff;
+  --ink: #1d2420;
+  --muted: #5d6a62;
+  --line: #d9ded7;
+  --accent: #2f6b4f;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3efe8;
+  --warn: #8a5a12;
+  --warn-soft: #f6ecd9;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141916; --surface: #1c2320; --ink: #e6ebe7; --muted: #9aa8a0; --line: #2f3933;
+    --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; --warn: #e0b060; --warn-soft: #2e2618;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141916; --surface: #1c2320; --ink: #e6ebe7; --muted: #9aa8a0; --line: #2f3933;
+  --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; --warn: #e0b060; --warn-soft: #2e2618;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 760px; margin: 0 auto; padding-inline: 16px; padding-block: 40px 64px; display: grid; gap: 28px; }
+header { display: grid; gap: 8px; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0; }
+h1 { font-family: var(--font-display); font-size: clamp(30px, 6vw, 42px); line-height: 1.1; margin: 0; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); max-width: 62ch; }
+.lede code, .help code { font-family: var(--font-mono); font-size: .9em; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
+
+.drop { border: 2px dashed var(--line); border-radius: 14px; background: var(--surface); padding: 32px 20px; text-align: center; cursor: pointer; display: grid; gap: 6px; justify-items: center; transition: border-color .15s, background .15s; }
+.drop:hover, .drop.over { border-color: var(--accent); background: var(--accent-soft); }
+.drop:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.drop strong { font-family: var(--font-display); font-size: 20px; }
+.drop span { color: var(--muted); font-size: 14px; }
+
+.status { margin: 0; padding: 12px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 15px; }
+.status.error { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
+
+.picker { display: grid; gap: 10px; padding: 18px; border: 1px solid var(--accent); border-radius: 14px; background: var(--surface); }
+.picker h2 { font-family: var(--font-display); font-size: 20px; margin: 0; }
+.picker-list { display: grid; gap: 8px; }
+.pick { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; width: 100%; text-align: left; background: transparent; color: var(--ink); border: 1px solid var(--line); font-weight: 400; }
+.pick:hover { border-color: var(--accent); background: var(--accent-soft); }
+.pick b { font-weight: 700; overflow-wrap: anywhere; min-width: 0; }
+.pick span { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+.result { display: grid; gap: 18px; }
+.result-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.result-head h2 { font-family: var(--font-display); font-size: 22px; margin: 0; }
+.tag { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+.file { color: var(--muted); font-size: 14px; margin: 0; overflow-wrap: anywhere; }
+
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.stat { background: var(--surface); padding: 14px 16px; display: grid; gap: 2px; }
+.stat b { font-family: var(--font-display); font-size: 28px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat span { font-size: 13px; color: var(--muted); }
+.stat.key b { color: var(--accent); }
+.stat.owe b { color: var(--warn); }
+@media (max-width: 560px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+button { font: inherit; font-weight: 700; border-radius: 10px; padding: 11px 18px; cursor: pointer; border: 1px solid var(--accent); }
+button.primary { background: var(--accent); color: var(--accent-ink); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.note { font-size: 14px; color: var(--muted); margin: 0; }
+
+.sub { font-family: var(--font-display); font-size: 17px; margin: 0; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tabbtn { font-weight: 400; font-family: var(--font-mono); font-size: 14px; padding: 6px 12px; border-radius: 8px; background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.tabbtn[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.tabbtn span { opacity: .7; margin-left: 6px; }
+.table-box { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); max-height: 460px; overflow-y: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 8px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { position: sticky; top: 0; background: var(--surface); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+td.flag { font-weight: 700; color: var(--warn); }
+.warnbox { display: grid; gap: 6px; padding: 14px 16px; border-radius: 12px; background: var(--warn-soft); border: 1px solid var(--warn); }
+.warnbox h3 { font-family: var(--font-display); font-size: 17px; margin: 0; color: var(--warn); }
+.warnbox p { margin: 0; font-size: 15px; }
+.warnbox ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 15px; }
+.warnbox code { font-family: var(--font-mono); font-size: .9em; }
+tr:last-child td { border-bottom: 0; }
+
+.help { border-top: 1px solid var(--line); padding-top: 20px; display: grid; gap: 10px; font-size: 15px; }
+.help h3 { font-family: var(--font-display); font-size: 17px; margin: 0; }
+.help ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--muted); max-width: 66ch; }
+.help li b { color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+.crumbs { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; font-size: 14px; margin-bottom: -12px; }
+.crumbs a { color: var(--accent); font-weight: 700; text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; }
+.crumbs span { color: var(--muted); }
+.nextstep { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 20px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.nextstep p { margin: 0; font-size: 15px; color: var(--muted); max-width: 52ch; }
+.nextstep p b { color: var(--ink); }
+.nextstep a { font-weight: 700; color: var(--accent-ink); background: var(--accent); border-radius: 10px; padding: 10px 16px; text-decoration: none; white-space: nowrap; }
+.nextstep a:focus-visible, .crumbs a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav class="crumbs" aria-label="Trial tools"><a href="index.html">← All trial tools</a><span>Step 3 of 4</span></nav>
+  <header>
+    <p class="eyebrow">SSANZ trial tools</p>
+    <h1>Trial Entry Trial Lists</h1>
+    <p class="lede">Drop in a trial entries download. You get the same spreadsheet back with a new tab for each trial column that has entries (for example <code>NWAdv1</code>), listing Handler Number, Handler, Dog No, Dog Pet Name, Dog Breed and Comments. Comments show <code>D</code> for dog-reactive, <code>H</code> for people-reactive, or <code>D + H</code> for both.</p>
+  </header>
+
+  <label class="drop" id="drop" for="file" tabindex="0">
+    <strong>Drop your entries file here</strong>
+    <span>or click to choose · Excel (.xlsx) or CSV</span>
+    <input type="file" id="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+  </label>
+
+  <p class="status" id="status" hidden></p>
+
+  <section class="picker" id="picker" hidden aria-live="polite">
+    <h2>Which tab should I use?</h2>
+    <p class="note" id="pickerNote">More than one tab looks like an entries list.</p>
+    <div class="picker-list" id="pickerList"></div>
+  </section>
+
+  <section class="result" id="result" aria-live="polite">
+    <div class="result-head">
+      <h2 id="resultTitle">Example result</h2>
+      <span class="tag" id="resultTag">Example data</span>
+    </div>
+    <p class="file" id="fileName"></p>
+
+    <div class="stats">
+      <div class="stat"><b id="sRows">0</b><span>entries read</span></div>
+      <div class="stat key"><b id="sTabs">0</b><span>trial tabs</span></div>
+      <div class="stat owe"><b id="sD">0</b><span>dogs marked D</span></div>
+      <div class="stat owe"><b id="sH">0</b><span>dogs marked H</span></div>
+    </div>
+
+    <div class="warnbox" id="doubles" hidden>
+      <h3>Check: handler with more than one dog in a trial</h3>
+      <p>A handler shouldn't run two dogs in the same trial. These are in the lists as entered, so please check them.</p>
+      <ul id="doublesList"></ul>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="download" type="button" disabled>Download spreadsheet with trial tabs</button>
+    </div>
+    <p class="note" id="actionNote">Drop a file to enable the download.</p>
+
+    <h3 class="sub">Preview</h3>
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <div class="table-box">
+      <table>
+        <thead><tr><th>Handler No</th><th>Handler</th><th>Dog No</th><th>Dog Pet Name</th><th>Dog Breed</th><th>Comments</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <aside class="nextstep">
+    <p><b>Next step: Trial Documents.</b> Drop the file you just downloaded into it.</p>
+    <a href="trial-documents.html">Open Trial Documents →</a>
+  </aside>
+
+  <section class="help">
+    <h3>Good to know</h3>
+    <ul>
+      <li><b>Which tabs are made:</b> one for every trial column with something entered in it (class name plus trial number, like <code>NWAdv1</code> or <code>BHNovS2</code>). Empty trial columns get no tab. Tabs are named exactly as the column heading and appear in the same order as the columns.</li>
+      <li><b>Rows are in random order</b>, shuffled separately for each tab, so a dog entered in two trials will usually be in a different spot on each. Every run gives a new order, and the preview shows exactly what you'll download. For a different draw, just drop the file in again.</li>
+      <li><b>Handler with two dogs in one trial?</b> That shouldn't happen, so the page shows a warning naming the handler, their dogs and the tab. The lists aren't changed; fix the entry and run the tool again if needed.</li>
+      <li><b>Comments:</b> only reactivity is carried across. “Reactive to dogs” becomes <code>D</code>, “Reactive to people” becomes <code>H</code>, both become <code>D + H</code>. Everything else (the colons, “Edited …” notes and any other messages) is left out, so check the original Comments column for special requests.</li>
+      <li><b>Using Google Sheets?</b> In your sheet choose File → Download → Microsoft Excel (.xlsx), drop that file here, then open the result in Google Sheets with File → Import.</li>
+      <li><b>Several tabs?</b> The tool looks for the tab with Handler, Dog Pet Name and trial columns. If more than one tab has them, you'll be asked which to use. Paid / Part Paid / Not Paid tabs from the Payment Split tool are ignored. All your tabs come back in the download.</li>
+      <li><b>Running it again</b> on a file that already has these tabs replaces them rather than adding more.</li>
+      <li>The file never leaves your computer. All the work happens in this page.</li>
+    </ul>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+const OUT_HEADERS = ["Handler Number", "Handler", "Dog No", "Dog Pet Name", "Dog Breed", "Comments"];
+const OLD_HEADERS = ["Handler", "Dog Pet Name", "Dog Breed", "Comments"]; // tabs made by the first version
+/* A trial column is a class code followed by the trial number, e.g. NWAdv1, BHNovS2.
+   Sp1-1 (hyphen) and "NWAdv Qual@export" (space) don't match. */
+const TRIAL_RE = /^[A-Za-z]+[1-9]$/;
+const SKIP_TABS = new Set(["paid", "part paid", "not paid", "emails"]);
+
+/* Comment text → "D", "H", "D + H" or "". */
+function reactivity(text) {
+  // Blank out negated phrases ("not reactive to dogs", "non-reactive") before looking.
+  const s = String(text ?? "").toLowerCase().replace(/\b(not|non|never|isn't|no longer)[\s-]+(\w+[\s-]+)?reactive[^.;:]*/g, " ");
+  const d = /reactive\s+(to|towards|with|around)\s+(other\s+)?dogs?\b/.test(s) || /\bdogs?[\s-]+reactive\b/.test(s);
+  const h = /reactive\s+(to|towards|with|around)\s+(people|persons?|humans?|strangers?)\b/.test(s) || /\b(people|human|person)[\s-]+reactive\b/.test(s);
+  return d && h ? "D + H" : d ? "D" : h ? "H" : "";
+}
+
+/* Random whole number 0..n-1, using the browser's secure generator when there is one. */
+function randomInt(n) {
+  const c = typeof crypto !== "undefined" && crypto.getRandomValues ? crypto : null;
+  if (!c) return Math.floor(Math.random() * n);
+  const limit = Math.floor(0x100000000 / n) * n, buf = new Uint32Array(1);
+  do { c.getRandomValues(buf); } while (buf[0] >= limit); // avoid bias
+  return buf[0] % n;
+}
+
+/* Fisher-Yates shuffle: every order is equally likely. Returns a new array. */
+function shuffle(arr, rand = randomInt) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = rand(i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+function isBlank(v) { return String(v ?? "").trim() === ""; }
+
+/* Pure logic: rows are arrays of strings; header row first. */
+function buildLists(rows, rand = randomInt) {
+  const header = (rows[0] || []).map(h => String(h ?? "").trim());
+  const lower = header.map(h => h.toLowerCase());
+  const col = name => lower.indexOf(name.toLowerCase());
+  const idx = { handlerNo: col("Handler Number"), handler: col("Handler"), dogNo: col("Dog No"), pet: col("Dog Pet Name"), breed: col("Dog Breed"), comments: col("Comments") };
+  const missing = [["Handler", idx.handler], ["Dog Pet Name", idx.pet]].filter(([, i]) => i === -1).map(([n]) => n);
+  if (missing.length) throw new Error(`Couldn't find the ${missing.join(" and ")} column in the first row. Check this is a trial entries download.`);
+  const trialCols = header.map((h, i) => ({ h, i })).filter(c => TRIAL_RE.test(c.h));
+  if (!trialCols.length) throw new Error("Couldn't find any trial columns (like NWAdv1) in the first row.");
+
+  const out = { entries: 0, tabs: [], dCount: 0, hCount: 0, doubles: [] };
+  const body = [];
+  rows.forEach((r, i) => {
+    if (i === 0 || !r || r.every(isBlank)) return;
+    out.entries++;
+    const flag = idx.comments === -1 ? "" : reactivity(r[idx.comments]);
+    if (flag.includes("D")) out.dCount++;
+    if (flag.includes("H")) out.hCount++;
+    const get = i => i === -1 ? "" : String(r[i] ?? "").trim();
+    body.push({ r, line: [
+      get(idx.handlerNo),
+      String(r[idx.handler] ?? "").trim(),
+      get(idx.dogNo),
+      String(r[idx.pet] ?? "").trim(),
+      idx.breed === -1 ? "" : String(r[idx.breed] ?? "").trim(),
+      flag,
+    ] });
+  });
+  const seen = new Set();
+  for (const c of trialCols) {
+    const key = c.h.toLowerCase();
+    if (seen.has(key)) continue; // Excel tab names must be unique
+    const list = body.filter(b => !isBlank(b.r[c.i])).map(b => b.line);
+    if (!list.length) continue;
+    seen.add(key);
+    // A handler should never have two dogs in one trial: collect any that do (matched by Handler Number, else name).
+    const byHandler = new Map();
+    for (const l of list) {
+      const k = (l[0] || l[1]).toLowerCase().replace(/\s+/g, " ");
+      if (!k) continue;
+      if (!byHandler.has(k)) byHandler.set(k, []);
+      byHandler.get(k).push(l);
+    }
+    for (const group of byHandler.values()) if (group.length > 1) {
+      out.doubles.push({ tab: c.h, handler: group[0][1], handlerNo: group[0][0], dogs: group.map(l => l[3] + (l[2] ? ` (${l[2]})` : "")) });
+    }
+    out.tabs.push({ name: c.h.slice(0, 31), rows: shuffle(list, rand) }); // each tab in its own random order
+  }
+  return out;
+}
+
+if (typeof module !== "undefined") { module.exports = { buildLists, reactivity, shuffle }; }
+else {
+const $ = id => document.getElementById(id);
+let current = null; // { wb, baseName }
+
+function cellText(cell) {
+  const v = cell.value;
+  if (v == null) return "";
+  if (typeof v === "object") {
+    if (v.text != null) return typeof v.text === "string" ? v.text : (v.text.richText || []).map(t => t.text).join("");
+    if (v.richText) return v.richText.map(t => t.text).join("");
+    if ("result" in v || "formula" in v || "sharedFormula" in v) return v.result == null ? "" : String(v.result);
+    if (v instanceof Date) return v.toISOString();
+  }
+  return String(v);
+}
+
+function sheetRows(ws) {
+  const rows = [];
+  ws.eachRow({ includeEmpty: true }, (row, n) => {
+    const arr = [];
+    row.eachCell({ includeEmpty: true }, (cell, c) => { arr[c - 1] = cellText(cell); });
+    rows[n - 1] = arr;
+  });
+  for (let i = 0; i < rows.length; i++) if (!rows[i]) rows[i] = [];
+  return rows;
+}
+
+/* Does this tab look like an entries list (as opposed to one of our trial tabs)? */
+function looksLikeEntries(rows) {
+  const h = (rows[0] || []).map(x => String(x ?? "").trim().toLowerCase());
+  return h.includes("handler") && h.includes("dog pet name") && (rows[0] || []).some(x => TRIAL_RE.test(String(x ?? "").trim()));
+}
+
+function writeTabs(wb, lists) {
+  const names = new Set(lists.tabs.map(t => t.name.toLowerCase()));
+  for (const w of [...wb.worksheets]) {
+    const rows = sheetRows(w);
+    const head = (rows[0] || []).map(x => String(x ?? "").trim()).join("|");
+    const isOurs = head === OUT_HEADERS.join("|") || head === OLD_HEADERS.join("|");
+    // Replace a tab if it has one of the new names, or it's a trial tab this tool made on an earlier run.
+    if (names.has(w.name.toLowerCase()) || (isOurs && TRIAL_RE.test(w.name))) wb.removeWorksheet(w.id);
+  }
+  for (const t of lists.tabs) {
+    const ws = wb.addWorksheet(t.name);
+    ws.columns = [{ width: 16 }, { width: 24 }, { width: 10 }, { width: 18 }, { width: 28 }, { width: 12 }];
+    ws.addRow(OUT_HEADERS).font = { bold: true };
+    // Numbers like 20086 go in as numbers; codes like SD600 stay as text.
+    t.rows.forEach(r => ws.addRow(r.map((v, k) => (k === 0 || k === 2) && /^\d+$/.test(v) ? Number(v) : v)));
+    [1, 3].forEach(c => ws.getColumn(c).alignment = { horizontal: "left" });
+    ws.getColumn(6).alignment = { horizontal: "center" };
+    ws.getColumn(6).font = { bold: true };
+    ws.getRow(1).font = { bold: true };
+    ws.views = [{ state: "frozen", ySplit: 1 }];
+  }
+}
+
+let previewLists = null;
+function showTab(i) {
+  [...$("tabs").children].forEach((b, k) => b.setAttribute("aria-selected", k === i ? "true" : "false"));
+  const tb = $("rows");
+  tb.textContent = "";
+  const t = previewLists.tabs[i];
+  if (!t) return;
+  t.rows.forEach(r => {
+    const tr = document.createElement("tr");
+    r.forEach((v, k) => { const td = document.createElement("td"); td.textContent = v; if (k === 5 && v) td.className = "flag"; tr.appendChild(td); });
+    tb.appendChild(tr);
+  });
+}
+
+function render(lists, label, isExample) {
+  previewLists = lists;
+  $("resultTitle").textContent = isExample ? "Example result" : "Ready";
+  $("resultTag").textContent = isExample ? "Example data" : "Your file";
+  $("fileName").textContent = label;
+  $("sRows").textContent = lists.entries;
+  $("sTabs").textContent = lists.tabs.length;
+  $("sD").textContent = lists.dCount;
+  $("sH").textContent = lists.hCount;
+  const tabs = $("tabs");
+  tabs.textContent = "";
+  lists.tabs.forEach((t, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "tabbtn"; b.setAttribute("role", "tab");
+    b.textContent = t.name;
+    const n = document.createElement("span"); n.textContent = t.rows.length;
+    b.appendChild(n);
+    b.addEventListener("click", () => showTab(i));
+    tabs.appendChild(b);
+  });
+  showTab(0);
+  const dl = $("doublesList");
+  dl.textContent = "";
+  (lists.doubles || []).forEach(d => {
+    const li = document.createElement("li");
+    const tab = document.createElement("code"); tab.textContent = d.tab;
+    const who = document.createElement("b"); who.textContent = d.handler + (d.handlerNo ? ` (${d.handlerNo})` : "");
+    li.append(tab, " · ", who, ": " + d.dogs.join(", "));
+    dl.appendChild(li);
+  });
+  $("doubles").hidden = !(lists.doubles || []).length;
+}
+
+function showStatus(msg, isError) {
+  const s = $("status");
+  s.textContent = msg; s.className = "status" + (isError ? " error" : ""); s.hidden = !msg;
+}
+
+function chooseTab(matches) {
+  return new Promise(resolve => {
+    const list = $("pickerList");
+    list.textContent = "";
+    matches.forEach(m => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "pick";
+      const name = document.createElement("b"); name.textContent = m.ws.name;
+      const info = document.createElement("span");
+      const n = m.rows.slice(1).filter(r => r && !r.every(isBlank)).length;
+      info.textContent = n + (n === 1 ? " entry" : " entries");
+      b.append(name, info);
+      b.addEventListener("click", () => { $("picker").hidden = true; resolve(m); });
+      list.appendChild(b);
+    });
+    $("pickerNote").textContent = `${matches.length} tabs look like entries lists. Pick the one to use. Your other tabs stay as they are.`;
+    $("picker").hidden = false;
+    showStatus("");
+    list.querySelector("button").focus();
+  });
+}
+
+function csvValue(s) {
+  const t = String(s ?? "");
+  return /^-?(0|[1-9]\d*)(\.\d+)?$/.test(t.trim()) ? Number(t.trim()) : t;
+}
+
+let busy = 0;
+async function handleFile(file) {
+  const run = ++busy;
+  $("picker").hidden = true;
+  showStatus("Reading " + file.name + "…");
+  const ext = file.name.split(".").pop().toLowerCase();
+  const baseName = file.name.replace(/\.[^.]+$/, "").replace(/ \(with (Payments|Emails|Trial Lists)\)$/, "");
+  let label = file.name;
+  try {
+    if (typeof ExcelJS === "undefined") throw new Error("The spreadsheet library didn't load. Check your internet connection and reload the page.");
+    let wb, rows;
+    if (ext === "xlsx") {
+      wb = new ExcelJS.Workbook();
+      await wb.xlsx.load(await file.arrayBuffer());
+      const matches = [];
+      for (const w of wb.worksheets.filter(w => !SKIP_TABS.has(w.name.toLowerCase()))) {
+        const r = sheetRows(w);
+        if (looksLikeEntries(r)) matches.push({ ws: w, rows: r });
+      }
+      if (!matches.length) throw new Error("Couldn't find a tab with Handler, Dog Pet Name and trial columns (like NWAdv1) in its first row. Check this is a trial entries download.");
+      const pick = matches.length === 1 ? matches[0] : await chooseTab(matches);
+      if (run !== busy) return;
+      rows = pick.rows;
+      if (matches.length > 1) label += " · tab “" + pick.ws.name + "”";
+    } else if (ext === "csv") {
+      const text = await file.text();
+      rows = Papa.parse(text.replace(/^﻿/, ""), { skipEmptyLines: false }).data;
+      while (rows.length && rows[rows.length - 1].every(isBlank)) rows.pop();
+      wb = new ExcelJS.Workbook();
+      const src = wb.addWorksheet("Entries");
+      rows.forEach((r, i) => src.addRow(i === 0 ? r : r.map(csvValue)));
+      src.getRow(1).font = { bold: true };
+    } else if (ext === "xls") {
+      throw new Error("This is an old-style .xls file. Open it in Excel and use Save As → Excel Workbook (.xlsx), then drop that file here.");
+    } else {
+      throw new Error("Please drop an Excel (.xlsx) or CSV file.");
+    }
+    const lists = buildLists(rows);
+    if (!lists.entries) throw new Error("The columns are there, but there are no entry rows under them.");
+    if (!lists.tabs.length) throw new Error("None of the trial columns have anything entered, so there are no tabs to make.");
+    writeTabs(wb, lists);
+    current = { wb, baseName };
+    render(lists, label, false);
+    $("download").disabled = false;
+    $("actionNote").textContent = "The download is your original file plus " + lists.tabs.length + " trial tab" + (lists.tabs.length === 1 ? "" : "s") + ": " + lists.tabs.map(t => t.name).join(", ") + ".";
+    showStatus("");
+  } catch (err) {
+    showStatus(err.message || String(err), true);
+  }
+}
+
+$("file").addEventListener("change", e => { const f = e.target.files[0]; if (f) handleFile(f); e.target.value = ""; });
+const drop = $("drop");
+["dragenter", "dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
+drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("file").click(); } });
+
+$("download").addEventListener("click", async () => {
+  if (!current) return;
+  const btn = $("download");
+  btn.disabled = true;
+  try {
+    const buf = await current.wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const filename = current.baseName + " (with Trial Lists).xlsx";
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    $("actionNote").textContent = "Saved as “" + filename + "”.";
+  } catch (err) {
+    $("actionNote").textContent = "The download didn't work: " + (err.message || err);
+  } finally { btn.disabled = false; }
+});
+
+render(buildLists([
+  ["Handler Number", "Handler", "Dog No", "Dog Pet Name", "Dog Breed", "NWNov1", "NWAdv1", "NWNov2", "NWAdv2", "Sp1-1", "Comments"],
+  ["20101", "Kiri Example", "3101", "Moss", "Border Collie", "x", "", "x", "", "", "::::::"],
+  ["20101", "Kiri Example", "SD702", "Fern", "Labrador Retriever", "", "x", "", "x", "", "::::::  - Reactive to dogs."],
+  ["20245", "Tom Sample", "3388", "Biscuit", "Cocker Spaniel", "x", "", "", "", "", ":::Edited Dog Breed:::"],
+  ["21410", "Ana Placeholder", "SD815", "Juno", "Kelpie", "", "x", "", "x", "", "::::::  - Reactive to dogs.   - Reactive to people."],
+  ["22007", "Rua Demo", "3502", "Pip", "Jack Russell Terrier", "x", "", "x", "", "", "Please put Pippa on certificates::::::  - Reactive to people."],
+]), "This preview uses made-up entries so you can see what you'll get. Drop a real file above to replace it.", true);
+}
+</script>
+
+</body>
+</html>

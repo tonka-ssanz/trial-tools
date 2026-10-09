@@ -1,0 +1,1234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trial Documents</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #f5f6f2;
+  --surface: #ffffff;
+  --ink: #1d2420;
+  --muted: #5d6a62;
+  --line: #d9ded7;
+  --accent: #2f6b4f;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3efe8;
+  --warn: #8a5a12;
+  --warn-soft: #f6ecd9;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141916; --surface: #1c2320; --ink: #e6ebe7; --muted: #9aa8a0; --line: #2f3933;
+    --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; --warn: #e0b060; --warn-soft: #2e2618;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141916; --surface: #1c2320; --ink: #e6ebe7; --muted: #9aa8a0; --line: #2f3933;
+  --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; --warn: #e0b060; --warn-soft: #2e2618;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 860px; margin: 0 auto; padding-inline: 16px; padding-block: 40px 64px; display: grid; gap: 28px; }
+header { display: grid; gap: 8px; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0; }
+h1 { font-family: var(--font-display); font-size: clamp(30px, 6vw, 42px); line-height: 1.1; margin: 0; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); max-width: 62ch; }
+.lede code, .help code { font-family: var(--font-mono); font-size: .9em; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
+
+.drop { border: 2px dashed var(--line); border-radius: 14px; background: var(--surface); padding: 32px 20px; text-align: center; cursor: pointer; display: grid; gap: 6px; justify-items: center; transition: border-color .15s, background .15s; }
+.drop:hover, .drop.over { border-color: var(--accent); background: var(--accent-soft); }
+.drop:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.drop strong { font-family: var(--font-display); font-size: 20px; }
+.drop span { color: var(--muted); font-size: 14px; }
+
+.status { margin: 0; padding: 12px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 15px; }
+.status.error { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
+
+.result { display: grid; gap: 28px; }
+.result-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.result-head h2 { font-family: var(--font-display); font-size: 24px; margin: 0; }
+.tag { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+.file { color: var(--muted); font-size: 14px; margin: 0; overflow-wrap: anywhere; }
+
+.step { display: grid; gap: 12px; }
+.step h3 { font-family: var(--font-display); font-size: 19px; margin: 0; display: flex; gap: 10px; align-items: baseline; }
+.step h3 .n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 14px; flex: none; }
+.step > p { margin: 0; color: var(--muted); font-size: 14px; max-width: 66ch; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+.cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.card { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 12px 14px; display: grid; gap: 10px; }
+.card.off { opacity: .6; }
+.card.off .fields { display: none; }
+.card-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.card-top label.inc { display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; }
+.card-top input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); }
+.tabname { font-family: var(--font-mono); font-size: 14px; }
+.count { font-size: 13px; color: var(--muted); }
+.card-top .move { margin-left: auto; display: flex; gap: 4px; }
+.fields { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr) minmax(0, .8fr) auto; gap: 8px 10px; align-items: end; }
+.field { display: grid; gap: 3px; min-width: 0; }
+.field span { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+.field span i { font-style: normal; color: var(--ink); font-weight: 700; }
+.title-out { grid-column: 1 / -1; font-size: 14px; color: var(--muted); margin: 0; }
+.title-out b { color: var(--ink); }
+.card-note { grid-column: 1 / -1; font-size: 13px; color: var(--warn); margin: 0; }
+@media (max-width: 640px) { .fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .fields .field:first-child { grid-column: 1 / -1; } }
+
+input[type=text], input[type=date], select { font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; width: 100%; min-width: 0; }
+input[type=text]:focus-visible, input[type=date]:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+input[type=color] { width: 48px; height: 36px; padding: 2px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); cursor: pointer; }
+
+.docswitch { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); justify-self: start; }
+.docswitch button { border: 0; background: transparent; color: var(--ink); font-size: 15px; padding: 9px 16px; }
+.docswitch button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+.copies { display: grid; gap: 8px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.copies-n { max-width: 280px; }
+.copies-n input { max-width: 110px; }
+.copies-n input { width: 100%; }
+.copy-list { display: grid; gap: 8px; }
+.copy { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 10px; align-items: center; }
+.copy.choosing { grid-template-columns: auto minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1.6fr) auto; }
+.copy-label { font-size: 13px; color: var(--muted); font-weight: 700; white-space: nowrap; }
+.copy.judging.choosing1 { grid-template-columns: auto minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1.3fr); }
+.copy.judging.other1 { grid-template-columns: auto minmax(0, 1.1fr) minmax(0, 2.4fr) minmax(0, 1.3fr); }
+.page .pelement.split { display: flex; justify-content: space-between; gap: 12px; }
+.copy.other { grid-template-columns: auto minmax(0, 1fr) minmax(0, 1.6fr); }
+.copy-other { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.copy-other input { flex: 1; }
+.copy-count { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (max-width: 640px) { .copy.judging { grid-template-columns: auto minmax(0, 1fr) !important; } .copy.judging > :nth-child(n+3) { grid-column: 2; }
+  .copy.other {grid-template-columns: auto minmax(0, 1fr); } .copy.other > :nth-child(n+3) { grid-column: 2; }
+  .copy.choosing { grid-template-columns: auto minmax(0, 1fr); } .copy.choosing > :nth-child(n+3) { grid-column: 2; } }
+input[type=number] { font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; }
+.look { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 18px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.look .field.wide { grid-column: 1 / -1; }
+.inline { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.field.check { grid-template-columns: auto 1fr; align-items: start; gap: 10px; cursor: pointer; }
+.field.check input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--accent); }
+.field.check span { font-size: 14px; letter-spacing: 0; }
+.logo-thumb { height: 40px; max-width: 140px; object-fit: contain; background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 2px; }
+@media (max-width: 560px) { .look { grid-template-columns: 1fr; } }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button { font: inherit; font-weight: 700; border-radius: 10px; padding: 11px 18px; cursor: pointer; border: 1px solid var(--accent); background: transparent; color: var(--accent); }
+button.primary { background: var(--accent); color: var(--accent-ink); }
+button.small { font-size: 13px; padding: 6px 10px; border-radius: 8px; }
+button.icon { font-size: 14px; padding: 4px 9px; border-radius: 8px; line-height: 1.2; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.note { font-size: 14px; color: var(--muted); margin: 0; }
+.warnbox { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--warn-soft); color: var(--warn); font-size: 14px; }
+
+/* Preview: always paper-white, like the printed page. */
+.pages { display: grid; gap: 16px; max-height: 720px; overflow-y: auto; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.page { background: #fff; color: #000; font-family: Arial, Helvetica, sans-serif; padding: 22px 26px 16px; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,.18); display: grid; gap: 8px; }
+.page .phead { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; min-height: 0; }
+.page .plogo { height: 44px; max-width: 200px; object-fit: contain; }
+.page .event { color: #404040; font-size: 12px; margin-left: auto; text-align: right; }
+.page .ptitle.next { margin-top: 18px; }
+.page .pelement { margin: -2px 0 2px; font-size: 16px; font-weight: 700; }
+.pagelabel { font-size: 12px; color: var(--muted); margin: 0 0 -10px; letter-spacing: .06em; text-transform: uppercase; }
+.page .ptitle { margin: 4px 0 0; font-size: 22px; font-weight: 700; line-height: 1.2; }
+.page table { border-collapse: collapse; width: 100%; font-size: 12px; table-layout: fixed; }
+.page th, .page td { border: 1px solid #808080; padding: 3px 5px; text-align: center; overflow-wrap: anywhere; }
+.page th { font-weight: 700; }
+.page th small { display: block; font-size: 9px; font-weight: 400; }
+.page tr.react td { color: #C00000; font-weight: 700; }
+.page .pfoot { margin-top: 6px; text-align: center; font-size: 12px; display: grid; gap: 2px; }
+.page .pfoot .warnnote { color: #C00000; font-weight: 700; }
+
+.help { border-top: 1px solid var(--line); padding-top: 20px; display: grid; gap: 10px; font-size: 15px; }
+.help h3 { font-family: var(--font-display); font-size: 17px; margin: 0; }
+.help ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--muted); max-width: 66ch; }
+.help li b { color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+.crumbs { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; font-size: 14px; margin-bottom: -12px; }
+.crumbs a { color: var(--accent); font-weight: 700; text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; }
+.crumbs span { color: var(--muted); }
+.nextstep { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 20px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.nextstep p { margin: 0; font-size: 15px; color: var(--muted); max-width: 52ch; }
+.nextstep p b { color: var(--ink); }
+.nextstep a { font-weight: 700; color: var(--accent-ink); background: var(--accent); border-radius: 10px; padding: 10px 16px; text-decoration: none; white-space: nowrap; }
+.nextstep a:focus-visible, .crumbs a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav class="crumbs" aria-label="Trial tools"><a href="index.html">← All trial tools</a><span>Step 4 of 4</span></nav>
+  <header>
+    <p class="eyebrow">SSANZ trial tools</p>
+    <h1>Trial Documents</h1>
+    <p class="lede">Drop in the spreadsheet from Trial Lists. Give each class its level, date and session once, then download the catalogue running orders, callboards, timekeepers' and judges' sheets as Word documents (A4).</p>
+  </header>
+
+  <label class="drop" id="drop" for="file" tabindex="0">
+    <strong>Drop your spreadsheet here</strong>
+    <span>or click to choose · Excel (.xlsx)</span>
+    <input type="file" id="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+  </label>
+
+  <p class="status" id="status" hidden></p>
+
+  <section class="result" id="result" aria-live="polite">
+    <div class="result-head">
+      <h2 id="resultTitle">Example</h2>
+      <span class="tag" id="resultTag">Example data</span>
+    </div>
+    <p class="file" id="fileName"></p>
+
+    <div class="step">
+      <div class="docswitch" id="docSwitch" role="tablist" aria-label="Document"></div>
+      <p class="note" id="docAbout"></p>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">1</span>Classes</h3>
+      <p id="tablesHelp"></p>
+      <div class="toolbar">
+        <button class="small" type="button" id="resetOrder">Reset order</button>
+        <button class="small" type="button" id="fillDown">Copy first date to all</button>
+      </div>
+      <ol class="cards" id="cards"></ol>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">2</span>Logo, event name and layout</h3>
+      <div class="look">
+        <div class="field wide">
+          <span>Logo (optional) · shown at the top of every page · PNG or JPG</span>
+          <div class="inline">
+            <button class="small" type="button" id="logoPick">Choose logo…</button>
+            <img class="logo-thumb" id="logoThumb" alt="Chosen logo" hidden>
+            <button class="small" type="button" id="logoClear" hidden>Remove</button>
+            <input type="file" id="logoFile" accept="image/png,image/jpeg" hidden>
+          </div>
+        </div>
+        <label class="field wide">
+          <span>Event name (optional) · shown top right of every page · e.g. SSANZ Christchurch Trial – May 2026</span>
+          <input type="text" id="eventName" autocomplete="off">
+        </label>
+        <div class="field">
+          <span>Title colour</span>
+          <div class="inline"><input type="color" id="titleColour"><button class="small" type="button" data-reset="titleColour">Default</button></div>
+        </div>
+        <div class="field">
+          <span>Table heading colour</span>
+          <div class="inline"><input type="color" id="headerColour"><button class="small" type="button" data-reset="headerColour">Default</button></div>
+        </div>
+        <label class="field wide check" id="eachPageField">
+          <input type="checkbox" id="eachPage">
+          <span><i>Start every table on a new page.</i> Leave unticked to put tables together on a page when they fit.</span>
+        </label>
+      </div>
+      <p class="note" id="redNote"></p>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">3</span>Check and download</h3>
+      <p class="warnbox" id="checks" hidden></p>
+      <div class="actions">
+        <button class="primary" id="download" type="button" disabled>Download Word document</button>
+      </div>
+      <p class="note" id="actionNote">Drop a file to enable the download.</p>
+      <div class="pages" id="pages" aria-label="Preview of the pages"></div>
+    </div>
+  </section>
+
+  <aside class="nextstep">
+    <p><b>That's the last step.</b> Open the Word document to check it, then drop it into your catalogue.</p>
+    <a href="index.html">Back to all trial tools</a>
+  </aside>
+
+  <section class="help">
+    <h3>Good to know</h3>
+    <ul>
+      <li><b>Row order</b> is never changed. Each table lists the dogs exactly as they appear on the tab.</li>
+      <li><b>Numbers</b> are added for you: each table is numbered 1, 2, 3… in the order the dogs appear on the tab.</li>
+      <li><b>Reactive dogs:</b> the Reactive column shows D (dogs), H (humans) or D + H, and the whole row is printed in bold red.</li>
+      <li><b>Level names</b> are filled in from the tab name (NWAdv1 → Advanced, BHNovS1 → BH Novice Sand). The trial number is kept when a level appears more than once. You can type over any of them.</li>
+      <li><b>One setup, several documents:</b> level, date and session are entered once and used by every document. Which classes are ticked, the order and the copies are kept separately for each document, so you can print just one or two callboards without changing the catalogue.</li>
+      <li><b>Catalogue running orders:</b> each table is kept in one piece, and tables share a page when they fit. A table too long for one page starts on a new page and carries on over the next, with the heading row repeated. The preview's page numbers are a close estimate; Word makes the final fit.</li>
+      <li><b>Callboards:</b> each class starts on its own page, with larger text and a Started ✓ column to tick. Set <b>Copies</b> to print more than one. Each copy can have an element line under the title: pick elements from the list in the order they run (each one is added to the end), then edit the text to add numbers such as “Exterior 2”. Or choose <b>Other</b> and type exactly what should be printed (up to one line). If nothing is chosen or typed, a line to write on is printed instead.</li>
+      <li><b>Timekeepers and Judges:</b> one sheet per element, up to 8 per class. Each copy has one element (pick it, then add a number if needed, e.g. “Exterior 2”) and the judge's name, printed on the right of the element line. Leave either blank to write it in. The two documents share the same copies, elements and judges, so you only fill them in once.</li>
+      <li><b>The logo</b> isn't remembered, so choose it again each time you use the page.</li>
+      <li><b>Google Docs</b> can open the downloaded .docx too (File → Open → Upload).</li>
+      <li>The file never leaves your computer. All the work happens in this page.</li>
+    </ul>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+/* =========================================================================
+   SETTINGS
+   LAYOUT holds what every document shares. DOCUMENTS holds one block per
+   document type; each block's settings override LAYOUT for that document.
+   To add a document (Judges, Timekeepers…): copy a DOCUMENTS block, give it a
+   new id, label and fileSuffix, and change its columns and sizes. The page
+   adds a button for it automatically.
+   ========================================================================= */
+const LAYOUT = {
+  font: "Arial",
+  titleSizePt: 20,                     // table titles
+  subheaderSizePt: 8,                  // the small second line in a heading cell
+  logoHeightMm: 15,                    // logo height at the top left of each page (width follows the logo's shape)
+  eventSizePt: 10,                     // event name, top right of each page
+  eventColour: "#404040",
+  sessions: ["AM", "PM"],              // choices for the optional session
+
+  reactive: {
+    colour: "#C00000",                 // always used for reactive rows and the footer note (not changeable on the page)
+    footerNote: "Red font indicates a dog that needs space",   // printed at the bottom of every page; "" for none
+  },
+  colours: {                           // starting colours; the operator can change title and heading on the page
+    title: "#000000",
+    header: "#D9D9D9",
+    borders: "#808080",
+  },
+};
+
+/* Each document type.
+     id, label        internal name and the button text on the page
+     fileSuffix       download name: "<file> <fileSuffix>.docx"
+     about            one line shown on the page under the buttons
+     bodySizePt       table text size
+     rowHeightMm      0 = rows fit their text; e.g. 10 leaves room to tick or write
+     onePerPage       true = every table starts on a new page; false = tables share a page when they fit
+     copies           true = operator can print several copies of each class
+     elementLine      true = each copy can have an optional "Element:" line under the title
+     sideMarginMm     left and right page margins in mm (default 17); smaller gives the table more width
+     elementSizePt    size of that line
+     elementMaxChars  most characters the operator can type for it (keeps it to one line)
+     maxCopies        most copies per class (default 10)
+     copyGroup        documents with the same copyGroup share their copies, elements and judges
+     singleElement    true = one element per sheet (the drop-down picks one; no "+" lists)
+     judgeField       true = a "Judge:" name on the right of the element line, typed per copy
+     judgeMaxChars    most characters for the judge's name
+     columns          left to right:
+       header     text in the heading row
+       subheader  optional smaller second line under the header (subheaderSizePt to change its size)
+       headerSizePt  size of the header text (default: bodySizePt)
+       sizePt     size of the text in this column's cells (default: bodySizePt), e.g. a smaller Breed
+       from       spreadsheet column headings to take values from (first one found is used);
+                  [] makes an empty column to tick or write in on the day
+       width      share of the page width (relative: 8 and 30 means one column is 30/8 times wider)
+       align      "left", "center" or "right"
+       kind       "number"   → No. column, always numbered 1, 2, 3… in row order
+                  "reactive" → shows D, H or D + H and turns the whole row red
+                  leave out for ordinary text (long text wraps in the cell) */
+const DOCUMENTS = [
+  {
+    id: "catalogue",
+    label: "Catalogue running orders",
+    fileSuffix: "Running Orders",
+    about: "For the trial catalogue, sent as a PDF to entrants. Tables share a page when they fit.",
+    bodySizePt: 10,
+    rowHeightMm: 0,
+    onePerPage: false,
+    copies: false,
+    elementLine: false,
+    columns: [
+      { header: "No.",      from: [],                             width: 8,  align: "center", kind: "number" },
+      { header: "Handler",  from: ["Handler", "Handler Name"],    width: 30, align: "center" },
+      { header: "Dog",      from: ["Dog Pet Name", "Dog"],        width: 18, align: "center" },
+      { header: "Breed",    from: ["Dog Breed", "Breed"],         width: 30, align: "center" },
+      { header: "Reactive", subheader: "Dog +/or Human", from: ["Comments", "Reactive"], width: 14, align: "center", kind: "reactive" },
+    ],
+  },
+  {
+    id: "callboard",
+    label: "Callboards",
+    fileSuffix: "Callboards",
+    about: "For the call board on the day. One class per page in larger text, with a Started ✓ column to tick. Print extra copies of a class and give each one its own element line.",
+    bodySizePt: 12,
+    rowHeightMm: 8.5,
+    onePerPage: true,
+    copies: true,
+    elementLine: true,
+    elementSizePt: 13,
+    elementMaxChars: 65,               // longest element line that fits on one line at elementSizePt
+    columns: [
+      { header: "No.",      from: [],                             width: 6,  align: "center", kind: "number" },
+      { header: "Handler",  from: ["Handler", "Handler Name"],    width: 28, align: "center" },
+      { header: "Dog",      from: ["Dog Pet Name", "Dog"],        width: 15, align: "center" },
+      { header: "Breed",    from: ["Dog Breed", "Breed"],         width: 27, align: "center" },
+      { header: "Reactive", subheader: "Dog +/or Human", from: ["Comments", "Reactive"], width: 12, align: "center", kind: "reactive" },
+      { header: "Started",  subheader: "✓", subheaderSizePt: 12,  from: [], width: 12, align: "center" },
+    ],
+  },
+  {
+    id: "timekeeper",
+    label: "Timekeepers",
+    fileSuffix: "Timekeepers",
+    about: "For the timekeeper at each search area. One sheet per element, with the judge's name, and a Time column to write in. Shares its copies, elements and judges with the Judges sheets.",
+    bodySizePt: 12,
+    rowHeightMm: 8.5,
+    onePerPage: true,
+    copies: true,
+    maxCopies: 8,
+    copyGroup: "judging",
+    elementLine: true,
+    singleElement: true,
+    judgeField: true,
+    elementSizePt: 12,
+    elementMaxChars: 25,
+    judgeMaxChars: 25,
+    columns: [
+      { header: "No.",      from: [],                             width: 6,  align: "center", kind: "number" },
+      { header: "Handler",  from: ["Handler", "Handler Name"],    width: 26, align: "center" },
+      { header: "Dog",      from: ["Dog Pet Name", "Dog"],        width: 15, align: "center" },
+      { header: "Breed",    from: ["Dog Breed", "Breed"],         width: 25, align: "center" },
+      { header: "Reactive", subheader: "Dog +/or Human", from: ["Comments", "Reactive"], width: 12, align: "center", kind: "reactive" },
+      { header: "Time",     subheader: "MM:SS.mmm", subheaderSizePt: 9, from: [], width: 16, align: "center" },
+    ],
+  },
+  {
+    id: "judge",
+    sideMarginMm: 10,                  // narrow side margins: the extra width goes to Notes
+    label: "Judges",
+    fileSuffix: "Judges",
+    about: "For the judge at each search area. One sheet per element, with the judge's name, a Hide(s) Found column and room for notes. Shares its copies, elements and judges with the Timekeepers sheets.",
+    bodySizePt: 10,
+    rowHeightMm: 12,
+    onePerPage: true,
+    copies: true,
+    maxCopies: 8,
+    copyGroup: "judging",
+    elementLine: true,
+    singleElement: true,
+    judgeField: true,
+    elementSizePt: 12,
+    elementMaxChars: 25,
+    judgeMaxChars: 25,
+    columns: [
+      // widths here are in mm (they add up to the 190 mm between the 10 mm margins)
+      { header: "No.",      from: [],                             width: 9,  align: "center", kind: "number", headerSizePt: 9 },
+      { header: "Handler",  from: ["Handler", "Handler Name"],    width: 33, align: "center" },
+      { header: "Dog",      from: ["Dog Pet Name", "Dog"],        width: 21, align: "center" },
+      { header: "Breed",    from: ["Dog Breed", "Breed"],         width: 21, align: "center", sizePt: 7 },
+      { header: "Reactive", subheader: "Dog +/or Human", subheaderSizePt: 7, headerSizePt: 8, from: ["Comments", "Reactive"], width: 18, align: "center", kind: "reactive" },
+      { header: "Hide(s) Found", headerSizePt: 9, from: [],      width: 18, align: "center" },
+      { header: "Notes",    from: [],                             width: 70, align: "center" },
+    ],
+  },
+];
+
+/* Class codes → names used to pre-fill each table's level, and the default table order.
+   The order of each list is the default order of the tables. "" leaves the part out of the title.
+   elements: the choices offered for a callboard's element line, by class type. */
+const CLASS_NAMES = {
+  types:    [["NW", ""], ["BH", "BH"], ["LIR", "LIR"]],
+  levels:   [["Nov", "Novice"], ["Int", "Intermediate"], ["Adv", "Advanced"], ["Exc", "Excellent"], ["Pre", "Premium"]],
+  variants: [["S", "Sand"], ["W", "Water"]],
+  elements: {
+    NW: ["Containers", "Vehicle", "Exterior", "Interior"],
+    BH: ["Sand", "Water"],
+  },
+};
+/* ======================= end of settings ======================= */
+
+const TRIAL_TAB = /^[A-Za-z]+[1-9]$/;
+const layoutFor = doc => ({ ...LAYOUT, ...doc });
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAYS_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+const norm = s => String(s ?? "").trim().replace(/\s+/g, " ").toLowerCase();
+const isBlank = v => String(v ?? "").trim() === "";
+
+/* ---------- Class names and default order ---------- */
+function parseClass(tab) {
+  const alt = list => list.map(([code]) => code).join("|");
+  const re = new RegExp(`^(${alt(CLASS_NAMES.types)})(${alt(CLASS_NAMES.levels)})(${alt(CLASS_NAMES.variants)})?([1-9])$`, "i");
+  const m = re.exec(String(tab).trim());
+  if (!m) return null;
+  const find = (list, code) => list.findIndex(([c]) => c.toLowerCase() === String(code || "").toLowerCase());
+  const t = find(CLASS_NAMES.types, m[1]), l = find(CLASS_NAMES.levels, m[2]), v = m[3] ? find(CLASS_NAMES.variants, m[3]) : -1;
+  const name = [CLASS_NAMES.types[t][1], CLASS_NAMES.levels[l][1], v >= 0 ? CLASS_NAMES.variants[v][1] : ""].filter(Boolean).join(" ");
+  return { key: `${t}.${l}.${v}`, name, typeCode: CLASS_NAMES.types[t][0], trial: Number(m[4]), sort: [t, l, v, Number(m[4])] };
+}
+
+/* Level names for every tab. The trial number is kept only when the same level appears more than once. */
+function defaultLevels(tabNames) {
+  const parsed = tabNames.map(parseClass);
+  const counts = {};
+  parsed.forEach(p => { if (p) counts[p.key] = (counts[p.key] || 0) + 1; });
+  return parsed.map((p, i) => p ? (counts[p.key] > 1 ? `${p.name} ${p.trial}` : p.name) : tabNames[i]);
+}
+
+/* Indexes of tabNames in default order: known classes by type, level, sand/water, trial;
+   then other trial-like tabs; then everything else, each in workbook order. */
+function defaultOrder(tabNames) {
+  const key = (name, i) => {
+    const p = parseClass(name);
+    if (p) return [0, ...p.sort, i];
+    return [TRIAL_TAB.test(name) ? 1 : 2, 0, 0, 0, 0, i];
+  };
+  return tabNames.map((n, i) => ({ i, k: key(n, i) }))
+    .sort((a, b) => { for (let j = 0; j < a.k.length; j++) if (a.k[j] !== b.k[j]) return a.k[j] - b.k[j]; return 0; })
+    .map(x => x.i);
+}
+
+/* ---------- Titles ---------- */
+function ordinal(n) {
+  const s = n % 100;
+  if (s >= 11 && s <= 13) return "th";
+  return ({ 1: "st", 2: "nd", 3: "rd" })[n % 10] || "th";
+}
+function parseISODate(s) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ""));
+  if (!m) return null;
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return isNaN(d) ? null : d;
+}
+function fullDay(s) { const d = parseISODate(s); return d ? DAYS_FULL[d.getDay()] : ""; }
+
+/* Title as pieces: [{ text, sup }]. e.g. "Advanced 1 – Sat 9", "th" (raised), " May – AM". */
+function titleParts(level, dateISO, session) {
+  const parts = [{ text: String(level || "").trim() }];
+  const d = parseISODate(dateISO);
+  if (d) {
+    const n = d.getDate();
+    parts.push({ text: ` – ${DAYS[d.getDay()]} ${n}` }, { text: ordinal(n), sup: true }, { text: ` ${MONTHS[d.getMonth()]}` });
+  }
+  if (session) parts.push({ text: ` – ${session}` });
+  if (!parts[0].text) parts[0].text = "(no level)";
+  return parts;
+}
+const titleText = parts => parts.map(p => p.text).join("");
+
+/* Callboard element line. el: { mode: "none" | "choose" | "other", text }.
+   "choose" prints "Element(s): <text>"; "other" prints the operator's text exactly as typed.
+   Returns the line to print under the title, or "" for none. Nothing typed prints a line to write on. */
+const WRITE_IN = "Element(s): ______________________________";
+const WRITE_IN_ONE = "Element: ______________________";
+function elementLine(el, layout) {
+  if (!el || el.mode === "none" || !el.mode) return "";
+  const text = String(el.text || "").trim();
+  const single = layout && layout.singleElement;
+  if (!text) return single ? WRITE_IN_ONE : WRITE_IN;
+  if (single && el.mode === "choose") return "Element: " + text;
+  if (el.mode === "other" || el.mode === "write") return text;
+  return (/[+,&]/.test(text) ? "Elements: " : "Element: ") + text;
+}
+/* Right-hand side of the element line on Judges / Timekeepers sheets. */
+function judgeText(el, layout) {
+  if (!layout || !layout.judgeField || !el) return "";
+  const name = String(el.judge || "").trim();
+  return "Judge: " + (name || "______________________");
+}
+/* Element choices for a class type code (NW, BH…); every known element if the type isn't known. */
+function elementChoices(typeCode) {
+  const all = CLASS_NAMES.elements || {};
+  const key = Object.keys(all).find(k => k.toLowerCase() === String(typeCode || "").toLowerCase());
+  return key ? all[key] : [...new Set(Object.values(all).flat())];
+}
+
+/* ---------- Reading a tab ---------- */
+/* Comments become D, H or D + H. Accepts the short codes from Trial Lists, or the full entry comments. */
+function reactiveCode(value) {
+  const t = String(value ?? "").trim();
+  if (!t) return "";
+  const short = /^([DH])(?:\s*(?:\+|&|\/|,|and)\s*([DH]))?\.?$/i.exec(t);
+  let dog = false, human = false;
+  if (short) {
+    [short[1], short[2]].forEach(c => { if (!c) return; if (c.toUpperCase() === "D") dog = true; else human = true; });
+  } else {
+    const s = t.toLowerCase();
+    const not = "(?<!not\\s)(?<!non[\\s-])";
+    dog = new RegExp(`${not}reactive\\s+(?:to|towards|with)\\s+(?:other\\s+)?dogs?\\b|\\bdog[\\s-]reactive`).test(s);
+    human = new RegExp(`${not}reactive\\s+(?:to|towards|with)\\s+(?:people|humans?|strangers|men|women|persons?)\\b|\\b(?:people|human)[\\s-]reactive`).test(s);
+  }
+  return dog && human ? "D + H" : dog ? "D" : human ? "H" : "";
+}
+
+/* rows: arrays of cell text, heading row first.
+   Returns the table rows (in spreadsheet order, numbered 1, 2, 3…) and which columns were missing. */
+function extractTable(rows, layout = layoutFor(DOCUMENTS[0])) {
+  const head = (rows[0] || []).map(norm);
+  const colIndex = layout.columns.map(c => {
+    for (const name of c.from || []) { const i = head.indexOf(norm(name)); if (i >= 0) return i; }
+    return -1;
+  });
+  const missing = layout.columns.filter((c, k) => (c.from || []).length && c.kind !== "number" && colIndex[k] < 0).map(c => c.header);
+  const textCols = layout.columns.map((c, k) => k).filter(k => layout.columns[k].kind !== "number" && colIndex[k] >= 0);
+  const usable = textCols.length > 0;
+  const out = [];
+  if (usable) {
+    for (let r = 1; r < rows.length; r++) {
+      const row = rows[r] || [];
+      if (textCols.every(k => isBlank(row[colIndex[k]]))) continue;
+      let reactive = false;
+      const cells = layout.columns.map((c, k) => {
+        const raw = colIndex[k] >= 0 ? String(row[colIndex[k]] ?? "").trim() : "";
+        if (c.kind === "number") return String(out.length + 1);
+        if (c.kind === "reactive") { const code = reactiveCode(raw); if (code) reactive = true; return code; }
+        return raw;
+      });
+      out.push({ cells, reactive });
+    }
+  }
+  return { usable, rows: out, missing };
+}
+
+/* ---------- Word document ---------- */
+const NS_W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+const NS_R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+const A4 = { w: 11906, h: 16838, top: 1134, bottom: 1134, side: 964, header: 454, footer: 454 };
+
+/* Left/right page margin in twips: a document's sideMarginMm, or the standard 17 mm. */
+const sideMargin = layout => layout && layout.sideMarginMm > 0 ? Math.round(layout.sideMarginMm * 56.7) : A4.side;
+const hex = c => String(c || "000000").replace("#", "").toUpperCase().padStart(6, "0").slice(0, 6);
+function textOn(fill) {
+  const h = hex(fill), ch = i => { const v = parseInt(h.slice(i, i + 2), 16) / 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+  const L = 0.2126 * ch(0) + 0.7152 * ch(2) + 0.0722 * ch(4);
+  return L < 0.4 ? "FFFFFF" : "000000";
+}
+const xmlText = s => String(s ?? "").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g, "")
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+function run(text, o = {}) {
+  let pr = "";
+  if (o.bold) pr += "<w:b/><w:bCs/>";
+  if (o.colour) pr += `<w:color w:val="${hex(o.colour)}"/>`;
+  if (o.sizePt) pr += `<w:sz w:val="${Math.round(o.sizePt * 2)}"/><w:szCs w:val="${Math.round(o.sizePt * 2)}"/>`;
+  if (o.sup) pr += `<w:vertAlign w:val="superscript"/>`;
+  return `<w:r>${pr ? `<w:rPr>${pr}</w:rPr>` : ""}<w:t xml:space="preserve">${xmlText(text)}</w:t></w:r>`;
+}
+function para(runs, o = {}) {
+  let pr = "";
+  if (o.keepNext) pr += "<w:keepNext/>";
+  if (o.pageBreakBefore) pr += "<w:pageBreakBefore/>";
+  if (o.rightTab) pr += `<w:tabs><w:tab w:val="right" w:pos="${o.rightTab}"/></w:tabs>`;
+  pr += `<w:spacing w:before="${o.before || 0}" w:after="${o.after || 0}"/>`;
+  if (o.align) pr += `<w:jc w:val="${o.align}"/>`;
+  return `<w:p><w:pPr>${pr}</w:pPr>${runs}</w:p>`;
+}
+
+function tableXml(t, opts, layout, widths) {
+  const b = hex(layout.colours.borders);
+  const border = side => `<w:${side} w:val="single" w:sz="4" w:space="0" w:color="${b}"/>`;
+  const headFill = hex(opts.headerColour), headInk = textOn(headFill);
+  const grid = widths.map(w => `<w:gridCol w:w="${w}"/>`).join("");
+  const cell = (k, content, fill) => `<w:tc><w:tcPr><w:tcW w:w="${widths[k]}" w:type="dxa"/>` +
+    (fill ? `<w:shd w:val="clear" w:color="auto" w:fill="${fill}"/>` : "") + `<w:vAlign w:val="center"/></w:tcPr>${content}</w:tc>`;
+  const align = c => ({ left: "left", right: "right" })[c.align] || "center";
+
+  const headCells = layout.columns.map((c, k) => {
+    const keep = t.keepTogether && t.rows.length > 0;
+    let content = para(run(c.header, { bold: true, colour: headInk, sizePt: c.headerSizePt }), { keepNext: keep, before: 40, after: c.subheader ? 0 : 40, align: align(c) });
+    if (c.subheader) content += para(run(c.subheader, { colour: headInk, sizePt: c.subheaderSizePt || layout.subheaderSizePt }), { keepNext: keep, after: 40, align: align(c) });
+    return cell(k, content, headFill);
+  }).join("");
+  const headRow = `<w:tr><w:trPr><w:cantSplit/><w:tblHeader/></w:trPr>${headCells}</w:tr>`;
+
+  const height = layout.rowHeightMm > 0 ? `<w:trHeight w:val="${Math.round(layout.rowHeightMm * 56.7)}" w:hRule="atLeast"/>` : "";
+  const red = layout.reactive.colour;
+  const bodyRows = t.rows.map((r, ri) => {
+    // "Keep with next" on every row but the last keeps the whole table on one page in Word.
+    const keep = t.keepTogether && ri < t.rows.length - 1;
+    const cells = layout.columns.map((c, k) => {
+      const v = r.cells[k];
+      const style = r.reactive ? { bold: true, colour: red, sizePt: c.sizePt } : { sizePt: c.sizePt };
+      return cell(k, para(v ? run(v, style) : "", { keepNext: keep, before: 30, after: 30, align: align(c) }));
+    }).join("");
+    return `<w:tr><w:trPr><w:cantSplit/>${height}</w:trPr>${cells}</w:tr>`;
+  }).join("");
+
+  return `<w:tbl><w:tblPr><w:tblW w:w="${widths.reduce((a, x) => a + x, 0)}" w:type="dxa"/><w:jc w:val="center"/>` +
+    `<w:tblBorders>${["top", "left", "bottom", "right", "insideH", "insideV"].map(border).join("")}</w:tblBorders>` +
+    `<w:tblLayout w:type="fixed"/><w:tblCellMar><w:left w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr>` +
+    `<w:tblGrid>${grid}</w:tblGrid>${headRow}${bodyRows}</w:tbl>`;
+}
+
+/* ---------- Fitting tables onto pages ----------
+   Word does the real page layout. Each table is kept together (Word moves it to the next page
+   if it won't fit), so short tables share a page. Tables estimated to be longer than a page
+   start on a new page and run over with the heading row repeated. These estimates also group
+   the preview into pages. */
+const TW_PER_PT = 20;
+function columnWidths(layout) {
+  const usable = A4.w - 2 * sideMargin(layout);
+  const total = layout.columns.reduce((a, c) => a + (c.width || 1), 0);
+  return layout.columns.map(c => Math.floor(usable * (c.width || 1) / total));
+}
+function headerHeight(hasLogo, hasEvent, layout) {
+  if (!hasLogo && !hasEvent) return 0;
+  const content = hasLogo ? layout.logoHeightMm * 56.7 : 12 * TW_PER_PT;
+  return A4.header + content + 120;
+}
+function pageSpace(hasLogo, hasEvent, layout) {
+  const top = Math.max(A4.top, headerHeight(hasLogo, hasEvent, layout) + 100);
+  return A4.h - top - A4.bottom - 120;
+}
+function tableHeight(rows, layout, widths = columnWidths(layout)) {
+  const line = layout.bodySizePt * TW_PER_PT * 1.15;
+  const minRow = layout.rowHeightMm > 0 ? layout.rowHeightMm * 56.7 : 0;
+  const head = line + (layout.columns.some(c => c.subheader) ? layout.subheaderSizePt * TW_PER_PT * 1.15 : 0) + 100;
+  let h = head;
+  rows.forEach(r => {
+    const cellH = r.cells.map((v, k) => {
+      const size = layout.columns[k].sizePt || layout.bodySizePt;
+      const lines = Math.max(1, Math.ceil(String(v || "").length * size * TW_PER_PT * 0.5 * (r.reactive ? 1.05 : 1) / Math.max(200, widths[k] - 160)));
+      return lines * size * TW_PER_PT * 1.15;
+    });
+    h += Math.max(minRow, Math.max(line, ...cellH) + 70);
+  });
+  return h;
+}
+const titleHeight = (layout, first) => layout.titleSizePt * TW_PER_PT * 1.2 + 160 + (first ? 0 : 400);
+
+/* Returns, for each table: { page (0-based estimate), newPage (force a page break before it), keepTogether }. */
+const elementHeight = (t, layout) => elementLine(t.element, layout) ? (layout.elementSizePt || 12) * TW_PER_PT * 1.2 + 60 : 0;
+function planPages(tables, o, layout = layoutFor(DOCUMENTS[0])) {
+  const space = pageSpace(!!o.hasLogo, !!o.hasEvent, layout);
+  const widths = columnWidths(layout);
+  let page = 0, used = 0;
+  return tables.map((t, i) => {
+    const body = tableHeight(t.rows, layout, widths) + elementHeight(t, layout);
+    const fits = titleHeight(layout, true) + body <= space;
+    let newPage = i > 0 && (o.eachOnNewPage || layout.onePerPage || !fits);
+    if (i > 0 && !newPage && used + titleHeight(layout, false) + body > space) { page++; used = 0; }
+    if (newPage) { page++; used = 0; }
+    const start = page;
+    const h = titleHeight(layout, used === 0) + body;
+    if (fits) used += h;
+    else { const extra = Math.floor(h / space); page += extra; used = h - extra * space; }
+    return { page: start, newPage, keepTogether: fits };
+  });
+}
+
+/* tables: [{ parts (from titleParts), rows (from extractTable) }]
+   tables may also carry element: { mode, text } for an element line under the title (see elementLine).
+   opts: { titleColour, headerColour, eventName, eachOnNewPage, logo: { bytes (Uint8Array), type: "png"|"jpeg", width, height } | null }
+   Returns [path, content] pairs for the .docx zip, [Content_Types].xml first. */
+function buildDocx(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
+  const usable = A4.w - 2 * sideMargin(layout);
+  const widths = columnWidths(layout);
+  const logo = opts.logo && opts.logo.bytes && opts.logo.width && opts.logo.height ? opts.logo : null;
+  const eventName = String(opts.eventName || "").trim();
+  const plan = planPages(tables, { hasLogo: !!logo, hasEvent: !!eventName, eachOnNewPage: opts.eachOnNewPage }, layout);
+
+  let body = "";
+  tables.forEach((t, i) => {
+    const runs = t.parts.map(p => run(p.text, { bold: true, colour: opts.titleColour, sizePt: layout.titleSizePt, sup: p.sup })).join("");
+    const line = elementLine(t.element, layout), judge = judgeText(t.element, layout);
+    body += para(runs, { keepNext: true, pageBreakBefore: plan[i].newPage, before: i > 0 && !plan[i].newPage ? 400 : 0, after: line ? 60 : 160 });
+    const lineStyle = { bold: true, sizePt: layout.elementSizePt || 12 };
+    if (line) body += para(run(line, lineStyle) + (judge ? `<w:r><w:tab/></w:r>` + run(judge, lineStyle) : ""), { keepNext: true, after: 160, rightTab: judge ? usable : 0 });
+    body += tableXml({ ...t, keepTogether: plan[i].keepTogether }, opts, layout, widths);
+  });
+  body += para("", {});
+
+  const hasHeader = !!(logo || eventName);
+  const sect = (hasHeader ? `<w:headerReference w:type="default" r:id="rIdHeader1"/>` : "") +
+    `<w:footerReference w:type="default" r:id="rIdFooter1"/>` +
+    `<w:pgSz w:w="${A4.w}" w:h="${A4.h}"/>` +
+    `<w:pgMar w:top="${A4.top}" w:right="${sideMargin(layout)}" w:bottom="${A4.bottom}" w:left="${sideMargin(layout)}" w:header="${A4.header}" w:footer="${A4.footer}" w:gutter="0"/>`;
+  const decl = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+  const document = `${decl}<w:document xmlns:w="${NS_W}" xmlns:r="${NS_R}"><w:body>${body}<w:sectPr>${sect}</w:sectPr></w:body></w:document>`;
+
+  const font = xmlText(layout.font), size = Math.round(layout.bodySizePt * 2);
+  const styles = `${decl}<w:styles xmlns:w="${NS_W}"><w:docDefaults><w:rPrDefault><w:rPr>` +
+    `<w:rFonts w:ascii="${font}" w:eastAsia="${font}" w:hAnsi="${font}" w:cs="${font}"/><w:sz w:val="${size}"/><w:szCs w:val="${size}"/><w:lang w:val="en-NZ"/>` +
+    `</w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>` +
+    `<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>` +
+    `<w:style w:type="table" w:default="1" w:styleId="TableNormal"><w:name w:val="Normal Table"/><w:uiPriority w:val="99"/><w:semiHidden/><w:unhideWhenUsed/>` +
+    `<w:tblPr><w:tblInd w:w="0" w:type="dxa"/><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="108" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="108" w:type="dxa"/></w:tblCellMar></w:tblPr></w:style>` +
+    `</w:styles>`;
+  const settings = `${decl}<w:settings xmlns:w="${NS_W}"><w:defaultTabStop w:val="720"/><w:characterSpacingControl w:val="doNotCompress"/>` +
+    `<w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat></w:settings>`;
+
+  const footerBody = layout.reactive.footerNote
+    ? para(run(layout.reactive.footerNote, { bold: true, colour: layout.reactive.colour, sizePt: 11 }), { align: "center" })
+    : para("", {});
+  const footer = `${decl}<w:ftr xmlns:w="${NS_W}" xmlns:r="${NS_R}">${footerBody}</w:ftr>`;
+
+  const files = [];
+  const types = [
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>',
+    '<Default Extension="xml" ContentType="application/xml"/>',
+    logo ? `<Default Extension="${logo.type === "png" ? "png" : "jpeg"}" ContentType="image/${logo.type === "png" ? "png" : "jpeg"}"/>` : "",
+    '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>',
+    '<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>',
+    '<Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>',
+    '<Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>',
+    hasHeader ? '<Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>' : "",
+  ].join("");
+  files.push(["[Content_Types].xml", `${decl}<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">${types}</Types>`]);
+  files.push(["_rels/.rels", `${decl}<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`]);
+  const rel = (id, type, target) => `<Relationship Id="${id}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/${type}" Target="${target}"/>`;
+  files.push(["word/_rels/document.xml.rels", `${decl}<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
+    rel("rIdStyles", "styles", "styles.xml") + rel("rIdSettings", "settings", "settings.xml") + rel("rIdFooter1", "footer", "footer1.xml") +
+    (hasHeader ? rel("rIdHeader1", "header", "header1.xml") : "") + `</Relationships>`]);
+  files.push(["word/document.xml", document]);
+  files.push(["word/styles.xml", styles]);
+  files.push(["word/settings.xml", settings]);
+  files.push(["word/footer1.xml", footer]);
+
+  if (hasHeader) {
+    // One line: logo on the left, event name pushed to the right margin with a right tab.
+    const ext = logo ? (logo.type === "png" ? "png" : "jpeg") : "";
+    let picture = "";
+    if (logo) {
+      const EMU_MM = 36000;
+      let hMm = layout.logoHeightMm, wMm = hMm * logo.width / logo.height;
+      const maxW = 80;
+      if (wMm > maxW) { hMm = hMm * maxW / wMm; wMm = maxW; }
+      const cx = Math.round(wMm * EMU_MM), cy = Math.round(hMm * EMU_MM);
+      picture = `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:effectExtent l="0" t="0" r="0" b="0"/>` +
+        `<wp:docPr id="1" name="Logo"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr>` +
+        `<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="1" name="logo.${ext}"/><pic:cNvPicPr/></pic:nvPicPr>` +
+        `<pic:blipFill><a:blip r:embed="rIdLogo"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>` +
+        `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
+    }
+    const event = eventName ? `<w:r><w:tab/></w:r>` + run(eventName, { colour: layout.eventColour || "404040", sizePt: layout.eventSizePt || 10 }) : "";
+    const header = `${decl}<w:hdr xmlns:w="${NS_W}" xmlns:r="${NS_R}" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
+      para(picture + event, { rightTab: usable, after: 120 }) + `</w:hdr>`;
+    files.push(["word/header1.xml", header]);
+    if (logo) {
+      files.push(["word/_rels/header1.xml.rels", `${decl}<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rel("rIdLogo", "image", "media/logo." + ext)}</Relationships>`]);
+      files.push([`word/media/logo.${ext}`, logo.bytes]);
+    }
+  }
+  return files;
+}
+
+if (typeof module !== "undefined") {
+  module.exports = { LAYOUT, DOCUMENTS, CLASS_NAMES, layoutFor, parseClass, defaultLevels, defaultOrder, titleParts, titleText, reactiveCode, extractTable, buildDocx, ordinal, planPages, elementLine, judgeText, elementChoices };
+} else {
+const $ = id => document.getElementById(id);
+let state = null;    // { baseName, tabs: [...], isExample }
+const look = { doc: DOCUMENTS[0].id, logo: null, logoUrl: null, eventName: "", eachOnNewPage: false, titleColour: LAYOUT.colours.title, headerColour: LAYOUT.colours.header };
+const MAX_COPIES = 10;
+const newCopy = doc => ({ mode: doc.judgeField ? "choose" : "none", text: "", judge: "" });
+/* Copies are kept per document, or per copyGroup when documents share them (Judges + Timekeepers). */
+function copiesOf(tab, doc) {
+  const key = doc.copyGroup || doc.id;
+  if (!tab.copies[key]) tab.copies[key] = [newCopy(doc)];
+  return tab.copies[key];
+}
+const docOf = id => DOCUMENTS.find(d => d.id === id) || DOCUMENTS[0];
+const curDoc = () => docOf(look.doc);
+const curLayout = () => layoutFor(curDoc());
+
+/* ---------- Spreadsheet reading (same as the other tools) ---------- */
+function cellText(cell) {
+  const v = cell.value;
+  if (v == null) return "";
+  if (typeof v === "object") {
+    if (v.text != null) return typeof v.text === "string" ? v.text : (v.text.richText || []).map(t => t.text).join("");
+    if (v.richText) return v.richText.map(t => t.text).join("");
+    if ("result" in v || "formula" in v || "sharedFormula" in v) return v.result == null ? "" : String(v.result);
+    if (v instanceof Date) return v.toISOString();
+  }
+  return String(v);
+}
+function sheetRows(ws) {
+  const rows = [];
+  ws.eachRow({ includeEmpty: true }, (row, n) => {
+    const arr = [];
+    row.eachCell({ includeEmpty: true }, (cell, c) => { arr[c - 1] = cellText(cell); });
+    rows[n - 1] = arr;
+  });
+  for (let i = 0; i < rows.length; i++) if (!rows[i]) rows[i] = [];
+  return rows;
+}
+
+/* sheets: [[name, rows]], first one (the entries) left out. */
+function loadSheets(sheets, baseName, isExample) {
+  const list = sheets.slice(1);
+  const names = list.map(([n]) => n);
+  const levels = defaultLevels(names);
+  const tabs = list.map(([name, rows], i) => {
+    const tables = {}, include = {};
+    DOCUMENTS.forEach(d => {
+      tables[d.id] = extractTable(rows, layoutFor(d));
+      include[d.id] = tables[d.id].usable && tables[d.id].rows.length > 0 && TRIAL_TAB.test(name);
+    });
+    const p = parseClass(name);
+    return { name, level: levels[i], date: "", session: "", include, tables, type: p ? p.typeCode : "", copies: {}, defaultPos: 0 };
+  });
+  defaultOrder(names).forEach((idx, pos) => { tabs[idx].defaultPos = pos; });
+  tabs.sort((a, b) => a.defaultPos - b.defaultPos);
+  state = { baseName, tabs, isExample };
+  $("resultTitle").textContent = isExample ? "Example" : "Your trial documents";
+  $("resultTag").textContent = isExample ? "Example data" : "Your file";
+  renderAll();
+}
+
+/* ---------- Building blocks ---------- */
+function el(tag, attrs = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") e.className = v; else if (k === "text") e.textContent = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else if (v != null && v !== false) e.setAttribute(k, v === true ? "" : v);
+  }
+  kids.flat().forEach(k => k != null && e.append(k));
+  return e;
+}
+function renderAll() { renderDocSwitch(); renderCards(); renderPreview(); }
+
+/* ---------- Document choice ---------- */
+function renderDocSwitch() {
+  const box = $("docSwitch");
+  box.textContent = "";
+  DOCUMENTS.forEach(d => box.append(el("button", { type: "button", role: "tab", "aria-selected": d.id === look.doc ? "true" : "false",
+    onclick: () => { look.doc = d.id; renderAll(); } }, d.label)));
+  const doc = curDoc();
+  $("docAbout").textContent = doc.about || "";
+  $("eachPageField").hidden = !!doc.onePerPage;
+  $("download").textContent = `Download ${doc.label} (Word)`;
+  $("tablesHelp").textContent = doc.copies
+    ? "Tick the classes to print. Each one starts on its own page, in the order shown. Use ▲ ▼ to move a class. Level, date and session are shared with the other documents."
+    : "Tick the tabs to include. Each ticked tab becomes one table, in the order shown. Use ▲ ▼ to move a table. Level, date and session are shared with the other documents.";
+}
+
+/* ---------- Cards ---------- */
+function renderCards() {
+  const ol = $("cards");
+  ol.textContent = "";
+  const doc = curDoc();
+  state.tabs.forEach((tab, i) => {
+    const t = tab.tables[doc.id], n = t.rows.length;
+    const on = tab.include[doc.id];
+    const disabled = !t.usable || !n;
+    const id = "c" + i;
+    const titleOut = el("p", { class: "title-out" }, "Title: ", el("b", { text: titleText(titleParts(tab.level, tab.date, tab.session)) }));
+    const dayOut = el("i", { text: fullDay(tab.date) });
+    const refresh = () => { titleOut.lastChild.textContent = titleText(titleParts(tab.level, tab.date, tab.session)); dayOut.textContent = fullDay(tab.date); renderPreview(); };
+
+    const level = el("input", { type: "text", value: tab.level, id: id + "l", autocomplete: "off", oninput: e => { tab.level = e.target.value; refresh(); } });
+    const date = el("input", { type: "date", value: tab.date, id: id + "d", oninput: e => { tab.date = e.target.value; refresh(); } });
+    const session = el("select", { id: id + "s", onchange: e => { tab.session = e.target.value; refresh(); } },
+      el("option", { value: "", text: "—" }), LAYOUT.sessions.map(s => el("option", { value: s, text: s })));
+    session.value = tab.session;
+    const prev = state.tabs.slice(0, i).reverse().find(x => x.include[doc.id]);
+    const same = el("button", { class: "small", type: "button", disabled: !prev, title: "Use the date and session of the table above",
+      onclick: () => { if (!prev) return; tab.date = prev.date; tab.session = prev.session; renderCards(); renderPreview(); } }, "Same as above");
+
+    const notes = [];
+    if (!t.usable) notes.push("This tab doesn't have the columns needed (Handler, Dog Pet Name…).");
+    else if (!n) notes.push("No entries on this tab.");
+    else if (t.missing.length) notes.push(`Not found on this tab, left blank: ${t.missing.join(", ")}.`);
+
+    const li = el("li", { class: "card" + (on ? "" : " off") },
+      el("div", { class: "card-top" },
+        el("label", { class: "inc" },
+          el("input", { type: "checkbox", checked: on, disabled, onchange: e => { tab.include[doc.id] = e.target.checked; renderCards(); renderPreview(); } }),
+          el("span", { class: "tabname", text: tab.name })),
+        el("span", { class: "count", text: t.usable ? `${n} ${n === 1 ? "dog" : "dogs"}${n ? ` · ${t.rows.filter(r => r.reactive).length} reactive` : ""}` : "" }),
+        el("span", { class: "move" },
+          el("button", { class: "icon", type: "button", "aria-label": `Move ${tab.name} up`, disabled: i === 0, onclick: () => move(i, -1) }, "▲"),
+          el("button", { class: "icon", type: "button", "aria-label": `Move ${tab.name} down`, disabled: i === state.tabs.length - 1, onclick: () => move(i, 1) }, "▼"))),
+      el("div", { class: "fields" },
+        el("label", { class: "field", for: id + "l" }, el("span", { text: "Level" }), level),
+        el("label", { class: "field", for: id + "d" }, el("span", {}, "Date ", dayOut), date),
+        el("label", { class: "field", for: id + "s" }, el("span", { text: "Session" }), session),
+        same,
+        titleOut),
+      doc.copies && on && !disabled ? copiesBlock(tab, id, doc) : null,
+      notes.length ? el("p", { class: "card-note", text: notes.join(" ") }) : null);
+    ol.append(li);
+  });
+}
+
+/* Copies and element lines (callboards, judges, timekeepers). */
+function copiesBlock(tab, id, doc) {
+  const copies = copiesOf(tab, doc), maxN = doc.maxCopies || MAX_COPIES;
+  const count = el("input", { type: "number", min: 1, max: maxN, value: copies.length, id: id + "n",
+    onchange: e => {
+      const n = Math.max(1, Math.min(maxN, Math.round(Number(e.target.value)) || 1));
+      while (copies.length < n) copies.push(newCopy(doc));
+      copies.length = n;
+      renderCards(); renderPreview();
+      const again = $(id + "n"); if (again) again.focus();
+    } });
+  const rows = doc.elementLine ? copies.map((c, k) => copyRow(tab, c, k, id, doc)) : [];
+  return el("div", { class: "copies" },
+    el("label", { class: "field copies-n", for: id + "n" }, el("span", { text: doc.singleElement ? `Copies (up to ${maxN}, one element each)` : "Copies" }), count),
+    rows.length ? el("div", { class: "copy-list" }, rows) : null);
+}
+
+function copyRow(tab, c, k, id, doc) {
+  const cid = `${id}e${k}`;
+  const single = !!doc.singleElement;
+  const options = single
+    ? [["choose", "Choose element"], ["other", "Other (type)"]]
+    : [["none", "No element line"], ["choose", "Choose elements"], ["other", "Other (type your own)"]];
+  if (!options.some(([v]) => v === c.mode)) c.mode = options[0][0];
+  const mode = el("select", { id: cid + "m", "aria-label": `Copy ${k + 1} element line`, onchange: e => {
+      c.mode = e.target.value; renderCards(); renderPreview();
+      const next = c.mode === "choose" ? $(cid + "a") : c.mode === "other" ? $(cid + "t") : $(cid + "m"); if (next) next.focus();
+    } }, options.map(([v, t]) => el("option", { value: v, text: t })));
+  mode.value = c.mode;
+  const parts = [el("span", { class: "copy-label", text: `Copy ${k + 1}` }), mode];
+  const max = doc.elementMaxChars || 60;
+  const textMax = c.mode === "choose" && !single ? max - 10 : max;
+  const counter = () => el("span", { class: "copy-count", id: cid + "c", text: `${c.text.length}/${textMax}` });
+  const typed = e => { c.text = e.target.value; const n = $(cid + "c"); if (n) n.textContent = `${c.text.length}/${textMax}`; renderPreview(); };
+  if (c.mode === "other") {
+    const text = el("input", { type: "text", id: cid + "t", value: c.text, maxlength: textMax, autocomplete: "off", placeholder: "Type what to print under the title",
+      "aria-label": `Copy ${k + 1}: text to print under the title`, oninput: typed });
+    parts.push(el("div", { class: "copy-other" }, text, counter()));
+  }
+  if (c.mode === "choose") {
+    const text = el("input", { type: "text", id: cid + "t", value: c.text, maxlength: textMax, autocomplete: "off",
+      placeholder: single ? "e.g. Exterior 2" : "e.g. Exterior 1 + Containers",
+      "aria-label": `Copy ${k + 1} ${single ? "element" : "elements"} (you can edit this)`, oninput: typed });
+    const add = el("select", { id: cid + "a", "aria-label": `${single ? "Choose the element" : "Add an element"} for copy ${k + 1}`, onchange: e => {
+        const v = e.target.value; if (!v) return;
+        const next = single || !c.text.trim() ? v : `${c.text.trim()} + ${v}`;
+        if (next.length > textMax) { showStatus(`That would make the element line too long to fit on one line (${textMax} characters).`, true); e.target.value = ""; return; }
+        showStatus("");
+        c.text = next;
+        renderCards(); renderPreview();
+        const again = $(cid + "t"); if (again && single) { again.focus(); again.setSelectionRange(again.value.length, again.value.length); }
+        else { const a = $(cid + "a"); if (a) a.focus(); }
+      } },
+      el("option", { value: "", text: single ? "Element…" : "Add element…" }), elementChoices(tab.type).map(v => el("option", { value: v, text: v })));
+    parts.push(add, el("div", { class: "copy-other" }, text, counter()));
+    if (!single) parts.push(el("button", { class: "small", type: "button", disabled: !c.text, onclick: () => { c.text = ""; renderCards(); renderPreview(); } }, "Clear"));
+  }
+  if (doc.judgeField) {
+    const jmax = doc.judgeMaxChars || 25;
+    parts.push(el("input", { type: "text", class: "judge", id: cid + "j", value: c.judge || "", maxlength: jmax, autocomplete: "off", placeholder: "Judge's name",
+      "aria-label": `Copy ${k + 1}: judge's name (leave blank to write it in)`, oninput: e => { c.judge = e.target.value; renderPreview(); } }));
+  }
+  const cls = doc.judgeField ? (c.mode === "choose" ? " judging choosing1" : " judging other1") : c.mode === "choose" ? " choosing" : c.mode === "other" ? " other" : "";
+  return el("div", { class: "copy" + cls }, parts);
+}
+
+function move(i, d) {
+  const j = i + d, tabs = state.tabs;
+  if (j < 0 || j >= tabs.length) return;
+  [tabs[i], tabs[j]] = [tabs[j], tabs[i]];
+  renderCards(); renderPreview();
+  const btn = $("cards").children[j]?.querySelector(`.move button:nth-child(${d < 0 ? 1 : 2})`);
+  if (btn && !btn.disabled) btn.focus();
+}
+
+/* ---------- What gets printed ---------- */
+function chosen() {
+  if (!state) return [];
+  const doc = curDoc();
+  return state.tabs.filter(t => t.include[doc.id] && t.tables[doc.id].usable && t.tables[doc.id].rows.length);
+}
+/* One item per printed table: each copy of a class is its own item. */
+function printItems() {
+  const doc = curDoc();
+  const items = [];
+  chosen().forEach(tab => {
+    const copies = doc.copies ? copiesOf(tab, doc) : [{ mode: "none", text: "" }];
+    copies.forEach(c => items.push({ tab, parts: titleParts(tab.level, tab.date, tab.session), rows: tab.tables[doc.id].rows, element: doc.elementLine ? c : null }));
+  });
+  return items;
+}
+
+/* ---------- Preview ---------- */
+function renderPreview() {
+  const box = $("pages");
+  box.textContent = "";
+  const doc = curDoc(), layout = curLayout();
+  const list = chosen(), items = printItems();
+  const headInk = "#" + textOn(look.headerColour);
+  const eventName = look.eventName.trim();
+  const plan = planPages(items, { hasLogo: !!look.logo, hasEvent: !!eventName, eachOnNewPage: look.eachOnNewPage }, layout);
+  const space = pageSpace(!!look.logo, !!eventName, layout);
+  const groups = [];
+  items.forEach((it, i) => {
+    const start = plan[i].page;
+    const end = start + (plan[i].keepTogether ? 0 : Math.floor((tableHeight(it.rows, layout) + titleHeight(layout, true)) / space));
+    let g = groups[groups.length - 1];
+    if (!g || g.page !== start) { g = { page: start, last: start, items: [] }; groups.push(g); }
+    g.items.push(it);
+    g.last = Math.max(g.last, end);
+  });
+  groups.forEach(g => {
+    const label = g.last > g.page ? `Pages ${g.page + 1}–${g.last + 1} (approx.)` : `Page ${g.page + 1} (approx.)`;
+    const page = el("div", { class: "page" });
+    if (look.logoUrl || eventName) page.append(el("div", { class: "phead" },
+      look.logoUrl ? el("img", { class: "plogo", src: look.logoUrl, alt: "" }) : null,
+      eventName ? el("span", { class: "event", text: eventName }) : null));
+    g.items.forEach((it, k) => {
+      const title = el("p", { class: "ptitle" + (k ? " next" : "") });
+      title.style.color = look.titleColour;
+      it.parts.forEach(p => title.append(p.sup ? el("sup", { text: p.text }) : p.text));
+      page.append(title);
+      const line = elementLine(it.element, layout), judge = judgeText(it.element, layout);
+      if (line) page.append(el("p", { class: "pelement" + (judge ? " split" : "") }, el("span", { text: line }), judge ? el("span", { text: judge }) : null));
+      const thead = el("tr", {}, layout.columns.map(c => {
+        const th = el("th", { style: c.headerSizePt ? `font-size:${(c.headerSizePt * 1.2).toFixed(1)}px` : null }, c.header, c.subheader ? el("small", { text: c.subheader, style: c.subheaderSizePt ? `font-size:${(c.subheaderSizePt * 1.2).toFixed(1)}px` : null }) : null);
+        th.style.background = look.headerColour; th.style.color = headInk; th.style.textAlign = c.align || "center";
+        return th;
+      }));
+      const tbody = it.rows.map(r => el("tr", { class: r.reactive ? "react" : "" },
+        r.cells.map((v, j) => { const td = el("td", { text: v }); td.style.textAlign = layout.columns[j].align || "center"; if (layout.columns[j].sizePt) td.style.fontSize = (layout.columns[j].sizePt * 1.2).toFixed(1) + "px"; if (layout.rowHeightMm) td.style.height = (layout.rowHeightMm * 2.4) + "px"; return td; })));
+      const cols = el("colgroup", {}, layout.columns.map(c => { const col = el("col"); col.style.width = (c.width || 1) + "%"; return col; }));
+      page.append(el("table", { style: `font-size:${(layout.bodySizePt * 1.2).toFixed(1)}px` }, cols, el("thead", {}, thead), el("tbody", {}, tbody)));
+    });
+    if (layout.reactive.footerNote) page.append(el("div", { class: "pfoot" }, el("span", { class: "warnnote", text: layout.reactive.footerNote })));
+    box.append(el("p", { class: "pagelabel", text: label }), page);
+  });
+  if (!items.length) box.append(el("p", { class: "note", text: "Nothing ticked yet." }));
+
+  const noDate = list.filter(t => !t.date).map(t => t.name);
+  const noLevel = list.filter(t => !String(t.level).trim()).map(t => t.name);
+  const emptyEl = doc.elementLine ? list.filter(t => copiesOf(t, doc).some(c => (c.mode === "choose" || c.mode === "other") && !c.text.trim())).map(t => t.name) : [];
+  const msgs = [];
+  if (noDate.length) msgs.push(`No date yet: ${noDate.join(", ")}.`);
+  if (noLevel.length) msgs.push(`No level yet: ${noLevel.join(", ")}.`);
+  if (emptyEl.length) msgs.push(`Nothing chosen or typed for a copy of ${emptyEl.join(", ")}, so it prints a line to write on.`);
+  $("checks").textContent = msgs.join(" ") + (noDate.length || noLevel.length ? " You can still download, and fix it in Word later." : "");
+  $("checks").hidden = !msgs.length;
+  $("download").disabled = state.isExample || !items.length;
+  const pages = groups.length ? groups[groups.length - 1].last + 1 : 0;
+  const what = doc.copies ? `${items.length} ${items.length === 1 ? "sheet" : "sheets"} (${list.length} ${list.length === 1 ? "class" : "classes"})` : `${items.length} ${items.length === 1 ? "table" : "tables"}`;
+  $("actionNote").textContent = state.isExample ? "Drop a file to enable the download."
+    : items.length ? `${what} on about ${pages} ${pages === 1 ? "page" : "pages"}. Word makes the final fit.` : "Tick at least one class.";
+}
+
+/* ---------- Logo, event name, layout ---------- */
+$("logoPick").addEventListener("click", () => $("logoFile").click());
+$("logoFile").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = "";
+  if (!f) return;
+  const type = /png$/i.test(f.type) || /\.png$/i.test(f.name) ? "png" : /jpe?g$/i.test(f.type) || /\.jpe?g$/i.test(f.name) ? "jpeg" : null;
+  if (!type) { showStatus("Please choose a PNG or JPG image for the logo.", true); return; }
+  try {
+    const bytes = new Uint8Array(await f.arrayBuffer());
+    const url = URL.createObjectURL(f);
+    const img = new Image();
+    await new Promise((ok, bad) => { img.onload = ok; img.onerror = () => bad(new Error("That image couldn't be opened.")); img.src = url; });
+    if (look.logoUrl) URL.revokeObjectURL(look.logoUrl);
+    look.logo = { bytes, type, width: img.naturalWidth, height: img.naturalHeight };
+    look.logoUrl = url;
+    $("logoThumb").src = url; $("logoThumb").hidden = false; $("logoClear").hidden = false;
+    $("logoPick").textContent = "Change logo…";
+    showStatus("");
+    renderPreview();
+  } catch (err) { showStatus(err.message || String(err), true); }
+});
+$("logoClear").addEventListener("click", () => {
+  if (look.logoUrl) URL.revokeObjectURL(look.logoUrl);
+  look.logo = null; look.logoUrl = null;
+  $("logoThumb").hidden = true; $("logoClear").hidden = true; $("logoPick").textContent = "Choose logo…";
+  renderPreview();
+});
+$("eventName").addEventListener("input", e => { look.eventName = e.target.value; renderPreview(); });
+$("eachPage").addEventListener("change", e => { look.eachOnNewPage = e.target.checked; renderPreview(); });
+$("titleColour").value = LAYOUT.colours.title;
+$("headerColour").value = LAYOUT.colours.header;
+$("titleColour").addEventListener("input", e => { look.titleColour = e.target.value; renderPreview(); });
+$("headerColour").addEventListener("input", e => { look.headerColour = e.target.value; renderPreview(); });
+document.querySelectorAll("[data-reset]").forEach(b => b.addEventListener("click", () => {
+  const id = b.dataset.reset, v = id === "titleColour" ? LAYOUT.colours.title : LAYOUT.colours.header;
+  $(id).value = v; look[id] = v; renderPreview();
+}));
+$("redNote").textContent = LAYOUT.reactive.footerNote
+  ? `Reactive dogs and the footer note “${LAYOUT.reactive.footerNote}” are always printed in red. Logo, event name and colours are shared by all the documents.`
+  : "Reactive dogs are always printed in red. Logo, event name and colours are shared by all the documents.";
+
+$("resetOrder").addEventListener("click", () => { if (!state) return; state.tabs.sort((a, b) => a.defaultPos - b.defaultPos); renderCards(); renderPreview(); });
+$("fillDown").addEventListener("click", () => {
+  if (!state) return;
+  const first = state.tabs.find(t => t.include[look.doc] && t.date);
+  if (!first) { showStatus("Pick a date for the first table, then use this to copy it to the rest.", true); return; }
+  state.tabs.forEach(t => { if (t.include[look.doc] && !t.date) t.date = first.date; });
+  showStatus(""); renderCards(); renderPreview();
+});
+
+/* ---------- File handling ---------- */
+function showStatus(msg, isError) {
+  const s = $("status");
+  s.textContent = msg; s.className = "status" + (isError ? " error" : ""); s.hidden = !msg;
+}
+
+let busy = 0;
+async function handleFile(file) {
+  const run = ++busy;
+  showStatus("Reading " + file.name + "…");
+  const ext = file.name.split(".").pop().toLowerCase();
+  try {
+    if (ext === "xls") throw new Error("This is an old-style .xls file. Open it in Excel and use Save As → Excel Workbook (.xlsx), then drop that file here.");
+    if (ext === "csv") throw new Error("A CSV file only holds one tab. Run the Trial Lists tool first, then drop the .xlsx it gives you here.");
+    if (ext !== "xlsx") throw new Error("Please drop an Excel (.xlsx) file.");
+    if (typeof ExcelJS === "undefined") throw new Error("The spreadsheet library didn't load. Check your internet connection and reload the page.");
+    const wb = new ExcelJS.Workbook();
+    await wb.xlsx.load(await file.arrayBuffer());
+    if (run !== busy) return;
+    const sheets = wb.worksheets.map(ws => [ws.name, sheetRows(ws)]);
+    if (sheets.length < 2) throw new Error("This file only has one tab. Run the Trial Lists tool first so each trial has its own tab.");
+    const baseName = file.name.replace(/\.[^.]+$/, "").replace(/ \((Numbered|with [^)]*)\)$/, "");
+    loadSheets(sheets, baseName, false);
+    const trials = state.tabs.filter(t => TRIAL_TAB.test(t.name) && t.include[DOCUMENTS[0].id]).length;
+    $("fileName").textContent = `${file.name} · ${sheets.length - 1} tabs after the first · ${trials} trial ${trials === 1 ? "tab" : "tabs"} ticked`;
+    showStatus(trials ? "" : "No trial tabs (like NWAdv1) were found. Tick any tabs you want to include.", !trials);
+  } catch (err) {
+    showStatus(err.message || String(err), true);
+  }
+}
+
+$("file").addEventListener("change", e => { const f = e.target.files[0]; if (f) handleFile(f); e.target.value = ""; });
+const drop = $("drop");
+["dragenter", "dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
+drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("file").click(); } });
+
+$("download").addEventListener("click", async () => {
+  if (!state || state.isExample) return;
+  const btn = $("download");
+  btn.disabled = true;
+  try {
+    if (typeof JSZip === "undefined") throw new Error("The Word library didn't load. Check your internet connection and reload the page.");
+    const doc = curDoc();
+    const tables = printItems().map(it => ({ parts: it.parts, rows: it.rows, element: it.element }));
+    const files = buildDocx(tables, { titleColour: look.titleColour, headerColour: look.headerColour, eventName: look.eventName, eachOnNewPage: look.eachOnNewPage, logo: look.logo }, layoutFor(doc));
+    const zip = new JSZip();
+    files.forEach(([path, content]) => zip.file(path, content));
+    const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+    const filename = `${state.baseName} ${doc.fileSuffix}.docx`;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    $("actionNote").textContent = "Saved as “" + filename + "”.";
+  } catch (err) {
+    $("actionNote").textContent = "The download didn't work: " + (err.message || err);
+  } finally { btn.disabled = false; }
+});
+
+/* Example: made-up names only. */
+const H = ["Handler Number", "Handler", "Dog No", "Dog Pet Name", "Dog Breed", "Comments"];
+loadSheets([
+  ["Entries", [["Entry Full Name"]]],
+  ["NWAdv1", [H, ["20001", "Kiri Example", "2001", "Moss", "Border Collie", ""], ["20002", "Tom Sample", "2002", "Biscuit", "Labrador Retriever", "D"],
+    ["20003", "Ana Placeholder", "2003", "Juno", "Spoodle", ""], ["20004", "Rua Demo", "2004", "Pip", "Jack Russell Terrier", "D + H"]]],
+  ["NWExc1", [H, ["20005", "Mere Testing", "2005", "Kōwhai", "Golden Retriever", ""], ["20006", "Sam Mockup", "2006", "Tui", "Australian Koolie", "H"]]],
+  ["NWAdv2", [H, ["20003", "Ana Placeholder", "2003", "Juno", "Spoodle", ""], ["20004", "Rua Demo", "2004", "Pip", "Jack Russell Terrier", "D + H"],
+    ["20001", "Kiri Example", "2001", "Moss", "Border Collie", ""]]],
+  ["Paid", [["Entry Full Name", "Handler", "Dog Pet Name", "Dog Breed", "Comments", "Amount Due"], ["Kiri Example", "Kiri Example", "Moss", "Border Collie", "", "0"]]],
+  ["Emails", [["Email", "Full Name"], ["kiri@example.com", "Kiri Example"]]],
+], "Example", true);
+$("fileName").textContent = "This preview uses made-up tabs so you can see how it works. Drop a real file above to replace it.";
+}
+</script>
+
+</body>
+</html>
