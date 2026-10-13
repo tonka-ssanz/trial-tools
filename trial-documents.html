@@ -1755,13 +1755,18 @@ const list = a => a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " and 
    which entries were on each trial tab. Next time, comparing both with that snapshot shows where
    a change was made: on the Master List (the tabs follow it, as before) or on a trial tab (the
    user is asked about it, and on Yes the Master List is changed to match).
-   Only the main tab of each trial counts (NWAdv1, not a copy such as "NWAdv1 Sat plan"). */
-const isMainTab = t => !t.unusable && !!t.trial && t.name.toLowerCase() === t.trial.toLowerCase();
+   Copies of a trial tab (e.g. "NWAdv1 Sat plan", for a different running order) must have exactly
+   the same entrants as the trial's main tab: a dog missing from, or extra on, some of them counts as
+   a change and is asked about too. */
+const isTrialTab = t => !t.unusable && !!t.trial;
+const isMainTab = t => isTrialTab(t) && t.name.toLowerCase() === t.trial.toLowerCase();
 function snapshot(entries, tabs) {
+  const byTrial = {};
+  tabs.filter(isTrialTab).forEach(t => { if (!byTrial[t.trial] || isMainTab(t)) byTrial[t.trial] = t.rows.map(r => r.id); });
   return {
     master: Object.fromEntries(entries.map(e => [e.id, [...e.trials].sort()])),
     withdrawn: entries.filter(e => e.withdrawn).map(e => e.id),
-    tabs: Object.fromEntries(tabs.filter(isMainTab).map(t => [t.trial, t.rows.map(r => r.id)])),
+    tabs: byTrial,
   };
 }
 
@@ -1776,26 +1781,24 @@ function snapshot(entries, tabs) {
            "master" = No keeps the Master List as it is (files saved before snapshots existed) */
 function audit(entries, tabs, snap) {
   const byId = new Map(entries.map(e => [e.id, e]));
-  const main = tabs.filter(isMainTab);
+  const all = tabs.filter(isTrialTab);
+  const tabsOf = new Map();
+  all.forEach(t => { if (!tabsOf.has(t.trial)) tabsOf.set(t.trial, []); tabsOf.get(t.trial).push(t); });
   const has = !!(snap && snap.tabs && snap.master);
   const problems = [];
   const inMaster = (e, T) => !!e && !e.withdrawn && e.trials.has(T);
   const wasMaster = (id, T) => has ? (snap.master[id] || []).includes(T) && !(snap.withdrawn || []).includes(id) : inMaster(byId.get(id), T);
   const wasTab = (id, T) => has && snap.tabs[T] ? snap.tabs[T].includes(id) : wasMaster(id, T);
-  const onTab = new Map();
-  const mark = (id, T) => { if (!onTab.has(id)) onTab.set(id, new Set()); onTab.get(id).add(T); };
-  main.forEach(t => t.rows.forEach(r => mark(r.id, t.trial)));
 
   // Rows typed without an Entry ID: an existing entry if the handler and dog match, else perhaps a late entry.
   const key = v => lower(v[1]) + "|" + lower(v[3]);
   const late = new Map();
-  main.forEach(t => {
+  all.forEach(t => {
     t.newRows.forEach(n => {
       const match = n.values[1] && n.values[3] ? entries.find(e => key(e.values) === key(n.values)) : null;
       if (match) {
         if (t.rows.some(r => r.id === match.id)) { problems.push({ type: "warning", text: `${who(match.id, match.values)} appears twice on ${t.name} (row ${n.sheetRow} has no ${ID_HEAD}).`, fix: "Delete the extra row in Excel, then drop the file back in. For now the row with the Entry ID is kept." }); return; }
         t.rows.push({ id: match.id, values: n.values, sheetRow: n.sheetRow });
-        mark(match.id, t.trial);
         return;
       }
       const k = key(n.values);
@@ -1806,20 +1809,26 @@ function audit(entries, tabs, snap) {
   });
 
   const questions = [];
-  const trials = [...new Set(main.map(t => t.trial))];
   entries.forEach(e => {
     if (e.newId) return;   // a late entry added on the Master List just now
     const removed = [], added = [];
-    trials.forEach(T => {
-      const t = !!(onTab.get(e.id) && onTab.get(e.id).has(T));
-      if (t === wasTab(e.id, T) || t === inMaster(e, T)) return;   // tab unchanged, or changed the same way on the Master List
-      (t ? added : removed).push(T);
+    tabsOf.forEach((ts, T) => {
+      const on = ts.filter(t => t.rows.some(r => r.id === e.id)).map(t => t.name), off = ts.map(t => t.name).filter(n => !on.includes(n));
+      const base = wasTab(e.id, T);
+      // On every tab of the trial, on none, or on some (copies disagree: counts as a change from before).
+      const t = !off.length ? true : !on.length ? false : !base;
+      if (t === base || t === inMaster(e, T)) return;   // unchanged, or changed the same way on the Master List
+      (t ? added : removed).push({ T, on, off });
     });
-    while (removed.length && added.length) questions.push({ kind: "move", id: e.id, values: e.values, from: removed.shift(), to: added.shift() });
-    added.forEach(to => questions.push({ kind: "extra", id: e.id, values: e.values, to, withdrawn: e.withdrawn }));
-    removed.forEach(from => questions.push({ kind: "withdraw", id: e.id, values: e.values, from }));
+    while (removed.length && added.length) { const a = removed.shift(), b = added.shift(); questions.push({ kind: "move", id: e.id, values: e.values, from: a.T, to: b.T, gone: a, came: b }); }
+    added.forEach(b => questions.push({ kind: "extra", id: e.id, values: e.values, to: b.T, came: b, withdrawn: e.withdrawn }));
+    removed.forEach(a => questions.push({ kind: "withdraw", id: e.id, values: e.values, from: a.T, gone: a }));
   });
-  late.forEach(l => questions.push({ kind: "late", values: l.values, rows: l.rows, to: [...new Set(l.rows.map(r => r.trial))] }));
+  late.forEach(l => {
+    const to = [...new Set(l.rows.map(r => r.trial))], typed = l.rows.map(r => r.tab);
+    const others = to.flatMap(T => tabsOf.get(T).map(t => t.name)).filter(n => !typed.includes(n));
+    questions.push({ kind: "late", values: l.values, rows: l.rows, to, others });
+  });
 
   // If every question is answered Yes, which entries end up in no trial (and so are withdrawn)?
   const after = new Map();
@@ -1837,26 +1846,32 @@ function audit(entries, tabs, snap) {
     if (q.kind === "withdraw") {
       q.last = after.get(q.id).size === 0;
       const others = [...after.get(q.id)];
-      q.text = `${w} has been removed from ${q.from}. Have they withdrawn from this trial?`;
-      q.yes = `The x for ${q.from} will be removed on the ${MASTER}.` + (q.last ? ` They're not in any other trial, so they'll be marked Withdrawn.` : ` They stay entered in ${list(others)}.`);
-      q.noText = q.no === "stop" ? `Then the row may have been deleted by mistake. Put ${w} back on the ${q.from} tab (copy the row, including its ${ID_HEAD}, from your most recent downloaded copy), then drop the file in again.`
-        : `They'll be put back on ${q.from}, at the bottom and highlighted.`;
+      const g = q.gone;
+      q.text = `${w} has been removed from ${list(g.off)}${g.on.length ? ` but is still on ${list(g.on)}` : ""}. Have they withdrawn from ${q.from}?`;
+      q.yes = `The x for ${q.from} will be removed on the ${MASTER}${g.on.length ? ` and they'll be taken off ${list(g.on)} too` : ""}.` + (q.last ? ` They're not in any other trial, so they'll be marked Withdrawn.` : ` They stay entered in ${list(others)}.`);
+      q.noText = q.no === "stop" ? (g.on.length
+          ? `Then every ${q.from} tab should still have them. Put ${w} back on ${list(g.off)} (copy the whole row, including its ${ID_HEAD}, from ${g.on[0]}), then drop the file in again.`
+          : `Then the row may have been deleted by mistake. Put ${w} back on ${list(g.off)} (copy the row, including its ${ID_HEAD}, from your most recent downloaded copy), then drop the file in again.`)
+        : `They'll be put back on ${list(g.off)}, at the bottom and highlighted.`;
     } else if (q.kind === "move") {
-      q.text = `${w} has been moved from ${q.from} to ${q.to}. Was this intended?`;
-      q.yes = `On the ${MASTER}, their x will move from ${q.from} to ${q.to}.`;
+      const g = q.gone, c = q.came, partial = g.on.length || c.off.length;
+      q.text = partial ? `${w} has been taken off ${list(g.off)} and added to ${list(c.on)}. Was this move from ${q.from} to ${q.to} intended?`
+        : `${w} has been moved from ${q.from} to ${q.to}. Was this intended?`;
+      q.yes = `On the ${MASTER}, their x will move from ${q.from} to ${q.to}.` + (partial ? ` Every ${q.from} and ${q.to} tab will be updated to match.` : "");
       q.noText = q.no === "stop" ? `Please check the ${q.from} and ${q.to} tabs and put the row back where it belongs, then drop the file in again.`
         : `They'll go back on ${q.from} and be taken off ${q.to}.`;
     } else if (q.kind === "extra") {
       const still = [...byId.get(q.id).trials].filter(T => T !== q.to && inMaster(byId.get(q.id), T));
-      q.text = q.withdrawn ? `${w} is marked Withdrawn on the ${MASTER}, but has been added to ${q.to}. Have they entered ${q.to}?`
-        : `${w} has been added to ${q.to}${still.length ? ` and is still in ${list(still)}` : ""}. Have they entered ${q.to} as well?`;
-      q.yes = `An x will be added for ${q.to} on the ${MASTER}.` + (q.withdrawn ? " Withdrawn will be cleared from their Status." : "");
-      q.noText = q.no === "stop" ? `Please check the ${q.to} tab and delete the row if it was copied there by mistake, then drop the file in again.`
+      const c = q.came, where = list(c.on) + (c.off.length ? ` (but not ${list(c.off)})` : "");
+      q.text = q.withdrawn ? `${w} is marked Withdrawn on the ${MASTER}, but has been added to ${where}. Have they entered ${q.to}?`
+        : `${w} has been added to ${where}${still.length ? ` and is still in ${list(still)}` : ""}. Have they entered ${q.to} as well?`;
+      q.yes = `An x will be added for ${q.to} on the ${MASTER}` + (c.off.length ? ` and they'll be added to ${list(c.off)} too, at the bottom and highlighted.` : ".") + (q.withdrawn ? " Withdrawn will be cleared from their Status." : "");
+      q.noText = q.no === "stop" ? `Please check ${list(c.on)} and delete the row if it was copied there by mistake, then drop the file in again.`
         : `They'll be taken off ${q.to}.`;
     } else {
       const tabsList = list([...new Set(q.rows.map(r => r.tab))]);
       q.text = `A new row has been added to ${tabsList}: ${w}. Is this a late entry?`;
-      q.yes = `They'll be added to the ${MASTER} with their own ${ID_HEAD} and an x for ${list(q.to)}, highlighted yellow. Fill in their email and payment details on the ${MASTER} afterwards.`;
+      q.yes = `They'll be added to the ${MASTER} with their own ${ID_HEAD} and an x for ${list(q.to)}, highlighted yellow` + (q.others.length ? `, and added to ${list(q.others)} too, at the bottom` : "") + `. Fill in their email and payment details on the ${MASTER} afterwards.`;
       q.noText = `Please check the ${tabsList} tab${q.rows.length > 1 ? "s" : ""}. Delete the row, or if this dog is already entered under a different name, copy their row (with its ${ID_HEAD}) from another tab instead. Then drop the file in again.`;
     }
   });
