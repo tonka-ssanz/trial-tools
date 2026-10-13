@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Trial Entry Trial Lists</title>
+<title>Trial Lists</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -19,6 +19,8 @@
   --accent-soft: #e3efe8;
   --warn: #8a5a12;
   --warn-soft: #f6ecd9;
+  --stop: #a3332b;
+  --stop-soft: #f8e4e1;
   --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
@@ -27,12 +29,14 @@
   :root:not([data-theme="light"]) {
     --bg: #141916; --surface: #1c2320; --ink: #e6ebe7; --muted: #9aa8a0; --line: #2f3933;
     --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; --warn: #e0b060; --warn-soft: #2e2618;
+    --stop: #f0948a; --stop-soft: #3a2220;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #141916; --surface: #1c2320; --ink: #e6ebe7; --muted: #9aa8a0; --line: #2f3933;
   --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; --warn: #e0b060; --warn-soft: #2e2618;
+  --stop: #f0948a; --stop-soft: #3a2220;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -44,7 +48,7 @@ header { display: grid; gap: 8px; }
 .eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0; }
 h1 { font-family: var(--font-display); font-size: clamp(30px, 6vw, 42px); line-height: 1.1; margin: 0; text-wrap: balance; }
 .lede { margin: 0; color: var(--muted); max-width: 62ch; }
-.lede code, .help code { font-family: var(--font-mono); font-size: .9em; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
+code { font-family: var(--font-mono); font-size: .9em; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
 
 .drop { border: 2px dashed var(--line); border-radius: 14px; background: var(--surface); padding: 32px 20px; text-align: center; cursor: pointer; display: grid; gap: 6px; justify-items: center; transition: border-color .15s, background .15s; }
 .drop:hover, .drop.over { border-color: var(--accent); background: var(--accent-soft); }
@@ -53,15 +57,44 @@ h1 { font-family: var(--font-display); font-size: clamp(30px, 6vw, 42px); line-h
 .drop span { color: var(--muted); font-size: 14px; }
 
 .status { margin: 0; padding: 12px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 15px; }
-.status.error { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
 
-.picker { display: grid; gap: 10px; padding: 18px; border: 1px solid var(--accent); border-radius: 14px; background: var(--surface); }
-.picker h2 { font-family: var(--font-display); font-size: 20px; margin: 0; }
+.panel { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.panel h2 { font-family: var(--font-display); font-size: 21px; margin: 0; }
+.panel.stop { border-color: var(--stop); background: var(--stop-soft); }
+.panel.stop h2 { color: var(--stop); }
+.msgs { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.msg { display: grid; gap: 2px; padding: 10px 12px; border-radius: 10px; border-left: 4px solid var(--line); background: var(--bg); }
+.msg.stop { border-left-color: var(--stop); }
+.msg.warning { border-left-color: var(--warn); }
+.msg.info { border-left-color: var(--accent); }
+.msg .kind { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--muted); }
+.msg.stop .kind { color: var(--stop); } .msg.warning .kind { color: var(--warn); } .msg.info .kind { color: var(--accent); }
+.msg p { margin: 0; font-size: 15px; }
+.msg .fix { color: var(--muted); }
+.msg .fix b { color: var(--ink); }
+.excelhelp { display: grid; gap: 6px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-size: 15px; }
+.excelhelp p { margin: 0; }
+.excelhelp ol { margin: 0; padding-left: 22px; display: grid; gap: 3px; }
+
 .picker-list { display: grid; gap: 8px; }
 .pick { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; width: 100%; text-align: left; background: transparent; color: var(--ink); border: 1px solid var(--line); font-weight: 400; }
 .pick:hover { border-color: var(--accent); background: var(--accent-soft); }
 .pick b { font-weight: 700; overflow-wrap: anywhere; min-width: 0; }
 .pick span { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+.resumed { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 15px; }
+.choices { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.choice { display: grid; grid-template-columns: minmax(0, 1.3fr) auto auto; gap: 6px 16px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.choice:last-child { border-bottom: 0; }
+.choice .tn { font-family: var(--font-mono); font-size: 14px; overflow-wrap: anywhere; }
+.choice .tn small { display: block; font-family: var(--font-body); color: var(--muted); font-size: 13px; }
+.choice label { display: flex; gap: 6px; align-items: center; font-size: 14px; cursor: pointer; white-space: nowrap; }
+.choice input { width: 17px; height: 17px; accent-color: var(--accent); margin: 0; }
+.choice.random { background: var(--warn-soft); }
+.randomwarn { grid-column: 1 / -1; margin: 0; font-size: 13px; color: var(--warn); }
+@media (max-width: 560px) { .choice { grid-template-columns: 1fr 1fr; } .choice .tn { grid-column: 1 / -1; } }
+.diffs { margin: 0; padding-left: 20px; font-size: 14px; display: grid; gap: 2px; }
+details.more summary { cursor: pointer; font-size: 14px; color: var(--accent); font-weight: 700; }
 
 .result { display: grid; gap: 18px; }
 .result-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
@@ -76,10 +109,15 @@ h1 { font-family: var(--font-display); font-size: clamp(30px, 6vw, 42px); line-h
 .stat.key b { color: var(--accent); }
 .stat.owe b { color: var(--warn); }
 @media (max-width: 560px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.summary { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.summary li { padding: 8px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); font-size: 15px; }
+.summary li b { font-family: var(--font-mono); font-weight: 500; }
 
-.actions { display: flex; flex-wrap: wrap; gap: 10px; }
-button { font: inherit; font-weight: 700; border-radius: 10px; padding: 11px 18px; cursor: pointer; border: 1px solid var(--accent); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button { font: inherit; font-weight: 700; border-radius: 10px; padding: 11px 18px; cursor: pointer; border: 1px solid var(--accent); background: transparent; color: var(--accent); }
 button.primary { background: var(--accent); color: var(--accent-ink); }
+button.small { font-size: 13px; padding: 6px 10px; border-radius: 8px; }
+button.danger { border-color: var(--stop); color: var(--stop); }
 button:disabled { opacity: .45; cursor: not-allowed; }
 button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .note { font-size: 14px; color: var(--muted); margin: 0; }
@@ -94,11 +132,12 @@ table { border-collapse: collapse; width: 100%; font-size: 14px; }
 th, td { text-align: left; padding: 8px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
 th { position: sticky; top: 0; background: var(--surface); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 td.flag { font-weight: 700; color: var(--warn); }
+td.id { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+tr.late td { background: #fff2cc; color: #1d2420; }
 .warnbox { display: grid; gap: 6px; padding: 14px 16px; border-radius: 12px; background: var(--warn-soft); border: 1px solid var(--warn); }
 .warnbox h3 { font-family: var(--font-display); font-size: 17px; margin: 0; color: var(--warn); }
 .warnbox p { margin: 0; font-size: 15px; }
 .warnbox ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 15px; }
-.warnbox code { font-family: var(--font-mono); font-size: .9em; }
 tr:last-child td { border-bottom: 0; }
 
 .help { border-top: 1px solid var(--line); padding-top: 20px; display: grid; gap: 10px; font-size: 15px; }
@@ -124,22 +163,58 @@ tr:last-child td { border-bottom: 0; }
   <nav class="crumbs" aria-label="Trial tools"><a href="index.html">← All trial tools</a><span>Step 3 of 4</span></nav>
   <header>
     <p class="eyebrow">SSANZ trial tools</p>
-    <h1>Trial Entry Trial Lists</h1>
-    <p class="lede">Drop in a trial entries download. You get the same spreadsheet back with a new tab for each trial column that has entries (for example <code>NWAdv1</code>), listing Handler Number, Handler, Dog No, Dog Pet Name, Dog Breed and Comments. Comments show <code>D</code> for dog-reactive, <code>H</code> for people-reactive, or <code>D + H</code> for both.</p>
+    <h1>Trial Lists</h1>
+    <p class="lede">Drop in the entries download (Excel or CSV) to start your trial spreadsheet: a locked copy of the download, a <b>Master List</b> for late entries and withdrawals, and a randomly ordered tab for each trial (for example <code>NWAdv1</code>). Later, drop the spreadsheet back in to apply Master List changes to the trial tabs.</p>
   </header>
 
   <label class="drop" id="drop" for="file" tabindex="0">
-    <strong>Drop your entries file here</strong>
-    <span>or click to choose · Excel (.xlsx) or CSV</span>
+    <strong>Drop your entries download or trial spreadsheet here</strong>
+    <span>or click to choose · Excel (.xlsx) · a CSV download for the first drop only</span>
     <input type="file" id="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
   </label>
 
   <p class="status" id="status" hidden></p>
 
-  <section class="picker" id="picker" hidden aria-live="polite">
-    <h2>Which tab should I use?</h2>
+  <section class="panel stop" id="stop" hidden aria-live="polite">
+    <h2 id="stopTitle">This file can't be used yet</h2>
+    <ul class="msgs" id="stopList"></ul>
+    <div class="excelhelp" id="stopExcel" hidden></div>
+    <div class="actions" id="stopActions"></div>
+  </section>
+
+  <section class="panel" id="picker" hidden aria-live="polite">
+    <h2>Which tab is the entries download?</h2>
     <p class="note" id="pickerNote">More than one tab looks like an entries list.</p>
     <div class="picker-list" id="pickerList"></div>
+  </section>
+
+  <section class="panel" id="update" hidden aria-live="polite">
+    <h2>Update trial tabs</h2>
+    <p class="resumed" id="resumed"></p>
+    <ul class="msgs" id="updateMsgs"></ul>
+    <div class="excelhelp" id="updateExcel" hidden></div>
+    <div id="diffBox" hidden>
+      <p class="note"><b id="diffCount"></b></p>
+      <details class="more"><summary>Show the differences</summary><ul class="diffs" id="diffList"></ul></details>
+    </div>
+    <p class="note">How should each tab's running order be handled? <b>Keep current order</b> keeps your rows where they are: withdrawn and scratched entries are removed and late entries go at the bottom, highlighted. <b>New random order</b> reshuffles the whole tab.</p>
+    <div class="actions">
+      <button class="small" type="button" id="keepAll">Keep all</button>
+      <button class="small" type="button" id="randomAll">Randomise all</button>
+    </div>
+    <div class="choices" id="choices"></div>
+    <div class="actions">
+      <button class="primary" type="button" id="doUpdate">Update trial tabs</button>
+      <button type="button" class="danger" id="restart">Start again from scratch…</button>
+    </div>
+    <div class="warnbox" id="restartBox" hidden>
+      <h3>Start again from scratch?</h3>
+      <p>This makes a new Master List and new random trial tabs from Sheet 1. Your row order, late entries, withdrawals and other Master List changes will be lost. Choose <b>Update trial tabs</b> instead unless you really want to start again.</p>
+      <div class="actions">
+        <button type="button" class="danger" id="restartYes">Yes, start again</button>
+        <button type="button" id="restartNo">Go back</button>
+      </div>
+    </div>
   </section>
 
   <section class="result" id="result" aria-live="polite">
@@ -150,20 +225,22 @@ tr:last-child td { border-bottom: 0; }
     <p class="file" id="fileName"></p>
 
     <div class="stats">
-      <div class="stat"><b id="sRows">0</b><span>entries read</span></div>
+      <div class="stat"><b id="sRows">0</b><span>entries</span></div>
       <div class="stat key"><b id="sTabs">0</b><span>trial tabs</span></div>
-      <div class="stat owe"><b id="sD">0</b><span>dogs marked D</span></div>
-      <div class="stat owe"><b id="sH">0</b><span>dogs marked H</span></div>
+      <div class="stat owe"><b id="sD">0</b><span id="sDLabel">dogs marked D</span></div>
+      <div class="stat owe"><b id="sH">0</b><span id="sHLabel">dogs marked H</span></div>
     </div>
+
+    <ul class="summary" id="summary" hidden></ul>
 
     <div class="warnbox" id="doubles" hidden>
       <h3>Check: handler with more than one dog in a trial</h3>
-      <p>A handler shouldn't run two dogs in the same trial. These are in the lists as entered, so please check them.</p>
+      <p>A handler shouldn't run two dogs in the same trial. These are in the lists as entered, so please check them on the Master List.</p>
       <ul id="doublesList"></ul>
     </div>
 
     <div class="actions">
-      <button class="primary" id="download" type="button" disabled>Download spreadsheet with trial tabs</button>
+      <button class="primary" id="download" type="button" disabled>Download trial spreadsheet</button>
     </div>
     <p class="note" id="actionNote">Drop a file to enable the download.</p>
 
@@ -171,7 +248,7 @@ tr:last-child td { border-bottom: 0; }
     <div class="tabs" id="tabs" role="tablist"></div>
     <div class="table-box">
       <table>
-        <thead><tr><th>Handler No</th><th>Handler</th><th>Dog No</th><th>Dog Pet Name</th><th>Dog Breed</th><th>Comments</th></tr></thead>
+        <thead><tr><th>Entry ID</th><th>Handler No</th><th>Handler</th><th>Dog No</th><th>Dog Pet Name</th><th>Dog Breed</th><th>Comments</th></tr></thead>
         <tbody id="rows"></tbody>
       </table>
     </div>
@@ -185,13 +262,16 @@ tr:last-child td { border-bottom: 0; }
   <section class="help">
     <h3>Good to know</h3>
     <ul>
-      <li><b>Which tabs are made:</b> one for every trial column with something entered in it (class name plus trial number, like <code>NWAdv1</code> or <code>BHNovS2</code>). Empty trial columns get no tab. Tabs are named exactly as the column heading and appear in the same order as the columns.</li>
-      <li><b>Rows are in random order</b>, shuffled separately for each tab, so a dog entered in two trials will usually be in a different spot on each. Every run gives a new order, and the preview shows exactly what you'll download. For a different draw, just drop the file in again.</li>
-      <li><b>Handler with two dogs in one trial?</b> That shouldn't happen, so the page shows a warning naming the handler, their dogs and the tab. The lists aren't changed; fix the entry and run the tool again if needed.</li>
-      <li><b>Comments:</b> only reactivity is carried across. “Reactive to dogs” becomes <code>D</code>, “Reactive to people” becomes <code>H</code>, both become <code>D + H</code>. Everything else (the colons, “Edited …” notes and any other messages) is left out, so check the original Comments column for special requests.</li>
-      <li><b>Using Google Sheets?</b> In your sheet choose File → Download → Microsoft Excel (.xlsx), drop that file here, then open the result in Google Sheets with File → Import.</li>
-      <li><b>Several tabs?</b> The tool looks for the tab with Handler, Dog Pet Name and trial columns. If more than one tab has them, you'll be asked which to use. Paid / Part Paid / Not Paid tabs from the Payment Split tool are ignored. All your tabs come back in the download.</li>
-      <li><b>Running it again</b> on a file that already has these tabs replaces them rather than adding more.</li>
+      <li><b>Your trial spreadsheet</b> is one file you keep adding to. Each download ends in “(in progress)”. Always drop the newest one back in.</li>
+      <li><b>Sheet 1</b> is the website download, exactly as downloaded. It's locked: you can see and copy it, but not type in it.</li>
+      <li><b>Make changes on the Master List:</b> add a late entry as a new row (leave Entry ID blank and put x in its trial columns), type <code>Withdrawn</code> in Status to withdraw an entry from the whole event (the row turns grey and struck through), delete an x to scratch it from one trial, or correct a name. Then drop the file back in here and choose <b>Update trial tabs</b>.</li>
+      <li><b>On the trial tabs</b> you can move rows to change the running order, and duplicate a tab to try another order. Start a copy's name with the trial code, e.g. “NWAdv1 Sat plan”. Anything else typed on a trial tab is replaced by the Master List on update, and you'll be shown what changes first.</li>
+      <li><b>Entry IDs</b> (E014, L001…) link each entry across the tabs. Don't change or delete them.</li>
+      <li><b>Rows start in random order</b>, shuffled separately for each tab, so a dog entered in two trials will usually be in a different spot on each.</li>
+      <li><b>Comments:</b> trial tabs show only reactivity: <code>D</code> dog-reactive, <code>H</code> people-reactive, <code>D + H</code> both. Check the Master List for other requests.</li>
+      <li><b>Tool Settings</b> holds what the tools need to carry on where you left off. Please don't edit or delete it.</li>
+      <li><b>Once Trial Documents has started</b>, the Master List and trial tabs are locked. To change entries after that, drop the file in here and choose <b>Make a late change</b>.</li>
+      <li><b>Edit your trial spreadsheet in Excel</b> or free Excel for the web (<a href="https://excel.cloud.microsoft" target="_blank" rel="noopener">excel.cloud.microsoft</a>). After editing in Excel for the web, use File → Save As → Download a copy. Keep the file for at least 12 months, stored securely and not on a shared computer.</li>
       <li>The file never leaves your computer. All the work happens in this page.</li>
     </ul>
   </section>
@@ -200,17 +280,29 @@ tr:last-child td { border-bottom: 0; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
-const OUT_HEADERS = ["Handler Number", "Handler", "Dog No", "Dog Pet Name", "Dog Breed", "Comments"];
-const OLD_HEADERS = ["Handler", "Dog Pet Name", "Dog Breed", "Comments"]; // tabs made by the first version
+/* =========================================================================
+   Trial Lists: the logic (no spreadsheet library needed, so it can be tested on its own)
+   ========================================================================= */
+const TOOL = { name: "Trial Lists", version: "5.0" };
+const MASTER = "Master List";
+const SETTINGS_TAB = "Tool Settings";
+const ID_HEAD = "Entry ID", STATUS_HEAD = "Status";
+const TRIAL_HEADERS = ["Entry ID", "Handler Number", "Handler", "Dog No", "Dog Pet Name", "Dog Breed", "Comments"];
+const OUT_HEADERS = ["Handler Number", "Handler", "Dog No", "Dog Pet Name", "Dog Breed", "Comments"];  // trial tabs from versions 1–4
+const OLD_HEADERS = ["Handler", "Dog Pet Name", "Dog Breed", "Comments"];                               // trial tabs from version 1
 /* A trial column is a class code followed by the trial number, e.g. NWAdv1, BHNovS2.
    Sp1-1 (hyphen) and "NWAdv Qual@export" (space) don't match. */
 const TRIAL_RE = /^[A-Za-z]+[1-9]$/;
-const SKIP_TABS = new Set(["paid", "part paid", "not paid", "emails"]);
+const SKIP_TABS = new Set(["paid", "part paid", "not paid", "emails", MASTER.toLowerCase(), SETTINGS_TAB.toLowerCase()]);
+const SETTINGS_NOTE = "Used by the trial tools. Please don't edit or delete this tab.";
+const CHUNK = 30000;   // characters of settings per cell (Excel's limit is 32,767)
 
-/* Comment text → "D", "H", "D + H" or "". */
+/* Comment text → "D", "H", "D + H" or "". Also accepts D / H / D + H as already worked out. */
 function reactivity(text) {
+  const t = String(text ?? "").trim();
+  if (/^(D|H|D\s*\+\s*H)$/i.test(t)) return t.toUpperCase().replace(/\s*\+\s*/, " + ");
   // Blank out negated phrases ("not reactive to dogs", "non-reactive") before looking.
-  const s = String(text ?? "").toLowerCase().replace(/\b(not|non|never|isn't|no longer)[\s-]+(\w+[\s-]+)?reactive[^.;:]*/g, " ");
+  const s = t.toLowerCase().replace(/\b(not|non|never|isn't|no longer)[\s-]+(\w+[\s-]+)?reactive[^.;:]*/g, " ");
   const d = /reactive\s+(to|towards|with|around)\s+(other\s+)?dogs?\b/.test(s) || /\bdogs?[\s-]+reactive\b/.test(s);
   const h = /reactive\s+(to|towards|with|around)\s+(people|persons?|humans?|strangers?)\b/.test(s) || /\b(people|human|person)[\s-]+reactive\b/.test(s);
   return d && h ? "D + H" : d ? "D" : h ? "H" : "";
@@ -224,73 +316,293 @@ function randomInt(n) {
   do { c.getRandomValues(buf); } while (buf[0] >= limit); // avoid bias
   return buf[0] % n;
 }
-
 /* Fisher-Yates shuffle: every order is equally likely. Returns a new array. */
 function shuffle(arr, rand = randomInt) {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) { const j = rand(i + 1); [a[i], a[j]] = [a[j], a[i]]; }
   return a;
 }
+const isBlank = v => String(v ?? "").trim() === "";
+const norm = v => String(v ?? "").trim().replace(/\s+/g, " ");
+const lower = v => norm(v).toLowerCase();
 
-function isBlank(v) { return String(v ?? "").trim() === ""; }
-
-/* Pure logic: rows are arrays of strings; header row first. */
-function buildLists(rows, rand = randomInt) {
-  const header = (rows[0] || []).map(h => String(h ?? "").trim());
-  const lower = header.map(h => h.toLowerCase());
-  const col = name => lower.indexOf(name.toLowerCase());
-  const idx = { handlerNo: col("Handler Number"), handler: col("Handler"), dogNo: col("Dog No"), pet: col("Dog Pet Name"), breed: col("Dog Breed"), comments: col("Comments") };
-  const missing = [["Handler", idx.handler], ["Dog Pet Name", idx.pet]].filter(([, i]) => i === -1).map(([n]) => n);
-  if (missing.length) throw new Error(`Couldn't find the ${missing.join(" and ")} column in the first row. Check this is a trial entries download.`);
-  const trialCols = header.map((h, i) => ({ h, i })).filter(c => TRIAL_RE.test(c.h));
-  if (!trialCols.length) throw new Error("Couldn't find any trial columns (like NWAdv1) in the first row.");
-
-  const out = { entries: 0, tabs: [], dCount: 0, hCount: 0, doubles: [] };
-  const body = [];
-  rows.forEach((r, i) => {
-    if (i === 0 || !r || r.every(isBlank)) return;
-    out.entries++;
-    const flag = idx.comments === -1 ? "" : reactivity(r[idx.comments]);
-    if (flag.includes("D")) out.dCount++;
-    if (flag.includes("H")) out.hCount++;
-    const get = i => i === -1 ? "" : String(r[i] ?? "").trim();
-    body.push({ r, line: [
-      get(idx.handlerNo),
-      String(r[idx.handler] ?? "").trim(),
-      get(idx.dogNo),
-      String(r[idx.pet] ?? "").trim(),
-      idx.breed === -1 ? "" : String(r[idx.breed] ?? "").trim(),
-      flag,
-    ] });
-  });
-  const seen = new Set();
-  for (const c of trialCols) {
-    const key = c.h.toLowerCase();
-    if (seen.has(key)) continue; // Excel tab names must be unique
-    const list = body.filter(b => !isBlank(b.r[c.i])).map(b => b.line);
-    if (!list.length) continue;
-    seen.add(key);
-    // A handler should never have two dogs in one trial: collect any that do (matched by Handler Number, else name).
-    const byHandler = new Map();
-    for (const l of list) {
-      const k = (l[0] || l[1]).toLowerCase().replace(/\s+/g, " ");
-      if (!k) continue;
-      if (!byHandler.has(k)) byHandler.set(k, []);
-      byHandler.get(k).push(l);
-    }
-    for (const group of byHandler.values()) if (group.length > 1) {
-      out.doubles.push({ tab: c.h, handler: group[0][1], handlerNo: group[0][0], dogs: group.map(l => l[3] + (l[2] ? ` (${l[2]})` : "")) });
-    }
-    out.tabs.push({ name: c.h.slice(0, 31), rows: shuffle(list, rand) }); // each tab in its own random order
+/* A short fingerprint of some text (not security, just "has this changed?"). */
+function fingerprint(str) {
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677);
   }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36).toUpperCase();
+}
+/* Fingerprint of a whole tab's values. Numbers are written the same way however a program saved them. */
+function rowsFingerprint(rows) {
+  const cell = v => { const s = norm(v); return /^-?\d+(\.\d+)?$/.test(s) ? String(Number(s)) : s; };
+  const lines = rows.map(r => (r || []).map(cell).join("\t").replace(/\t+$/, "")).filter(Boolean);
+  return fingerprint(lines.join("\n"));
+}
+
+/* Entry IDs: E + the row number on Sheet 1 (row 14 → E014); late entries L001, L002… */
+const entryId = rowNumber => "E" + String(rowNumber).padStart(3, "0");
+const lateId = n => "L" + String(n).padStart(3, "0");
+const ID_RE = /^[EL]\d{3,}$/;
+
+/* Column positions in a heading row. */
+function columns(header) {
+  const h = (header || []).map(lower);
+  const col = name => h.indexOf(name.toLowerCase());
+  return {
+    id: col(ID_HEAD), status: col(STATUS_HEAD),
+    handlerNo: col("Handler Number"), handler: col("Handler"), dogNo: col("Dog No"), pet: col("Dog Pet Name"),
+    breed: col("Dog Breed"), comments: col("Comments"),
+    trials: (header || []).map((x, i) => ({ name: norm(x), i })).filter(c => TRIAL_RE.test(c.name)),
+  };
+}
+function looksLikeEntries(rows) {
+  const c = columns(rows[0]);
+  return c.handler >= 0 && c.pet >= 0 && c.trials.length > 0;
+}
+
+/* ---------- Start: Sheet 1 → Master List + trial tabs ---------- */
+/* sheet1: rows of cell text, heading first. Returns { header, rows } for the Master List:
+   Entry ID first, then every Sheet 1 column, then Status. rowNumbers keep blank rows out. */
+function buildMaster(sheet1) {
+  const header = [ID_HEAD, ...(sheet1[0] || []).map(norm), STATUS_HEAD];
+  const rows = [];
+  sheet1.forEach((r, i) => {
+    if (i === 0 || !r || r.every(isBlank)) return;
+    rows.push({ sourceRow: i + 1, cells: [entryId(i + 1), ...r.map(v => v ?? ""), ...Array(Math.max(0, header.length - 2 - r.length)).fill(""), ""] });
+  });
+  return { header, rows };
+}
+
+/* Read the Master List into entries. rows: cell text, heading first.
+   Late entries (no ID) get the next L number. Returns { entries, problems, info, trials, late } */
+function readMaster(rows) {
+  const c = columns(rows[0]);
+  const problems = [], info = [];
+  if (c.id < 0) throw new Error(`The ${MASTER} has no ${ID_HEAD} column.|Go back to your most recent copy downloaded from this tool. The ${ID_HEAD} column must stay first on the ${MASTER}.`);
+  if (c.handler < 0 || c.pet < 0) throw new Error(`The ${MASTER} is missing its Handler or Dog Pet Name column.|Go back to your most recent copy downloaded from this tool, and don't delete or rename columns on the ${MASTER}.`);
+  let maxLate = 0;
+  rows.forEach((r, i) => { const m = /^L(\d+)$/i.exec(norm((r || [])[c.id])); if (i && m) maxLate = Math.max(maxLate, Number(m[1])); });
+  const entries = [], seen = new Map(), late = [];
+  rows.forEach((r, i) => {
+    if (i === 0 || !r) return;
+    const get = k => k < 0 ? "" : norm(r[k]);
+    const trials = new Set(c.trials.filter(t => !isBlank(r[t.i])).map(t => t.name));
+    const content = r.some((v, k) => k !== c.id && k !== c.status && !isBlank(v));
+    if (!content) return;
+    let id = get(c.id).toUpperCase();
+    const e = {
+      id, row: i + 1, status: get(c.status), withdrawn: /^withdrawn$/i.test(get(c.status)),
+      values: [get(c.handlerNo), get(c.handler), get(c.dogNo), get(c.pet), get(c.breed), c.comments < 0 ? "" : reactivity(r[c.comments])],
+      trials, isLate: false,
+    };
+    if (!id) {
+      e.id = lateId(++maxLate); e.isLate = true; e.newId = true;
+      late.push(e);
+    } else if (!ID_RE.test(id)) {
+      problems.push({ type: "warning", text: `The ${ID_HEAD} on row ${i + 1} of the ${MASTER} looks changed (“${get(c.id)}”).`, fix: `Go back to your most recent downloaded copy, or retype the ID so it matches Sheet 1 (E plus the row number, e.g. E014).` });
+    }
+    if (/^L/.test(e.id)) e.isLate = true;
+    if (seen.has(e.id)) problems.push({ type: "warning", text: `${e.values[1]} and ${e.values[3]} (${e.id}) appear twice on the ${MASTER} (rows ${seen.get(e.id)} and ${i + 1}).`, fix: `Delete one of the rows on the ${MASTER} in Excel, then drop the file back in.` });
+    else seen.set(e.id, i + 1);
+    entries.push(e);
+  });
+  if (late.length) info.push({ type: "info", text: `${late.length} new ${late.length === 1 ? "entry" : "entries"} found on the ${MASTER}: ${late.map(e => `${e.values[1]} and ${e.values[3]} (row ${e.row}, will be ${e.id})`).join("; ")}.`, fix: `Check ${late.length === 1 ? "it's" : "they're"} correct before updating, or fix them on the ${MASTER} first.` });
+  return { entries, problems: problems.concat(info), trials: c.trials.map(t => t.name), late, columns: c };
+}
+
+/* Trial tabs for the first run: one per trial column with entries, each in its own random order. */
+function startTabs(entries, trialNames, rand = randomInt) {
+  const tabs = [];
+  const seen = new Set();
+  trialNames.forEach(name => {
+    if (seen.has(name.toLowerCase())) return;   // Excel tab names must be unique
+    const list = entries.filter(e => !e.withdrawn && e.trials.has(name));
+    if (!list.length) return;
+    seen.add(name.toLowerCase());
+    tabs.push({ name: name.slice(0, 31), trial: name, rows: shuffle(list, rand).map(e => ({ id: e.id, values: e.values, isNew: false })) });
+  });
+  return tabs;
+}
+
+/* A handler should never have two dogs in one trial: collect any that do (by Handler Number, else name). */
+function doubles(tabs) {
+  const out = [];
+  tabs.forEach(t => {
+    const by = new Map();
+    t.rows.forEach(r => {
+      const k = lower(r.values[0] || r.values[1]);
+      if (!k) return;
+      if (!by.has(k)) by.set(k, []);
+      by.get(k).push(r);
+    });
+    for (const g of by.values()) if (g.length > 1) out.push({ tab: t.name, handler: g[0].values[1], handlerNo: g[0].values[0], dogs: g.map(r => r.values[3] + (r.values[2] ? ` (${r.values[2]})` : "")) });
+  });
   return out;
 }
 
-if (typeof module !== "undefined") { module.exports = { buildLists, reactivity, shuffle }; }
-else {
-const $ = id => document.getElementById(id);
-let current = null; // { wb, baseName }
+/* ---------- Update: apply the Master List to the existing trial tabs ----------
+   tabs: [{ name, rows: [[cell text…]] heading first }] — every tab that looks like a trial tab.
+   Returns the tabs with their trial worked out, or a problem if it can't be used. */
+function readTrialTab(name, rows, trialNames, entries) {
+  const head = (rows[0] || []).map(lower);
+  const at = h => head.indexOf(h.toLowerCase());
+  const idCol = at(ID_HEAD);
+  const out = { name, problems: [], rows: [] };
+  if (idCol < 0) {
+    out.unusable = true;
+    out.problems.push({ type: "stop", text: `The tab “${name}” has no ${ID_HEAD} column, so it can't be updated.`, fix: `Undo the change that removed it, or delete this tab and duplicate a working trial tab again. It's left as it is.` });
+    return out;
+  }
+  const cols = TRIAL_HEADERS.slice(1).map(at);
+  const ids = new Map();
+  rows.forEach((r, i) => {
+    if (i === 0 || !r || r.every(isBlank)) return;
+    const raw = norm(r[idCol]);
+    let id = raw.toUpperCase();
+    if (id && !ID_RE.test(id)) {
+      const fixed = /^\d+$/.test(id) ? entryId(Number(id)) : "";
+      out.problems.push({ type: "warning", text: `An ${ID_HEAD} on “${name}” (row ${i + 1}) has changed: it shows “${raw}”.`, fix: fixed ? `It's read as ${fixed}. If that's wrong, go back to your most recent downloaded copy.` : `Go back to your most recent downloaded copy, or retype the ID to match the ${MASTER}.` });
+      id = fixed || id;
+    }
+    if (!id) { out.problems.push({ type: "warning", text: `Row ${i + 1} on “${name}” has no ${ID_HEAD}, so it will be left off.`, fix: `New entries go on the ${MASTER}, not on a trial tab. Add it there and update again.` }); return; }
+    const values = cols.map(k => k < 0 ? "" : norm(r[k]));
+    values[5] = reactivity(values[5]);
+    if (ids.has(id)) {
+      out.problems.push({ type: "warning", text: `${values[1]} and ${values[3]} (${id}) appear twice on “${name}”.`, fix: `Delete one of the rows in Excel, then drop the file back in. For now the first one is kept.` });
+      return;
+    }
+    ids.set(id, i + 1);
+    out.rows.push({ id, values, sheetRow: i + 1 });
+  });
+  // Which trial is this tab for? Its own name, a name it starts with ("NWAdv1 Sat plan"), else the trial most of its dogs are in.
+  const exact = trialNames.find(t => t.toLowerCase() === name.toLowerCase());
+  const prefix = trialNames.filter(t => name.toLowerCase().startsWith(t.toLowerCase() + " ")).sort((a, b) => b.length - a.length)[0];
+  let trial = exact || prefix;
+  if (!trial && out.rows.length) {
+    const byId = new Map(entries.map(e => [e.id, e]));
+    const score = trialNames.map(t => [t, out.rows.filter(r => byId.get(r.id) && byId.get(r.id).trials.has(t)).length]).sort((a, b) => b[1] - a[1]);
+    if (score[0] && score[0][1] > out.rows.length / 2) trial = score[0][0];
+  }
+  if (!trial) {
+    out.unusable = true;
+    out.problems.push({ type: "warning", text: `Couldn't tell which trial the tab “${name}” is for.`, fix: `Start its name with the trial code (for example “NWAdv1 Sat plan”) and drop the file in again. It's left as it is for now.` });
+  }
+  out.trial = trial;
+  return out;
+}
 
+/* choices: { tabName: "keep" | "random" }. Returns { tabs: [{ name, trial, rows: [{ id, values, isNew, keepFrom }] , summary }], newTabs, diffs, summary } */
+function planUpdate(entries, tabs, trialNames, choices = {}, rand = randomInt) {
+  const live = entries.filter(e => !e.withdrawn);
+  const byId = new Map(entries.map(e => [e.id, e]));
+  const diffs = [];
+  const LABELS = ["Handler Number", "Handler", "Dog No", "Dog Pet Name", "Dog Breed", "Comments"];
+  const out = tabs.filter(t => !t.unusable).map(t => {
+    const entered = live.filter(e => e.trials.has(t.trial));
+    const enteredIds = new Set(entered.map(e => e.id));
+    const kept = t.rows.filter(r => enteredIds.has(r.id));
+    const removed = t.rows.filter(r => !enteredIds.has(r.id)).map(r => {
+      const e = byId.get(r.id);
+      return { id: r.id, values: r.values, why: !e ? "no longer on the Master List" : e.withdrawn ? "withdrawn" : "scratched from this trial" };
+    });
+    const have = new Set(t.rows.map(r => r.id));
+    const added = entered.filter(e => !have.has(e.id));
+    kept.forEach(r => {
+      const e = byId.get(r.id);
+      LABELS.forEach((label, k) => {
+        if (label === "Comments") return;   // comments are worked out again from the Master List
+        if (norm(r.values[k]) !== norm(e.values[k])) diffs.push({ tab: t.name, id: r.id, field: label, was: r.values[k], now: e.values[k] });
+      });
+    });
+    const mode = choices[t.name] === "random" ? "random" : "keep";
+    let rows;
+    if (mode === "random") rows = shuffle(entered, rand).map(e => ({ id: e.id, values: e.values, isNew: false }));
+    else rows = [...kept.map(r => ({ id: r.id, values: byId.get(r.id).values, isNew: false, keepFrom: r.sheetRow })),
+                 ...added.map(e => ({ id: e.id, values: e.values, isNew: true }))];
+    return { name: t.name, trial: t.trial, mode, rows, removed, added, changed: diffs.filter(d => d.tab === t.name).length };
+  });
+  // Trial columns with entries but no tab yet (e.g. a late entry in a new trial) get a new random tab.
+  const covered = new Set(out.map(t => t.trial.toLowerCase()).concat(tabs.map(t => t.name.toLowerCase())));
+  const newTabs = startTabs(live, trialNames.filter(n => !covered.has(n.toLowerCase())), rand)
+    .map(t => ({ ...t, mode: "new", removed: [], added: t.rows, changed: 0 }));
+  return { tabs: out.concat(newTabs), diffs };
+}
+
+/* Plain summary lines, one per tab. firstRow: the spreadsheet row of the first data row (2). */
+function summaryLines(plan) {
+  return plan.tabs.map(t => {
+    if (t.mode === "new") return `${t.name} (new tab, random order): ${t.rows.length} ${t.rows.length === 1 ? "entry" : "entries"}.`;
+    const parts = [];
+    if (t.removed.length) parts.push(`${t.removed.length} ${t.removed.length === 1 ? "entry" : "entries"} removed (${t.removed.map(r => `${r.id} ${r.why}`).join(", ")})`);
+    if (t.mode === "random") {
+      if (t.added.length) parts.push(`${t.added.length} late ${t.added.length === 1 ? "entry" : "entries"} included`);
+      return `${t.name} (new random order): reshuffled, ${t.rows.length} ${t.rows.length === 1 ? "entry" : "entries"}${parts.length ? ". " + parts.join(". ") : ""}.`;
+    }
+    t.rows.forEach((r, k) => { if (r.isNew) parts.push(`Late entry added at the bottom, row ${k + 2}: ${r.values[1]} and ${r.values[3]} (${r.id})`); });
+    if (t.changed) parts.push(`${t.changed} ${t.changed === 1 ? "detail" : "details"} updated from the Master List`);
+    const late = t.rows.some(r => r.isNew) ? " Move late entries in Excel if you want them elsewhere." : "";
+    return `${t.name} (order kept): ${parts.length ? parts.join(". ") + "." + late : "no changes."}`;
+  });
+}
+
+/* ---------- Tool Settings ---------- */
+/* settings object → rows for the Tool Settings tab: readable rows for people, then the data cells and check value. */
+function settingsRows(s) {
+  const json = JSON.stringify(s);
+  const chunks = [];
+  for (let i = 0; i < json.length; i += CHUNK) chunks.push(json.slice(i, i + CHUNK));
+  const steps = (s.steps || []).map(st => `${st.tool} ${st.version}: ${st.what} (${st.at})`).join("\n");
+  return [
+    [SETTINGS_NOTE],
+    [],
+    ["Setting", "Value"],
+    ["Trial", s.trialName || ""],
+    ["Original download", s.downloadName || ""],
+    ["Entries tab (Sheet 1)", s.sourceTab || ""],
+    ["Last saved", s.savedAt || ""],
+    ["Steps done", steps],
+    ["Locked for Trial Documents", s.locked ? `Yes, since ${s.lockedAt || ""}` : "No"],
+    ["Trial tabs", Object.keys(s.tabs || {}).join(", ")],
+    [],
+    ["Check value", fingerprint(json)],
+    ...chunks.map((c, i) => [`Data ${i + 1}`, c]),
+  ];
+}
+/* rows of the Tool Settings tab → { settings } or throws "message|what to do". */
+function readSettings(rows) {
+  const data = rows.filter(r => r && /^Data \d+$/.test(norm(r[0]))).sort((a, b) => Number(norm(a[0]).slice(5)) - Number(norm(b[0]).slice(5))).map(r => String(r[1] ?? ""));
+  const check = rows.find(r => r && norm(r[0]) === "Check value");
+  const json = data.join("");
+  if (!json || !check) throw new Error(`The ${SETTINGS_TAB} tab has been changed outside the tools, so the settings can't be trusted.|Go back to your most recent downloaded copy. If you need a setting changed, change it on the tool page, not in the spreadsheet.`);
+  if (fingerprint(json) !== norm(check[1])) throw new Error(`The ${SETTINGS_TAB} tab has been changed outside the tools, so the settings can't be trusted.|Go back to your most recent downloaded copy. If you need a setting changed, change it on the tool page, not in the spreadsheet.`);
+  try { return JSON.parse(json); }
+  catch (e) { throw new Error(`The ${SETTINGS_TAB} tab couldn't be read.|Go back to your most recent downloaded copy.`); }
+}
+
+/* "Sun 11 Oct, 10:45" */
+function stamp(d = new Date()) {
+  const D = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return `${D[d.getDay()]} ${d.getDate()} ${M[d.getMonth()]} ${d.getFullYear()}, ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+if (typeof module !== "undefined") {
+  module.exports = { TOOL, MASTER, SETTINGS_TAB, TRIAL_HEADERS, reactivity, shuffle, fingerprint, rowsFingerprint, entryId, columns, looksLikeEntries,
+    buildMaster, readMaster, startTabs, doubles, readTrialTab, planUpdate, summaryLines, settingsRows, readSettings, stamp };
+}
+
+if (typeof module === "undefined") {
+const $ = id => document.getElementById(id);
+let current = null;   // { wb, baseName, settings, ... } for the file being worked on
+const LATE_FILL = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFF2CC" } };
+const HEAD_FILL = { type: "pattern", pattern: "solid", fgColor: { argb: "FFE7ECE8" } };
+const DAMAGE_NOTE = "This file may have been changed by a program other than Excel. Some trial information could be missing or altered. Apple Numbers or Google Sheets are the most common causes.";
+
+/* ---------- Reading cells ---------- */
 function cellText(cell) {
   const v = cell.value;
   if (v == null) return "";
@@ -302,7 +614,13 @@ function cellText(cell) {
   }
   return String(v);
 }
-
+/* A value to copy into another cell: plain text for rich text, links and formulas; numbers, dates and text as they are. */
+function plainValue(cell) {
+  const v = cell.value;
+  if (v == null) return "";
+  if (typeof v === "object" && !(v instanceof Date)) return cellText(cell);
+  return v;
+}
 function sheetRows(ws) {
   const rows = [];
   ws.eachRow({ includeEmpty: true }, (row, n) => {
@@ -313,62 +631,360 @@ function sheetRows(ws) {
   for (let i = 0; i < rows.length; i++) if (!rows[i]) rows[i] = [];
   return rows;
 }
+const head = ws => (sheetRows(ws)[0] || []).map(x => String(x ?? "").trim().toLowerCase());
 
-/* Does this tab look like an entries list (as opposed to one of our trial tabs)? */
-function looksLikeEntries(rows) {
-  const h = (rows[0] || []).map(x => String(x ?? "").trim().toLowerCase());
-  return h.includes("handler") && h.includes("dog pet name") && (rows[0] || []).some(x => TRIAL_RE.test(String(x ?? "").trim()));
+/* ---------- Messages ---------- */
+function splitMsg(err) {
+  const [text, fix] = String(err && err.message || err).split("|");
+  return { type: "stop", text, fix: fix || "" };
 }
+function msgEl(m) {
+  const li = document.createElement("li");
+  li.className = "msg " + m.type;
+  const kind = document.createElement("span");
+  kind.className = "kind";
+  kind.textContent = { stop: "Can't continue", warning: "Check this", info: "For your information" }[m.type] || "";
+  const p = document.createElement("p"); p.textContent = m.text;
+  li.append(kind, p);
+  if (m.fix) { const f = document.createElement("p"); f.className = "fix"; const b = document.createElement("b"); b.textContent = "What to do: "; f.append(b, m.fix); li.append(f); }
+  return li;
+}
+function excelHelp(box) {
+  box.innerHTML = "";
+  const p = t => { const e = document.createElement("p"); e.textContent = t; return e; };
+  const ol = document.createElement("ol");
+  ["Go to excel.cloud.microsoft and sign in, or create a free Microsoft account.",
+   "Drag your most recent working copy of the trial spreadsheet into the browser window.",
+   "Check your tabs and rows look right, and make any edits.",
+   "Choose File → Save As → Download a copy.",
+   "Drop the downloaded copy back into this tool."].forEach(t => { const li = document.createElement("li"); li.textContent = t; ol.append(li); });
+  box.append(p(DAMAGE_NOTE), p("To fix this, use Excel. If you don't have it, Excel for the web is free:"), ol,
+    p("If your edits are missing, they may only exist in the version saved by Numbers or Google Sheets. Open that version and re-enter the changes in Excel."));
+  box.hidden = false;
+}
+/* A stop: shows what's wrong and what to do; only "Go back" (drop another file), plus any extra actions. */
+function showStop(title, msgs, opts = {}) {
+  hideAll();
+  $("stopTitle").textContent = title;
+  $("stopList").textContent = "";
+  msgs.forEach(m => $("stopList").append(msgEl(m)));
+  if (opts.excel) excelHelp($("stopExcel")); else $("stopExcel").hidden = true;
+  const acts = $("stopActions");
+  acts.textContent = "";
+  (opts.actions || []).forEach(a => {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = a.label; if (a.primary) b.className = "primary";
+    b.addEventListener("click", a.onclick);
+    acts.append(b);
+  });
+  const back = document.createElement("button");
+  back.type = "button"; back.textContent = "Go back";
+  back.addEventListener("click", () => { hideAll(); if (previewTabs.length) $("result").hidden = false; $("drop").focus(); });
+  acts.append(back);
+  $("stop").hidden = false;
+  $("result").hidden = true;
+}
+function hideAll() { ["stop", "picker", "update"].forEach(id => $(id).hidden = true); showStatus(""); }
+function showStatus(msg) { const s = $("status"); s.textContent = msg; s.hidden = !msg; }
 
-function writeTabs(wb, lists) {
-  const names = new Set(lists.tabs.map(t => t.name.toLowerCase()));
+/* ---------- Writing the working file ---------- */
+/* Strikethrough for withdrawn entries, and a Withdrawn choice in Status. Put back on every save. */
+function masterRules(ws) {
+  const h = head(ws), statusCol = h.indexOf("status") + 1, n = h.length;
+  if (statusCol < 1) return;
+  const letter = c => { let s = ""; while (c > 0) { const m = (c - 1) % 26; s = String.fromCharCode(65 + m) + s; c = Math.floor((c - 1) / 26); } return s; };
+  const rows = sheetRows(ws);
+  let lastData = rows.length;
+  while (lastData > 1 && (rows[lastData - 1] || []).every(isBlank)) lastData--;
+  const last = Math.max(lastData, 2) + 500;
+  ws.conditionalFormattings = [];
+  ws.addConditionalFormatting({
+    ref: `A2:${letter(n)}${last}`,
+    rules: [{ type: "expression", priority: 1, formulae: [`UPPER(TRIM($${letter(statusCol)}2))="WITHDRAWN"`],
+      style: { font: { strike: true, color: { argb: "FF808080" } }, fill: { type: "pattern", pattern: "solid", bgColor: { argb: "FFE8E8E8" } } } }],
+  });
+  for (let r = 2; r <= last; r++) {
+    ws.getCell(r, statusCol).dataValidation = { type: "list", allowBlank: true, formulae: ['"Withdrawn"'], showErrorMessage: false };
+  }
+}
+function writeMaster(wb, sourceWs, master) {
+  const ws = wb.addWorksheet(MASTER, { properties: { tabColor: { argb: "FF2F6B4F" } } });
+  const srcCols = master.header.length - 2;
+  ws.addRow(master.header);
+  master.rows.forEach(r => {
+    const src = sourceWs.getRow(r.sourceRow);
+    const vals = [r.cells[0]];
+    for (let c = 1; c <= srcCols; c++) vals.push(plainValue(src.getCell(c)));
+    vals.push("");
+    ws.addRow(vals);
+  });
+  styleHead(ws);
+  ws.getColumn(1).width = 10;
+  ws.getColumn(1).numFmt = "@";
+  for (let c = 1; c <= srcCols; c++) ws.getColumn(c + 1).width = sourceWs.getColumn(c).width || 14;
+  ws.getColumn(srcCols + 2).width = 13;
+  ws.views = [{ state: "frozen", xSplit: 1, ySplit: 1 }];
+  masterRules(ws);
+  return ws;
+}
+function styleHead(ws) {
+  const row = ws.getRow(1);
+  row.eachCell(c => { c.font = { bold: true }; c.fill = HEAD_FILL; });
+}
+/* rows: [{ id, values, isNew, style }] where style is a saved row style to put back. */
+function writeTrialRows(ws, rows) {
+  if (ws.rowCount > 1) ws.spliceRows(2, ws.rowCount - 1);
+  TRIAL_HEADERS.forEach((h, k) => { ws.getCell(1, k + 1).value = h; });
+  styleHead(ws);
+  rows.forEach((r, i) => {
+    const row = ws.getRow(i + 2);
+    const vals = [r.id, ...r.values].map((v, k) => (k === 1 || k === 3) && /^\d+$/.test(v) ? Number(v) : v);
+    vals.forEach((v, k) => {
+      const cell = row.getCell(k + 1);
+      if (r.style && r.style[k]) cell.style = JSON.parse(JSON.stringify(r.style[k]));
+      cell.value = v;
+      if (r.isNew) cell.fill = LATE_FILL;
+    });
+    row.getCell(1).numFmt = "@";
+    row.getCell(7).font = { ...(row.getCell(7).font || {}), bold: true };
+  });
+}
+function newTrialTab(wb, name) {
+  const ws = wb.addWorksheet(name);
+  ws.columns = [{ width: 10 }, { width: 16 }, { width: 24 }, { width: 10 }, { width: 18 }, { width: 28 }, { width: 12 }];
+  ws.views = [{ state: "frozen", ySplit: 1 }];
+  ws.getColumn(7).alignment = { horizontal: "center" };
+  return ws;
+}
+/* Saved style of each cell on the given sheet rows. */
+function rowStyles(ws) {
+  const out = {};
+  ws.eachRow((row, n) => {
+    if (n === 1) return;
+    out[n] = TRIAL_HEADERS.map((h, k) => { const s = row.getCell(k + 1).style; return s ? JSON.parse(JSON.stringify(s)) : null; });
+  });
+  return out;
+}
+async function writeSettings(wb, settings) {
+  settings.savedAt = stamp();
+  const old = wb.getWorksheet(SETTINGS_TAB);
+  if (old) wb.removeWorksheet(old.id);
+  const ws = wb.addWorksheet(SETTINGS_TAB, { properties: { tabColor: { argb: "FF808080" } } });
+  settingsRows(settings).forEach(r => ws.addRow(r));
+  ws.getCell("A1").font = { bold: true, color: { argb: "FFA3332B" }, size: 12 };
+  ws.getRow(3).font = { bold: true };
+  ws.getColumn(1).width = 28;
+  ws.getColumn(2).width = 90;
+  ws.getCell("B8").alignment = { wrapText: true, vertical: "top" };
+  // Sheet 1 stays locked: visible and selectable, but not editable (no password).
+  const src = wb.getWorksheet(settings.sourceTab);
+  if (src) await src.protect("", {});
+}
+const step = what => ({ tool: TOOL.name, version: TOOL.version, what, at: stamp() });
+
+/* ---------- Start: first drop ---------- */
+async function start(wb, sourceWs, rows, baseName, fileLabel, notes = []) {
+  const master = buildMaster(rows);
+  if (!master.rows.length) return showStop("There are no entries in this file", [{ type: "stop", text: "The headings are there, but there are no entry rows under them.", fix: "Check you downloaded the right trial's entries, then drop that file in." }]);
+  const read = readMaster([master.header, ...master.rows.map(r => r.cells)]);
+  const tabs = startTabs(read.entries, read.trials);
+  if (!tabs.length) return showStop("No trial has any entries yet", [{ type: "stop", text: "None of the trial columns (like NWAdv1) have anything entered, so there are no trial tabs to make.", fix: "Check the download is for the right trial, or wait until entries have come in." }]);
+  // Replace tabs made earlier by this tool (older versions too), but never the download itself.
+  const names = new Set(tabs.map(t => t.name.toLowerCase()));
   for (const w of [...wb.worksheets]) {
-    const rows = sheetRows(w);
-    const head = (rows[0] || []).map(x => String(x ?? "").trim()).join("|");
-    const isOurs = head === OUT_HEADERS.join("|") || head === OLD_HEADERS.join("|");
-    // Replace a tab if it has one of the new names, or it's a trial tab this tool made on an earlier run.
-    if (names.has(w.name.toLowerCase()) || (isOurs && TRIAL_RE.test(w.name))) wb.removeWorksheet(w.id);
+    if (w === sourceWs) continue;
+    const h = head(w).join("|");
+    const ours = h === OUT_HEADERS.map(x => x.toLowerCase()).join("|") || h === TRIAL_HEADERS.map(x => x.toLowerCase()).join("|") || h === ["handler", "dog pet name", "dog breed", "comments"].join("|");
+    if (names.has(w.name.toLowerCase()) || [MASTER, SETTINGS_TAB].map(x => x.toLowerCase()).includes(w.name.toLowerCase()) || (ours && TRIAL_RE.test(w.name))) wb.removeWorksheet(w.id);
   }
-  for (const t of lists.tabs) {
-    const ws = wb.addWorksheet(t.name);
-    ws.columns = [{ width: 16 }, { width: 24 }, { width: 10 }, { width: 18 }, { width: 28 }, { width: 12 }];
-    ws.addRow(OUT_HEADERS).font = { bold: true };
-    // Numbers like 20086 go in as numbers; codes like SD600 stay as text.
-    t.rows.forEach(r => ws.addRow(r.map((v, k) => (k === 0 || k === 2) && /^\d+$/.test(v) ? Number(v) : v)));
-    [1, 3].forEach(c => ws.getColumn(c).alignment = { horizontal: "left" });
-    ws.getColumn(6).alignment = { horizontal: "center" };
-    ws.getColumn(6).font = { bold: true };
-    ws.getRow(1).font = { bold: true };
-    ws.views = [{ state: "frozen", ySplit: 1 }];
-  }
+  sourceWs.unprotect && sourceWs.unprotect();
+  writeMaster(wb, sourceWs, master);
+  tabs.forEach(t => writeTrialRows(newTrialTab(wb, t.name), t.rows));
+  const settings = {
+    app: "SSANZ trial tools", schema: 1, trialName: baseName, downloadName: fileLabel, sourceTab: sourceWs.name,
+    sheet1Fingerprint: rowsFingerprint(rows), locked: false,
+    steps: [step(`Started: Master List and ${tabs.length} trial tabs made`)],
+    tabs: Object.fromEntries(tabs.map(t => [t.name, { trial: t.trial, madeBy: TOOL.name, changed: stamp() }])),
+  };
+  await writeSettings(wb, settings);
+  current = { wb, baseName, settings, tabs };
+  hideAll();
+  renderResult({
+    title: "Your trial spreadsheet is ready", label: fileLabel, tabs,
+    stats: [read.entries.length, tabs.length, read.entries.filter(e => e.values[5].includes("D")).length, read.entries.filter(e => e.values[5].includes("H")).length],
+    labels: ["dogs marked D", "dogs marked H"], summary: notes.map(n => n.text),
+  });
+  $("actionNote").textContent = `The download has Sheet 1 (locked), the ${MASTER}, ${tabs.length} trial tab${tabs.length === 1 ? "" : "s"} (${tabs.map(t => t.name).join(", ")}) and ${SETTINGS_TAB}.`;
 }
 
-let previewLists = null;
+/* ---------- Resume: a file this tool has worked on before ---------- */
+function trialCandidates(wb, settings) {
+  const skip = new Set([...SKIP_TABS, String(settings.sourceTab || "").toLowerCase()]);
+  return wb.worksheets.filter(w => {
+    if (skip.has(w.name.toLowerCase())) return false;
+    const h = head(w);
+    return h.includes("entry id") || (settings.tabs || {})[w.name] || (h.includes("handler") && h.includes("dog pet name") && (TRIAL_RE.test(w.name) || /^[A-Za-z]+[1-9]\s/.test(w.name)));
+  });
+}
+async function resume(wb, baseName, fileLabel, opts = {}) {
+  let settings;
+  try { settings = readSettings(sheetRows(wb.getWorksheet(SETTINGS_TAB))); }
+  catch (err) { return showStop("Your saved settings can't be used", [splitMsg(err)], { excel: true }); }
+  const sourceWs = wb.getWorksheet(settings.sourceTab);
+  if (!sourceWs) return showStop("Sheet 1 is missing", [{ type: "stop", text: `The original download (the tab “${settings.sourceTab}”) is missing from this file.`, fix: "Go back to your most recent copy downloaded from this tool. Never delete or rename Sheet 1." }], { excel: true });
+  if (rowsFingerprint(sheetRows(sourceWs)) !== settings.sheet1Fingerprint) return showStop("Sheet 1 has been changed", [{ type: "stop", text: "The original download on Sheet 1 has been changed, so entry IDs may no longer match.", fix: `Go back to your most recent downloaded copy. Make entry changes on the ${MASTER}, never on Sheet 1.` }], { excel: true });
+  const masterWs = wb.getWorksheet(MASTER);
+  if (!masterWs) return showStop(`The ${MASTER} is missing`, [{ type: "stop", text: `This file has no ${MASTER} tab.`, fix: "Go back to your most recent copy downloaded from this tool." }], { excel: true });
+  if (settings.locked && !opts.lateChange) {
+    return showStop("This file is locked because documents have been started", [{ type: "stop", text: `Trial Documents locked the ${MASTER} and trial tabs on ${settings.lockedAt || "an earlier date"}.`, fix: `Choose Make a late change to unlock them. Make your changes on the ${MASTER}, drop the file back in here and update. Your Trial Documents settings are kept, and Trial Documents will then list the classes that may need reprinting.` }],
+      { actions: [{ label: "Make a late change", primary: true, onclick: async () => {
+        trialCandidates(wb, settings).concat([masterWs]).forEach(w => w.unprotect && w.unprotect());
+        settings.locked = false;
+        settings.steps.push(step("Late change: Master List and trial tabs unlocked"));
+        await writeSettings(wb, settings);
+        current = { wb, baseName, settings, unlockedOnly: true };
+        hideAll();
+        renderResult({ title: "Unlocked for a late change", label: fileLabel, tabs: [], stats: ["–", "–", "–", "–"], labels: ["", ""],
+          summary: [`The ${MASTER} and trial tabs are unlocked. Download this copy, make your changes on the ${MASTER} in Excel, then drop it back in here to update the trial tabs.`] });
+        $("actionNote").textContent = "Download the unlocked copy, then make your changes in Excel.";
+      } }] });
+  }
+  let read;
+  try { read = readMaster(sheetRows(masterWs)); }
+  catch (err) { return showStop(`The ${MASTER} can't be read`, [splitMsg(err)], { excel: true }); }
+  const tabs = trialCandidates(wb, settings).map(w => readTrialTab(w.name, sheetRows(w), read.trials, read.entries));
+  current = { wb, baseName, fileLabel, settings, read, tabs, masterWs, sourceWs, choices: {} };
+  tabs.filter(t => !t.unusable).forEach(t => { current.choices[t.name] = "keep"; });
+  renderUpdate();
+}
+
+function renderUpdate() {
+  const { settings, read, tabs } = current;
+  hideAll();
+  $("result").hidden = true;
+  $("resumed").textContent = `Resumed: settings saved ${settings.savedAt || "earlier"}. ${read.entries.filter(e => !e.withdrawn).length} entries on the ${MASTER}${read.entries.some(e => e.withdrawn) ? `, ${read.entries.filter(e => e.withdrawn).length} withdrawn` : ""}.`;
+  const msgs = [...read.problems, ...tabs.flatMap(t => t.problems)];
+  const plan = planUpdate(read.entries, tabs, read.trials, {});
+  plan.tabs.filter(t => t.mode === "new").forEach(t => msgs.push({ type: "info", text: `A new tab, ${t.name}, will be made for ${t.rows.length} ${t.rows.length === 1 ? "entry" : "entries"} in a trial that had no tab yet.`, fix: "Nothing to do. It will be in random order." }));
+  $("updateMsgs").textContent = "";
+  msgs.forEach(m => $("updateMsgs").append(msgEl(m)));
+  const damaged = msgs.some(m => /has changed: it shows|looks changed/.test(m.text));
+  if (damaged) excelHelp($("updateExcel")); else $("updateExcel").hidden = true;
+  $("diffBox").hidden = !plan.diffs.length;
+  if (plan.diffs.length) {
+    $("diffCount").textContent = `${plan.diffs.length} ${plan.diffs.length === 1 ? "detail on a trial tab differs" : "details on trial tabs differ"} from the ${MASTER} and will be replaced with the ${MASTER} version. If a change belongs on the ${MASTER}, go back and make it there first.`;
+    const ul = $("diffList"); ul.textContent = "";
+    plan.diffs.forEach(d => { const li = document.createElement("li"); li.textContent = `${d.tab}, ${d.id}, ${d.field}: “${d.was}” → “${d.now}”`; ul.append(li); });
+  }
+  renderChoices();
+  $("restartBox").hidden = true;
+  $("update").hidden = false;
+}
+function renderChoices() {
+  const box = $("choices");
+  box.textContent = "";
+  current.tabs.filter(t => !t.unusable).forEach((t, i) => {
+    const row = document.createElement("div");
+    const mode = current.choices[t.name];
+    row.className = "choice" + (mode === "random" ? " random" : "");
+    const tn = document.createElement("div"); tn.className = "tn"; tn.textContent = t.name;
+    const sm = document.createElement("small"); sm.textContent = `${t.rows.length} ${t.rows.length === 1 ? "row" : "rows"} · trial ${t.trial}`; tn.append(sm);
+    row.append(tn);
+    [["keep", "Keep current order"], ["random", "New random order"]].forEach(([v, label]) => {
+      const l = document.createElement("label");
+      const r = document.createElement("input");
+      r.type = "radio"; r.name = "order" + i; r.value = v; r.checked = mode === v;
+      r.addEventListener("change", () => { current.choices[t.name] = v; renderChoices(); });
+      l.append(r, label);
+      row.append(l);
+    });
+    if (mode === "random") { const w = document.createElement("p"); w.className = "randomwarn"; w.textContent = "Any manual ordering on this tab will be lost."; row.append(w); }
+    box.append(row);
+  });
+}
+$("keepAll").addEventListener("click", () => { Object.keys(current.choices).forEach(k => current.choices[k] = "keep"); renderChoices(); });
+$("randomAll").addEventListener("click", () => { Object.keys(current.choices).forEach(k => current.choices[k] = "random"); renderChoices(); });
+
+$("doUpdate").addEventListener("click", async () => {
+  const { wb, settings, read, tabs, masterWs } = current;
+  const btn = $("doUpdate"); btn.disabled = true;
+  try {
+    const plan = planUpdate(read.entries, tabs, read.trials, current.choices);
+    // New IDs for late entries go onto the Master List.
+    const idCol = head(masterWs).indexOf("entry id") + 1;
+    read.entries.filter(e => e.newId).forEach(e => { const c = masterWs.getCell(e.row, idCol); c.value = e.id; c.numFmt = "@"; });
+    masterRules(masterWs);
+    const now = stamp();
+    plan.tabs.forEach(t => {
+      const existing = wb.getWorksheet(t.name);
+      const styles = existing ? rowStyles(existing) : {};
+      const ws = existing || newTrialTab(wb, t.name);
+      writeTrialRows(ws, t.rows.map(r => ({ ...r, style: r.keepFrom ? styles[r.keepFrom] : null })));
+      const changed = t.mode !== "keep" || t.removed.length || t.added.length || t.changed;
+      const prev = (settings.tabs || {})[t.name] || {};
+      settings.tabs[t.name] = { ...prev, trial: t.trial, madeBy: prev.madeBy || (t.mode === "new" ? TOOL.name : "user copy"), changed: changed ? now : prev.changed || now };
+    });
+    const lines = summaryLines(plan);
+    settings.steps.push(step(`Trial tabs updated (${plan.tabs.length} tabs)`));
+    await writeSettings(wb, settings);
+    current.done = true;
+    hideAll();
+    const live = read.entries.filter(e => !e.withdrawn).length;
+    renderResult({ title: "Trial tabs updated", label: current.fileLabel, tabs: plan.tabs,
+      stats: [live, plan.tabs.length, read.entries.filter(e => e.newId).length, new Set(plan.tabs.flatMap(t => t.removed.map(r => r.id))).size],
+      labels: ["new late entries", "entries taken off tabs"], summary: lines });
+    $("actionNote").textContent = "Download the updated spreadsheet. Late entries are highlighted in yellow at the bottom of each tab they were added to: move them in Excel if you want them elsewhere.";
+  } catch (err) {
+    showStop("The update didn't work", [{ type: "stop", text: String(err.message || err), fix: "Drop the file in again. If it happens again, go back to your most recent downloaded copy." }]);
+  } finally { btn.disabled = false; }
+});
+
+$("restart").addEventListener("click", () => { $("restartBox").hidden = false; $("restartYes").focus(); });
+$("restartNo").addEventListener("click", () => { $("restartBox").hidden = true; $("doUpdate").focus(); });
+$("restartYes").addEventListener("click", async () => {
+  const { wb, settings, sourceWs, baseName } = current;
+  trialCandidates(wb, settings).forEach(w => wb.removeWorksheet(w.id));
+  [MASTER, SETTINGS_TAB].forEach(n => { const w = wb.getWorksheet(n); if (w) wb.removeWorksheet(w.id); });
+  await start(wb, sourceWs, sheetRows(sourceWs), baseName, settings.downloadName || current.fileLabel,
+    [{ text: "Started again from scratch: new Master List and new random trial tabs." }]);
+});
+
+/* ---------- Result and preview ---------- */
+let previewTabs = [];
 function showTab(i) {
   [...$("tabs").children].forEach((b, k) => b.setAttribute("aria-selected", k === i ? "true" : "false"));
   const tb = $("rows");
   tb.textContent = "";
-  const t = previewLists.tabs[i];
+  const t = previewTabs[i];
   if (!t) return;
   t.rows.forEach(r => {
     const tr = document.createElement("tr");
-    r.forEach((v, k) => { const td = document.createElement("td"); td.textContent = v; if (k === 5 && v) td.className = "flag"; tr.appendChild(td); });
+    if (r.isNew) tr.className = "late";
+    [r.id, ...r.values].forEach((v, k) => { const td = document.createElement("td"); td.textContent = v; if (k === 6 && v) td.className = "flag"; if (k === 0) td.className = "id"; tr.appendChild(td); });
     tb.appendChild(tr);
   });
 }
-
-function render(lists, label, isExample) {
-  previewLists = lists;
-  $("resultTitle").textContent = isExample ? "Example result" : "Ready";
-  $("resultTag").textContent = isExample ? "Example data" : "Your file";
-  $("fileName").textContent = label;
-  $("sRows").textContent = lists.entries;
-  $("sTabs").textContent = lists.tabs.length;
-  $("sD").textContent = lists.dCount;
-  $("sH").textContent = lists.hCount;
+function renderResult(o) {
+  previewTabs = o.tabs;
+  $("result").hidden = false;
+  $("resultTitle").textContent = o.title;
+  $("resultTag").textContent = o.example ? "Example data" : "Your file";
+  $("fileName").textContent = o.label;
+  ["sRows", "sTabs", "sD", "sH"].forEach((id, k) => $(id).textContent = o.stats[k]);
+  $("sDLabel").textContent = o.labels[0]; $("sHLabel").textContent = o.labels[1];
+  const sum = $("summary");
+  sum.textContent = "";
+  (o.summary || []).forEach(line => {
+    const li = document.createElement("li");
+    const m = /^(.+?) \((.+?)\):(.*)$/.exec(line);
+    if (m) { const b = document.createElement("b"); b.textContent = m[1]; li.append(b, ` (${m[2]}):${m[3]}`); }
+    else li.textContent = line;
+    sum.append(li);
+  });
+  sum.hidden = !(o.summary || []).length;
   const tabs = $("tabs");
   tabs.textContent = "";
-  lists.tabs.forEach((t, i) => {
+  o.tabs.forEach((t, i) => {
     const b = document.createElement("button");
     b.type = "button"; b.className = "tabbtn"; b.setAttribute("role", "tab");
     b.textContent = t.name;
@@ -378,23 +994,20 @@ function render(lists, label, isExample) {
     tabs.appendChild(b);
   });
   showTab(0);
-  const dl = $("doublesList");
+  const dbl = doubles(o.tabs), dl = $("doublesList");
   dl.textContent = "";
-  (lists.doubles || []).forEach(d => {
+  dbl.forEach(d => {
     const li = document.createElement("li");
     const tab = document.createElement("code"); tab.textContent = d.tab;
     const who = document.createElement("b"); who.textContent = d.handler + (d.handlerNo ? ` (${d.handlerNo})` : "");
     li.append(tab, " · ", who, ": " + d.dogs.join(", "));
     dl.appendChild(li);
   });
-  $("doubles").hidden = !(lists.doubles || []).length;
+  $("doubles").hidden = !dbl.length;
+  $("download").disabled = !!o.example;
 }
 
-function showStatus(msg, isError) {
-  const s = $("status");
-  s.textContent = msg; s.className = "status" + (isError ? " error" : ""); s.hidden = !msg;
-}
-
+/* ---------- Dropping a file ---------- */
 function chooseTab(matches) {
   return new Promise(resolve => {
     const list = $("pickerList");
@@ -410,13 +1023,13 @@ function chooseTab(matches) {
       b.addEventListener("click", () => { $("picker").hidden = true; resolve(m); });
       list.appendChild(b);
     });
-    $("pickerNote").textContent = `${matches.length} tabs look like entries lists. Pick the one to use. Your other tabs stay as they are.`;
+    $("pickerNote").textContent = `${matches.length} tabs look like an entries download. Pick the one that is the website download: it becomes Sheet 1, locked and kept exactly as it is.`;
     $("picker").hidden = false;
+    $("result").hidden = true;
     showStatus("");
     list.querySelector("button").focus();
   });
 }
-
 function csvValue(s) {
   const t = String(s ?? "");
   return /^-?(0|[1-9]\d*)(\.\d+)?$/.test(t.trim()) ? Number(t.trim()) : t;
@@ -425,52 +1038,43 @@ function csvValue(s) {
 let busy = 0;
 async function handleFile(file) {
   const run = ++busy;
-  $("picker").hidden = true;
+  hideAll();
   showStatus("Reading " + file.name + "…");
   const ext = file.name.split(".").pop().toLowerCase();
-  const baseName = file.name.replace(/\.[^.]+$/, "").replace(/ \(with (Payments|Emails|Trial Lists)\)$/, "");
-  let label = file.name;
+  const baseName = file.name.replace(/\.[^.]+$/, "").replace(/ \((in progress|with (Payments|Emails|Trial Lists))\)$/i, "");
   try {
-    if (typeof ExcelJS === "undefined") throw new Error("The spreadsheet library didn't load. Check your internet connection and reload the page.");
-    let wb, rows;
-    if (ext === "xlsx") {
-      wb = new ExcelJS.Workbook();
-      await wb.xlsx.load(await file.arrayBuffer());
-      const matches = [];
-      for (const w of wb.worksheets.filter(w => !SKIP_TABS.has(w.name.toLowerCase()))) {
-        const r = sheetRows(w);
-        if (looksLikeEntries(r)) matches.push({ ws: w, rows: r });
-      }
-      if (!matches.length) throw new Error("Couldn't find a tab with Handler, Dog Pet Name and trial columns (like NWAdv1) in its first row. Check this is a trial entries download.");
-      const pick = matches.length === 1 ? matches[0] : await chooseTab(matches);
-      if (run !== busy) return;
-      rows = pick.rows;
-      if (matches.length > 1) label += " · tab “" + pick.ws.name + "”";
-    } else if (ext === "csv") {
+    if (ext === "numbers" || ext === "xls" || ext === "ods") {
+      return showStop("This file isn't an Excel spreadsheet", [{ type: "stop", text: "This file isn't an Excel spreadsheet, so the tool can't read it.", fix: "Open it in Excel or Excel for the web and save it as .xlsx. If it came from Numbers, go back to the last copy you saved from Excel or downloaded from this tool." }], { excel: ext === "numbers" });
+    }
+    if (ext !== "xlsx" && ext !== "csv") return showStop("This type of file can't be used", [{ type: "stop", text: `“${file.name}” isn't an Excel (.xlsx) or CSV file.`, fix: "Drop in the entries download from the website (Excel or CSV), or your trial spreadsheet (.xlsx)." }]);
+    if (typeof ExcelJS === "undefined") throw new Error("The spreadsheet library didn't load.|Check your internet connection and reload the page.");
+    if (ext === "csv") {
+      // CSV: only for the first drop. It becomes Sheet 1 of a new .xlsx working file.
       const text = await file.text();
-      rows = Papa.parse(text.replace(/^﻿/, ""), { skipEmptyLines: false }).data;
+      const rows = Papa.parse(text.replace(/^﻿/, ""), { skipEmptyLines: false }).data;
       while (rows.length && rows[rows.length - 1].every(isBlank)) rows.pop();
-      wb = new ExcelJS.Workbook();
+      if (!looksLikeEntries(rows)) return showStop("This doesn't look like an entries download", [{ type: "stop", text: "Couldn't find Handler, Dog Pet Name and trial columns (like NWAdv1) in the first row.", fix: "Check this is the trial entries download from the website. If you already have a trial spreadsheet, drop in that .xlsx file instead (the one ending “(in progress)”)." }]);
+      const wb = new ExcelJS.Workbook();
       const src = wb.addWorksheet("Entries");
       rows.forEach((r, i) => src.addRow(i === 0 ? r : r.map(csvValue)));
       src.getRow(1).font = { bold: true };
-    } else if (ext === "xls") {
-      throw new Error("This is an old-style .xls file. Open it in Excel and use Save As → Excel Workbook (.xlsx), then drop that file here.");
-    } else {
-      throw new Error("Please drop an Excel (.xlsx) or CSV file.");
+      return await start(wb, src, sheetRows(src), baseName, file.name);
     }
-    const lists = buildLists(rows);
-    if (!lists.entries) throw new Error("The columns are there, but there are no entry rows under them.");
-    if (!lists.tabs.length) throw new Error("None of the trial columns have anything entered, so there are no tabs to make.");
-    writeTabs(wb, lists);
-    current = { wb, baseName };
-    render(lists, label, false);
-    $("download").disabled = false;
-    $("actionNote").textContent = "The download is your original file plus " + lists.tabs.length + " trial tab" + (lists.tabs.length === 1 ? "" : "s") + ": " + lists.tabs.map(t => t.name).join(", ") + ".";
-    showStatus("");
+    const wb = new ExcelJS.Workbook();
+    await wb.xlsx.load(await file.arrayBuffer());
+    if (run !== busy) return;
+    if (wb.getWorksheet(SETTINGS_TAB)) return await resume(wb, baseName, file.name);
+    if (wb.getWorksheet(MASTER)) return showStop("Your saved settings are missing", [{ type: "stop", text: `This file has a ${MASTER} but no ${SETTINGS_TAB} tab. This often happens after editing in Numbers or Google Sheets.`, fix: "Go back to your most recent copy saved from Excel or downloaded from this tool, and make your changes again in Excel." }], { excel: true });
+    const matches = wb.worksheets.filter(w => !SKIP_TABS.has(w.name.toLowerCase())).map(w => ({ ws: w, rows: sheetRows(w) })).filter(m => looksLikeEntries(m.rows));
+    if (!matches.length) return showStop("This doesn't look like an entries download", [{ type: "stop", text: "Couldn't find a tab with Handler, Dog Pet Name and trial columns (like NWAdv1) in its first row.", fix: "Check this is the trial entries download from the website, or your trial spreadsheet from this tool." }]);
+    const pick = matches.length === 1 ? matches[0] : await chooseTab(matches);
+    if (run !== busy) return;
+    const old = wb.worksheets.some(w => w !== pick.ws && TRIAL_RE.test(w.name) && head(w).includes("handler"));
+    await start(wb, pick.ws, pick.rows, baseName, file.name + (matches.length > 1 ? ` · tab “${pick.ws.name}”` : ""),
+      old ? [{ text: "This file already had trial tabs from an older version of this tool. They've been replaced with new random ones." }] : []);
   } catch (err) {
-    showStatus(err.message || String(err), true);
-  }
+    showStop("Something went wrong", [splitMsg(err)]);
+  } finally { if (run === busy) showStatus(""); }
 }
 
 $("file").addEventListener("change", e => { const f = e.target.files[0]; if (f) handleFile(f); e.target.value = ""; });
@@ -481,31 +1085,39 @@ drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) h
 drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("file").click(); } });
 
 $("download").addEventListener("click", async () => {
-  if (!current) return;
+  if (!current || !current.wb) return;
   const btn = $("download");
   btn.disabled = true;
   try {
     const buf = await current.wb.xlsx.writeBuffer();
     const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    const filename = current.baseName + " (with Trial Lists).xlsx";
+    const filename = current.baseName + " (in progress).xlsx";
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob); a.download = filename; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-    $("actionNote").textContent = "Saved as “" + filename + "”.";
+    $("actionNote").textContent = "Saved as “" + filename + "”. Next time, drop this file in (not an older copy).";
   } catch (err) {
-    $("actionNote").textContent = "The download didn't work: " + (err.message || err);
+    $("actionNote").textContent = "The download didn't work: " + (err.message || err) + ". Try again; if it keeps happening, reload the page and drop the file in again.";
   } finally { btn.disabled = false; }
 });
 
-render(buildLists([
-  ["Handler Number", "Handler", "Dog No", "Dog Pet Name", "Dog Breed", "NWNov1", "NWAdv1", "NWNov2", "NWAdv2", "Sp1-1", "Comments"],
-  ["20101", "Kiri Example", "3101", "Moss", "Border Collie", "x", "", "x", "", "", "::::::"],
-  ["20101", "Kiri Example", "SD702", "Fern", "Labrador Retriever", "", "x", "", "x", "", "::::::  - Reactive to dogs."],
-  ["20245", "Tom Sample", "3388", "Biscuit", "Cocker Spaniel", "x", "", "", "", "", ":::Edited Dog Breed:::"],
-  ["21410", "Ana Placeholder", "SD815", "Juno", "Kelpie", "", "x", "", "x", "", "::::::  - Reactive to dogs.   - Reactive to people."],
-  ["22007", "Rua Demo", "3502", "Pip", "Jack Russell Terrier", "x", "", "x", "", "", "Please put Pippa on certificates::::::  - Reactive to people."],
-]), "This preview uses made-up entries so you can see what you'll get. Drop a real file above to replace it.", true);
+/* Example: made-up entries only. */
+(() => {
+  const s1 = [
+    ["Handler Number", "Handler", "Dog No", "Dog Pet Name", "Dog Breed", "NWNov1", "NWAdv1", "NWNov2", "NWAdv2", "Sp1-1", "Comments"],
+    ["20101", "Kiri Example", "3101", "Moss", "Border Collie", "x", "", "x", "", "", "::::::"],
+    ["20101", "Kiri Example", "SD702", "Fern", "Labrador Retriever", "", "x", "", "x", "", "::::::  - Reactive to dogs."],
+    ["20245", "Tom Sample", "3388", "Biscuit", "Cocker Spaniel", "x", "", "", "", "", ":::Edited Dog Breed:::"],
+    ["21410", "Ana Placeholder", "SD815", "Juno", "Kelpie", "", "x", "", "x", "", "::::::  - Reactive to dogs.   - Reactive to people."],
+    ["22007", "Rua Demo", "3502", "Pip", "Jack Russell Terrier", "x", "", "x", "", "", "Please put Pippa on certificates::::::  - Reactive to people."],
+  ];
+  const m = buildMaster(s1), read = readMaster([m.header, ...m.rows.map(r => r.cells)]), tabs = startTabs(read.entries, read.trials);
+  renderResult({ title: "Example result", example: true, tabs, label: "This preview uses made-up entries so you can see what you'll get. Drop a real file above to replace it.",
+    stats: [read.entries.length, tabs.length, read.entries.filter(e => e.values[5].includes("D")).length, read.entries.filter(e => e.values[5].includes("H")).length],
+    labels: ["dogs marked D", "dogs marked H"] });
+})();
 }
+
 </script>
 
 </body>
