@@ -219,7 +219,7 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
   <header>
     <p class="eyebrow">SSANZ trial tools</p>
     <h1>Trial Documents</h1>
-    <p class="lede">Drop in your trial spreadsheet from Trial Lists (the file ending “(in progress)”). Give each class its level, date and session once, then download the catalogue running orders, callboards, timekeepers' and judges' sheets as Word documents (A4), and the judges' score sheets as a PDF ready to print.</p>
+    <p class="lede">Drop in your trial spreadsheet from Trial Lists (the file ending “(in progress)”). Give each class its level, date and session once, then download the catalogue running orders, callboards, timekeepers' and judges' sheets as Word documents (A4), and the judging sheets as a PDF ready to print.</p>
   </header>
 
   <label class="drop" id="drop" for="file" tabindex="0">
@@ -303,7 +303,7 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
       </div>
       <div class="look" id="lookScore" hidden>
         <label class="field wide">
-          <span>Host club · full name, printed on every score sheet</span>
+          <span>Host club · full name, printed on every judging sheet</span>
           <input type="text" id="host" autocomplete="off" maxlength="60">
         </label>
         <div class="field wide">
@@ -338,13 +338,13 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
         <div class="actions" id="byElementList"></div>
       </div>
       <div class="pages" id="pages" aria-label="Preview of the pages"></div>
-      <iframe class="pdfview" id="pdfView" title="Preview of the score sheets" hidden></iframe>
+      <iframe class="pdfview" id="pdfView" title="Preview of the judging sheets" hidden></iframe>
       <p class="note" id="pdfOpen" hidden>Preview not showing (some phones and tablets)? <a id="pdfLink" href="#" target="_blank" rel="noopener">Open it in a new tab</a>.</p>
     </div>
   </section>
 
   <aside class="nextstep">
-    <p><b>That's the last step.</b> Open the Word documents to check them before they go into your catalogue, and print the score sheets PDF at actual size.</p>
+    <p><b>That's the last step.</b> Open the Word documents to check them before they go into your catalogue, and print the judging sheets PDF at actual size.</p>
     <a href="index.html">Back to all trial tools</a>
   </aside>
 
@@ -359,10 +359,10 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
       <li><b>Catalogue running orders:</b> each table is kept in one piece, and tables share a page when they fit. A table too long for one page starts on a new page and carries on over the next, with the heading row repeated. The preview's page numbers are a close estimate; Word makes the final fit.</li>
       <li><b>Callboards:</b> each class starts on its own page, with larger text and a Started ✓ column to tick. Set <b>Copies</b> to print more than one. Each copy can have an element line under the title: pick elements from the list in the order they run (each one is added to the end), then edit the text to add numbers such as “Exterior 2”. Or choose <b>Other</b> and type exactly what should be printed (up to one line). If nothing is chosen or typed, a line to write on is printed instead.</li>
       <li><b>Timekeepers and Judges:</b> one sheet per element, up to 8 per class. Each copy has one element (pick it, then add a number if needed, e.g. “Exterior 2”) and the judge's name, printed on the right of the element line. Leave either blank to write it in. The two documents share the same copies, elements and judges, so you only fill them in once.</li>
-      <li><b>Score sheets:</b> one sheet per dog for each search, with the date, host, judge, element, search time and the dog's running-order number filled in. They use the same searches (copies), elements and judges as the Timekeepers and Judges sheets. <b>Standard searches</b> sets up the usual searches for the class in one click. Search times come from the regulations; where the judge sets the time on the day, the range is printed.</li>
-      <li><b>Excellent hides:</b> choose the number of hides for each search. The score sheets won't download until they match the numbers drawn for the trial (3, 3, 3, 2 and 1).</li>
+      <li><b>Judging sheets:</b> one sheet per dog for each search, with the date, host, judge, element, search time and the dog's running-order number filled in. They use the same searches (copies), elements and judges as the Timekeepers and Judges sheets. <b>Standard searches</b> sets up the usual searches for the class in one click. Search times come from the regulations; where the judge sets the time on the day, the range is printed.</li>
+      <li><b>Excellent hides:</b> choose the number of hides for each search. The judging sheets won't download until they match the numbers drawn for the trial (3, 3, 3, 2 and 1).</li>
       <li><b>Coloured paper for each element:</b> the usual colours are filled in (Containers yellow, Interior pink, Exterior blue, Vehicle green); change any of them once and they're saved with your trial. Then use the buttons under the download, one per element: load that colour of paper, print, and move on to the next. The Download button still gives every element in one file.</li>
-      <li><b>Printing score sheets:</b> print at actual size (100%, not “Fit to page”) and single-sided, so the cut line stays in the middle of the page.</li>
+      <li><b>Printing judging sheets:</b> print at actual size (100%, not “Fit to page”) and single-sided, so the cut line stays in the middle of the page.</li>
       <li><b>Don't re-run Trial Lists</b> once the running orders are out: it shuffles the order again and every number would change. Use the spare sheets for late changes.</li>
       <li><b>Save progress</b> puts everything you've entered on this page (dates, levels, searches, judges, logo, host and the rest) into your trial spreadsheet and downloads it. Drop that file in next time and everything comes back. Documents download on their own, so save progress before you close the page; the page reminds you when there are unsaved changes.</li>
       <li><b>Locking:</b> the first time you save progress, the Master List and trial tabs are locked so the documents stay right. To change entries after that, use <b>Make a late change</b> in Trial Lists. When you come back here, the page lists the classes that changed and which documents to reprint.</li>
@@ -384,7 +384,7 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
    To add a document (Judges, Timekeepers…): copy a DOCUMENTS block, give it a
    new id, label and fileSuffix, and change its columns and sizes. The page
    adds a button for it automatically.
-   The judges' score sheets have their own settings further down (SCORE_SETTINGS).
+   The judging sheets have their own settings further down (SCORE_SETTINGS).
    ========================================================================= */
 const LAYOUT = {
   font: "Arial",
@@ -423,7 +423,7 @@ const LAYOUT = {
      singleElement    true = one element per sheet (the drop-down picks one; no "+" lists)
      judgeField       true = a "Judge:" name on the right of the element line, typed per copy
      judgeMaxChars    most characters for the judge's name
-     kind             "pdf" = the judges' score sheets (drawn from SCORE_SHEETS, downloaded as a PDF)
+     kind             "pdf" = the judging sheets (drawn from SCORE_SHEETS, downloaded as a PDF)
      columns          left to right:
        header     text in the heading row
        subheader  optional smaller second line under the header (subheaderSizePt to change its size)
@@ -480,7 +480,7 @@ const DOCUMENTS = [
     id: "timekeeper",
     label: "Timekeepers",
     fileSuffix: "Timekeepers",
-    about: "For the timekeeper at each search area. One sheet per element, with the judge's name, and a Time column to write in. Shares its copies, elements and judges with the Judges sheets and the score sheets.",
+    about: "For the timekeeper at each search area. One sheet per element, with the judge's name, and a Time column to write in. Shares its copies, elements and judges with the Judges sheets and the judging sheets.",
     bodySizePt: 12,
     rowHeightMm: 8.5,
     onePerPage: true,
@@ -507,7 +507,7 @@ const DOCUMENTS = [
     sideMarginMm: 10,                  // narrow side margins: the extra width goes to Notes
     label: "Judges",
     fileSuffix: "Judges",
-    about: "For the judge at each search area. One sheet per element, with the judge's name, a Hide(s) Found column and room for notes. Shares its copies, elements and judges with the Timekeepers sheets and the score sheets.",
+    about: "For the judge at each search area. One sheet per element, with the judge's name, a Hide(s) Found column and room for notes. Shares its copies, elements and judges with the Timekeepers sheets and the judging sheets.",
     bodySizePt: 10,
     rowHeightMm: 12,
     onePerPage: true,
@@ -534,9 +534,9 @@ const DOCUMENTS = [
   {
     id: "scoresheet",
     kind: "pdf",
-    label: "Score sheets",
-    fileSuffix: "Score Sheets",
-    about: "The judges' score sheets: one per dog for each search, printed as a PDF (A4 two per page, or A5). Shares its searches (copies), elements and judges with the Timekeepers and Judges sheets.",
+    label: "Judging sheets",
+    fileSuffix: "Judging Sheets",
+    about: "The judging sheets: one per dog for each search, printed as a PDF (A4 two per page, or A5). Shares its searches (copies), elements and judges with the Timekeepers and Judges sheets.",
     bodySizePt: 10,
     rowHeightMm: 0,
     onePerPage: true,
@@ -939,12 +939,12 @@ function buildDocx(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
 
 /* =========================================================================
    SCORE SHEETS: SETTINGS
-   Everything printed on the judges' score sheets is set here. When the
+   Everything printed on the judging sheets is set here. When the
    regulations or the wording change, change them here and republish the page.
 
    SCORE_SHEETS has one block per class (sport + level). Each block:
      sport, level   used to match the class tabs (NW / BH, Nov / Int / Adv / Exc / Pre)
-     title          heading words before the element, e.g. "NOVICE JUDGE'S SCORE SHEET"
+     title          heading words before the element, e.g. "NOVICE JUDGING SHEET"
      searches       Nosework: the element of each search, in the usual order
                     ("" = the organisation chooses, e.g. the 5th search at Excellent)
      element        Buried Hides: fixed element text when the class has no Sand/Water letter
@@ -953,17 +953,20 @@ function buildDocx(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
      hideSplit      (operator hides only) the numbers drawn for the searches, e.g. [3,3,3,2,1]
      hidesBox       true = print a "Number of hides" box in the heading
      left, right    the two columns of the table, top to bottom. Each row is one of:
-                      { head: "MAJOR FAULTS (5 POINTS)" }      bold heading row
+                      { head: "MAJOR FAULTS (5 points deduction)" }  bold heading row
                       { text: "Damage to search area" }        row with a box to mark
                       { text: "1st hide", value: "10" }        row with a value printed in it
                       { hideRows: true, value: "10" }          one row per hide: 1st hide, 2nd hide…
+                      { hideRows: true, value: "10", rows: 3, unused: "N/A" }
+                                                               always 3 hide rows; rows past the search's hides print "N/A"
+                      { text: "TOTAL:", wide: true }            row with a wider box to write a score in
                       { gap: true }                            empty row
                       { boxes: ["TIME:", "POINTS:"] }          tall box at the bottom (rest of the column)
                     **words** prints those words in bold. 1st / 2nd / 3rd are raised automatically.
      strip          (optional) a row of boxes under the table, e.g. Time | Converted | Score
    ========================================================================= */
 const SCORE_SETTINGS = {
-  versionLabel: "SSANZ score sheet 2026-10",   // printed small at the bottom right of every sheet
+  versionLabel: "",                            // optional small label at the bottom right of every sheet ("" for none)
   spares: 4,                                   // spare sheets at the end of each set (users can change)
   paperColours: {                              // usual paper colour per element (matches the results sheet); users can change them
     Containers: "yellow", Interior: "pink", Exterior: "blue", Vehicle: "green",
@@ -978,21 +981,10 @@ const NW_MAJOR = [
   { text: "Damage to search area" },
   { text: "Compromising search area" },
   { text: "Interference with hide placement" },
-  { text: "Contamination, Food scattering, throwing toys" },
+  { text: "Contamination, food scattering, throwing toys" },
   { text: "Leaving search area (TEAM)" },
   { text: "Fouling outside search area" },
   { text: "Safety issues" },
-];
-const NW_MINOR_SHORT = [
-  { text: "Tangling line" },
-  { text: "Dropping line" },
-  { text: "Handler errors" },
-  { text: "Handler NOR Dog crosses start line" },
-];
-const NW_MINOR_LONG = [
-  { text: "Tangling line / Dropping line" },
-  { text: "Handler errors" },
-  { text: "Handler NOR Dog crosses start line" },
 ];
 const BH_MAJOR = [
   { text: "Damage to search area" },
@@ -1003,84 +995,107 @@ const BH_MAJOR = [
   { text: "Fouling outside search area" },
   { text: "Safety issues" },
 ];
-const BH_MINOR = [
+const NW_MINOR_SHORT = [
   { text: "Tangling line" },
   { text: "Dropping line" },
-  { text: "Neither handler nor dog crosses start line" },
-  { text: "Handling errors" },
+  { text: "Handler error" },
+  { text: "Neither handler NOR dog crossed start line" },
 ];
-const STRIP_25 = [{ label: "Time:", width: 2 }, { label: "Converted:", width: 2 }, { label: "Faults Deducted:", width: 2 }, { label: "Score:", suffix: "/ 25", width: 1.4 }];
+const NW_MINOR_LONG = [
+  { text: "Tangling line / Dropping line" },
+  { text: "Handler error" },
+  { text: "Neither handler NOR dog crossed start line" },
+];
+const BH_MINOR_LONG = [
+  { text: "Tangling line" },
+  { text: "Dropping line" },
+  { text: "Neither handler NOR dog crossed start line" },
+  { text: "Other handling errors" },
+];
+const LONG_FAIL = [
+  { text: "False Alert **before** 1st find" },
+  { text: "Time out **before** 1st find" },
+  { text: "Fouling search area / Harsh handling (delete one)" },
+  { text: "Request for help / Aborted search **before** 1st find" },
+];
+const LONG_GAINED = [
+  { head: "ELEMENT FAILURE BUT POINTS GAINED" },
+  { text: "False Alert called **after** 1st find" },
+  { text: "Timed out **after** 1st find" },
+  { text: "Request for help / Aborted search **after** 1st find" },
+  { text: "Called an already found hide (2nd time)" },
+];
+const STRIP_25 = [{ label: "Time:" }, { label: "Faults Deducted:" }, { label: "Points:", suffix: "/ 25" }];
 const NW_SEARCHES = ["Containers", "Interior", "Exterior", "Vehicle"];
 
 const SCORE_SHEETS = [
   {
-    sport: "NW", level: "Nov", title: "NOVICE JUDGE’S SCORE SHEET",
+    sport: "NW", level: "Nov", title: "NOVICE JUDGING SHEET",
     searches: NW_SEARCHES, times: { Containers: "2", Interior: "3", Exterior: "3", Vehicle: "3" }, hides: 1,
-    left: [{ head: "MAJOR FAULTS: 5 POINTS deduction" }, ...NW_MAJOR, { text: "**False Alert** (False Continue) **6 points**" }],
-    right: [{ head: "MINOR FAULTS: 2 POINTS deduction" }, ...NW_MINOR_SHORT, { gap: true },
-      { head: "ELEMENT FAILURE: 25 POINTS deduction" }, { text: "2ND False alert" }, { text: "Time out" }, { text: "Fouling search area" }, { text: "Request for help/Aborted search" }],
+    left: [{ head: "FALSE ALERT: 6 points deduction" }, { text: "False Alert (False Continue)" }, { gap: true },
+      { head: "MAJOR FAULTS: 5 points deduction" }, ...NW_MAJOR],
+    right: [{ head: "MINOR FAULTS: 2 points deduction" }, ...NW_MINOR_SHORT, { gap: true },
+      { head: "ELEMENT FAILURE: 0 points" }, { text: "2nd false alert" }, { text: "Time out" }, { text: "Fouling search area" }, { text: "Request for help / Aborted search" }, { text: "Harsh handling" }],
     strip: STRIP_25,
   },
   {
-    sport: "NW", level: "Int", title: "INTERMEDIATE JUDGE’S SCORE SHEET",
+    sport: "NW", level: "Int", title: "INTERMEDIATE JUDGING SHEET",
     searches: NW_SEARCHES, times: { Containers: "2", Interior: "3", Exterior: "4", Vehicle: "3" }, hides: 1,
-    left: [{ head: "MAJOR FAULTS: 5 POINTS deduction" }, ...NW_MAJOR],
-    right: [{ head: "MINOR FAULTS: 2 POINTS deduction" }, { text: "Tangling line" }, { text: "Dropping line" }, { text: "Handler error" }, { text: "Handler NOR Dog crosses start line" }, { gap: true },
-      { head: "ELEMENT FAILURE: 25 POINTS deduction" }, { text: "False alert" }, { text: "Time out" }, { text: "Fouling search area" }, { text: "Request for help/Aborted search" }],
+    left: [{ head: "MAJOR FAULTS: 5 points deduction" }, ...NW_MAJOR],
+    right: [{ head: "MINOR FAULTS: 2 points deduction" }, ...NW_MINOR_SHORT, { gap: true },
+      { head: "ELEMENT FAILURE: 0 points" }, { text: "False Alert" }, { text: "Time out" }, { text: "Fouling search area" }, { text: "Request for help / Aborted search" }, { text: "Harsh handling" }],
     strip: STRIP_25,
   },
   {
-    sport: "NW", level: "Adv", title: "ADVANCED JUDGE’S SCORE SHEET",
+    sport: "NW", level: "Adv", title: "ADVANCED JUDGING SHEET",
     searches: NW_SEARCHES, times: { Containers: "3", Interior: "2-6", Exterior: "3-5", Vehicle: "3-4" }, hides: 2,
-    left: [{ head: "ELEMENT FAILURE (25 POINTS)" }, { text: "False Alert **before** 1st find" }, { text: "Time out **before** 1st find" }, { text: "Fouling" }, { text: "Request for help/Aborted search" },
-      { head: "FAULT (6 POINTS)" }, { text: "Handler called alert on found hide" },
-      { head: "MAJOR FAULTS (5 POINTS)" }, ...NW_MAJOR,
-      { head: "MINOR FAULTS (2 POINTS)" }, ...NW_MINOR_LONG],
-    right: [{ head: "ELEMENT FAILURE BUT POINTS GAINED" }, { text: "False Alert called **after** 1st find" }, { text: "Timed out **after** 1st find" }, { gap: true },
+    left: [{ head: "ELEMENT FAILURE (0 points)" }, ...LONG_FAIL,
+      { head: "FAULT (6 points deduction)" }, { text: "Called an already found hide (1st time)" },
+      { head: "MAJOR FAULTS (5 points deduction)" }, ...NW_MAJOR,
+      { head: "MINOR FAULTS (2 points deduction)" }, ...NW_MINOR_LONG],
+    right: [...LONG_GAINED, { gap: true },
       { head: "Located Odour = 12.5 points each" }, { hideRows: true, value: "12.5" }, { gap: true },
-      { head: "Score: Out of 25" }, { text: "Hides found (as above)" }, { text: "Less Faults points" }, { text: "**TOTAL:**" }, { gap: true },
+      { head: "Points: Out of 25" }, { text: "Hides found (as above)", wide: true }, { text: "Less faults to be deducted", wide: true }, { text: "**TOTAL:**", wide: true }, { gap: true },
       { boxes: ["TIME:", "POINTS:"] }],
   },
   {
-    sport: "NW", level: "Exc", title: "EXCELLENT JUDGE’S SCORE SHEET",
+    sport: "NW", level: "Exc", title: "EXCELLENT JUDGING SHEET",
     searches: [...NW_SEARCHES, ""], times: { Containers: "3-4", Interior: "3-6", Exterior: "3-6", Vehicle: "3-4" },
     hides: "operator", hideSplit: [3, 3, 3, 2, 1], hidesBox: true,
-    left: [{ head: "ELEMENT FAILURE (ALL POINTS)" }, { text: "False Alert **before** 1st find" }, { text: "Time out **before** 1st find" }, { text: "Fouling / Harsh Handling (Delete one)" }, { text: "Request for help/Aborted search" },
-      { head: "FAULT (6 POINTS)" }, { text: "Handler called alert on found hide" },
-      { head: "MAJOR FAULTS (5 POINTS)" }, ...NW_MAJOR,
-      { head: "MINOR FAULTS (2 POINTS)" }, ...NW_MINOR_LONG],
-    right: [{ head: "ELEMENT FAILURE BUT POINTS GAINED" }, { text: "False Alert called **after** 1st find" }, { text: "Timed out **after** 1st find" }, { text: "Handler called alert on found hide 2nd time" }, { gap: true },
-      { head: "Located Odour = 10 points each" }, { hideRows: true, value: "10" }, { gap: true },
-      { head: "Score: (Each hide = 10)" }, { text: "Hides found (as above)" }, { text: "Less Faults points" }, { text: "**TOTAL:**" }, { gap: true },
+    left: [{ head: "ELEMENT FAILURE (0 points)" }, ...LONG_FAIL,
+      { head: "FAULT (6 points deduction)" }, { text: "Called an already found hide (1st time)" },
+      { head: "MAJOR FAULTS (5 points deduction)" }, ...NW_MAJOR,
+      { head: "MINOR FAULTS (2 points deduction)" }, ...NW_MINOR_LONG],
+    right: [...LONG_GAINED, { gap: true },
+      { head: "Located Odour = 10 points each" }, { hideRows: true, value: "10", rows: 3, unused: "N/A" }, { gap: true },
+      { head: "Points: (Each hide = 10)" }, { text: "Hides found (as above)", wide: true }, { text: "Less faults to be deducted", wide: true }, { text: "**TOTAL:**", wide: true }, { gap: true },
       { boxes: ["TIME:", "POINTS:"] }],
   },
   {
-    sport: "BH", level: "Nov", title: "NOVICE BH JUDGE’S SCORE SHEET", times: { any: "2" }, hides: 1,
-    left: [{ head: "MAJOR FAULTS: 3 POINTS deduction" }, ...BH_MAJOR],
-    right: [{ head: "MINOR FAULTS: 2 POINTS deduction" }, ...BH_MINOR, { gap: true },
-      { head: "ELEMENT FAILURE: 25 POINTS deduction" }, { text: "False alert" }, { text: "Time out" }, { text: "Fouling search area" }, { text: "Request for help/Aborted search" }, { text: "Worked dog off lead" }, { text: "Harsh Handling" }],
+    sport: "BH", level: "Nov", title: "NOVICE BH JUDGING SHEET", times: { any: "2" }, hides: 1,
+    left: [{ head: "MAJOR FAULTS: 3 points deduction" }, ...BH_MAJOR],
+    right: [{ head: "MINOR FAULTS: 2 points deduction" }, { text: "Tangling line" }, { text: "Dropping line" }, { text: "Neither handler NOR dog crossed start line" }, { text: "Handling errors" }, { gap: true },
+      { head: "ELEMENT FAILURE: 0 points" }, { text: "False alert" }, { text: "Time out" }, { text: "Fouling search area" }, { text: "Request for help / Aborted search" }, { text: "Worked dog off lead" }, { text: "Harsh handling" }],
     strip: STRIP_25,
   },
   {
-    sport: "BH", level: "Int", title: "INTERMEDIATE BH JUDGE’S SCORE SHEET", times: { any: "3" }, hides: 2,
-    left: [{ head: "ELEMENT FAILURE (50 POINTS)" }, { text: "False Alert **before** 1st find" }, { text: "Time out **before** 1st find" }, { text: "Fouling" }, { text: "Request for help/Aborted search" },
-      { head: "MAJOR FAULTS (3 POINTS)" }, { text: "Handler called alert on found hide" }, ...BH_MAJOR,
-      { head: "MINOR FAULTS (2 POINTS)" }, { text: "Tangling line" }, { text: "Dropping line" }, { text: "Neither handler nor dog crosses start line" }, { text: "Other handling errors" }],
-    right: [{ head: "ELEMENT FAILURE BUT POINTS GAINED" }, { text: "False Alert called **after** 1st find" }, { text: "Timed out **after** 1st find" }, { gap: true },
-      { head: "Located Odour = 25 points each" }, { hideRows: true, value: "" }, { text: "**TOTAL:**" }, { gap: true },
-      { head: "Score: Out of 50" }, { text: "Hides found (as above)" }, { text: "Less Faults points" }, { text: "**TOTAL:** (46 points or more to qualify)" }, { gap: true },
+    sport: "BH", level: "Int", title: "INTERMEDIATE BH JUDGING SHEET", times: { any: "3" }, hides: 2,
+    left: [{ head: "ELEMENT FAILURE (0 points)" }, ...LONG_FAIL, { text: "Worked dog off lead" },
+      { head: "MAJOR FAULTS: 3 points deduction" }, { text: "Called an already found hide (1st time)" }, ...BH_MAJOR,
+      { head: "MINOR FAULTS: 2 points deduction" }, ...BH_MINOR_LONG],
+    right: [...LONG_GAINED, { gap: true },
+      { head: "Located Odour = 25 points each" }, { hideRows: true, value: "25" }, { text: "**TOTAL:**" }, { gap: true },
+      { head: "Points: Out of 50" }, { text: "Hides found (as above)", wide: true }, { text: "Less faults to be deducted", wide: true }, { text: "**TOTAL:** (46 points or more to qualify)", wide: true }, { gap: true },
       { boxes: ["TIME:", "POINTS", "QUAL?"] }],
   },
   {
-    // New design (no SSANZ sheet yet): Intermediate layout with 3 hides, out of 75, and the
-    // trial failures from the regulations (section 9.1) that Novice lists: off lead, harsh handling.
-    sport: "BH", level: "Adv", title: "ADVANCED BH JUDGE’S SCORE SHEET", element: "Sand + Water", times: { any: "4" }, hides: 3,
-    left: [{ head: "ELEMENT FAILURE (75 POINTS)" }, { text: "False Alert **before** 1st find" }, { text: "Time out **before** 1st find" }, { text: "Fouling" }, { text: "Request for help/Aborted search" }, { text: "Worked dog off lead / Harsh handling" },
-      { head: "MAJOR FAULTS (3 POINTS)" }, { text: "Handler called alert on found hide" }, ...BH_MAJOR,
-      { head: "MINOR FAULTS (2 POINTS)" }, { text: "Tangling line" }, { text: "Dropping line" }, { text: "Neither handler nor dog crosses start line" }, { text: "Other handling errors" }],
-    right: [{ head: "ELEMENT FAILURE BUT POINTS GAINED" }, { text: "False Alert called **after** 1st find" }, { text: "Timed out **after** 1st find" }, { gap: true },
-      { head: "Located Odour = 25 points each" }, { hideRows: true, value: "" }, { text: "**TOTAL:**" }, { gap: true },
-      { head: "Score: Out of 75" }, { text: "Hides found (as above)" }, { text: "Less Faults points" }, { text: "**TOTAL:** (71 points or more to qualify)" }, { gap: true },
+    sport: "BH", level: "Adv", title: "ADVANCED BH JUDGING SHEET", element: "Sand + Water", times: { any: "4" }, hides: 3,
+    left: [{ head: "ELEMENT FAILURE (0 points)" }, ...LONG_FAIL, { text: "Worked dog off lead" },
+      { head: "MAJOR FAULTS: 3 points deduction" }, { text: "Called an already found hide (1st time)" }, ...BH_MAJOR,
+      { head: "MINOR FAULTS: 2 points deduction" }, ...BH_MINOR_LONG],
+    right: [...LONG_GAINED, { gap: true },
+      { head: "Located Odour = 25 points each" }, { hideRows: true, value: "25" }, { text: "**TOTAL:**" }, { gap: true },
+      { head: "Points: Out of 75" }, { text: "Hides found (as above)", wide: true }, { text: "Less faults to be deducted", wide: true }, { text: "**TOTAL:** (71 points or more to qualify)", wide: true }, { gap: true },
       { boxes: ["TIME:", "POINTS", "QUAL?"] }],
   },
 ];
@@ -1093,7 +1108,7 @@ const PDF_LOGO = { w: 290, h: 290, b64: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgM
 /* ---------- Score sheets: which sheet a class uses ---------- */
 const MINUTES = t => {
   const s = String(t || "").trim().replace(/\s*[-–]\s*/, "–");
-  return s ? `${s} ${s === "1" ? "MINUTE" : "MINUTES"}` : "";
+  return s ? `${s} ${s === "1" ? "Minute" : "Minutes"}` : "";
 };
 /* The score sheet settings for a class tab (e.g. NWExc1), or null if there is no sheet for it yet. */
 function scoreClass(tabName) {
@@ -1146,7 +1161,7 @@ function scoreSets(classes, opts) {
   if (!String(opts.host || "").trim()) problems.push("Type the host club's name.");
   classes.forEach(c => {
     const sc = scoreClass(c.cls || c.name);
-    if (!sc) { problems.push(`${c.name}: there's no score sheet for this class yet.`); return; }
+    if (!sc) { problems.push(`${c.name}: there's no judging sheet for this class yet.`); return; }
     const { sheet } = sc;
     if (!c.date) problems.push(`${c.name}: choose the date.`);
     if (sheet.hides === "operator" && sheet.hideSplit) {
@@ -1290,7 +1305,7 @@ PdfDoc.prototype.bytes = function (title) {
   });
   objs[catalog - 1] = `<< /Type /Catalog /Pages ${pagesId} 0 R /ViewerPreferences << /PrintScaling /None >> >>`;
   objs[pagesId - 1] = `<< /Type /Pages /Kids [${kids.map(k => k + " 0 R").join(" ")}] /Count ${kids.length} >>`;
-  const info = add(`<< /Title (${String(title || "Score sheets").replace(/[()\\]/g, "").replace(/[^\x20-\x7e]/g, "")}) /Producer (SSANZ trial tools) >>`);
+  const info = add(`<< /Title (${String(title || "Judging sheets").replace(/[()\\]/g, "").replace(/[^\x20-\x7e]/g, "")}) /Producer (SSANZ trial tools) >>`);
   push("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
   objs.forEach((body, i) => {
     offsets[i] = len;
@@ -1314,71 +1329,60 @@ function b64bytes(b64) {
 }
 
 /* ---------- Drawing one sheet (A5 landscape, 210 × 148 mm) at (ox, oy) on the page ---------- */
-const SHEET = { w: 210, h: 148, mL: 10, mR: 10, mT: 8, mB: 7, gap: 4, mark: 13, value: 14, rowMax: 6.2 };
+const SHEET = { w: 210, h: 148, mL: 10, mR: 10, mT: 8, mB: 7, gap: 4, mark: 13, value: 14, wideMark: 27, rowMax: 6.5,
+  size: { title: 12, field: 10.5, row: 10, box: 9.5, footer: 11, hides: 9 }, tableTop: 29.5 };
 const GREY = "0.92 g", ORANGE = "0.89 0.42 0.04 rg";
 
 function drawSheet(pdf, set, dog, ox, oy) {
-  const S = SHEET, sh = set.sheet;
+  const S = SHEET, Z = S.size, sh = set.sheet;
   const X = x => ox + x, Yy = y => oy + y;
   const right = S.w - S.mR;
-  // Heading
+  // Heading: logo, title, running-order box, then Date / Host and Handler / Dog with their values lined up
   pdf.logo(X(S.mL), Yy(S.mT), 17);
   const tx = S.mL + 20;
   const title = `${sh.title} **${set.element}**${set.time ? ` (${set.time})` : ""}`;
-  pdf.text(title, X(tx), Yy(S.mT + 4.5), { size: 11, maxW: 168 - tx - 2 });
+  pdf.text(title, X(tx), Yy(S.mT + 4.5), { size: Z.title, maxW: 168 - tx - 2 });
   pdf.rect(X(172), Yy(S.mT), right - 172, 11, { lw: 0.8 });
   if (dog.order) pdf.text(String(dog.order), X((172 + right) / 2), Yy(S.mT + 8.6), { size: 20, bold: true, align: "center", maxW: right - 172 - 3 });
   const col2 = 104;
-  const field = (label, value, x, y, maxRight) => {
-    const lw = pdf.text(label, X(x), Yy(y), { size: 9.5 });
-    const vx = x + lw + 2;
-    if (value) pdf.text(value, X(vx), Yy(y), { size: 9.5, bold: true, maxW: maxRight - vx });
-    else pdf.line(X(vx), Yy(y + 0.8), X(maxRight - 2), Yy(y + 0.8), { lw: 0.4 });
+  const fields = (x, list, maxRight) => {
+    const vx = x + Math.max(...list.map(([label]) => textWidth(label, Z.field))) + 2;
+    list.forEach(([label, value, y, limit]) => {
+      pdf.text(label, X(x), Yy(y), { size: Z.field });
+      const end = limit || maxRight;
+      if (value) pdf.text(value, X(vx), Yy(y), { size: Z.field, bold: true, maxW: end - vx });
+      else pdf.line(X(vx), Yy(y + 0.8), X(end - 2), Yy(y + 0.8), { lw: 0.4 });
+    });
   };
-  field("Date:", set.date, tx, S.mT + 10.5, col2 - 3);
-  field("Host:", set.host, tx, S.mT + 16, col2 - 3);
-  field("Handler:", dog.handler, col2, S.mT + 10.5, 170);
-  field("Dog:", dog.dog, col2, S.mT + 16, sh.hidesBox ? 160 : 170);
+  fields(tx, [["Date:", set.date, S.mT + 11], ["Host:", set.host, S.mT + 16.8]], col2 - 3);
+  fields(col2, [["Handler:", dog.handler, S.mT + 11], ["Dog:", dog.dog, S.mT + 16.8, sh.hidesBox ? 162 : 0]], 170);
   if (sh.hidesBox) {
-    pdf.text("Number of hides", X(186.5), Yy(S.mT + 17), { size: 8, align: "right" });
+    pdf.text("Number of hides", X(186.5), Yy(S.mT + 17.3), { size: Z.hides, align: "right" });
     pdf.rect(X(188), Yy(S.mT + 12.5), right - 188, 6.5, { lw: 0.8 });
     if (set.hides) pdf.text(String(set.hides), X((188 + right) / 2), Yy(S.mT + 17.6), { size: 12, bold: true, align: "center" });
   }
 
-  // Footer: judge line, comments box, optional strip of boxes
-  const judgeY = S.h - S.mB - 0.5;
-  const jw = pdf.text("Judge’s Name:", X(S.mL), Yy(judgeY), { size: 10 });
-  if (set.judge) pdf.text(set.judge, X(S.mL + jw + 2), Yy(judgeY), { size: 10, bold: true, maxW: 104 - S.mL - jw - 6 });
+  // Footer: judge's name and signature
+  const judgeY = S.h - S.mB + 0.5;
+  const jw = pdf.text("Judge’s Name:", X(S.mL), Yy(judgeY), { size: Z.footer });
+  if (set.judge) pdf.text(set.judge, X(S.mL + jw + 2), Yy(judgeY), { size: Z.footer, bold: true, maxW: 104 - S.mL - jw - 6 });
   else pdf.line(X(S.mL + jw + 2), Yy(judgeY + 0.8), X(100), Yy(judgeY + 0.8), { lw: 0.4 });
-  const sw = pdf.text("Judge’s Signature:", X(104), Yy(judgeY), { size: 10 });
-  pdf.line(X(104 + sw + 2), Yy(judgeY + 0.8), X(170), Yy(judgeY + 0.8), { lw: 0.4 });
-  pdf.text(SCORE_SETTINGS.versionLabel, X(right), Yy(judgeY), { size: 6.5, align: "right", colour: ORANGE });
-  const commentsH = 11, commentsTop = judgeY - 4.5 - commentsH;
-  pdf.rect(X(S.mL), Yy(commentsTop), right - S.mL, commentsH);
-  pdf.text("Comments:", X(S.mL + 1.5), Yy(commentsTop + 3.6), { size: 9 });
-  let tableBottom = commentsTop - 1.8;
-  if (sh.strip) {
-    const stripH = 9, top = commentsTop - 1.8 - stripH;
-    const total = sh.strip.reduce((a, b) => a + (b.width || 1), 0);
-    let x = S.mL;
-    sh.strip.forEach(b => {
-      const w = (right - S.mL) * (b.width || 1) / total;
-      pdf.rect(X(x), Yy(top), w, stripH);
-      pdf.text(b.label, X(x + 1.5), Yy(top + 3.4), { size: 8.5 });
-      if (b.suffix) pdf.text(b.suffix, X(x + w - 2), Yy(top + 6.8), { size: 10, align: "right" });
-      x += w;
-    });
-    tableBottom = top - 1.8;
-  }
+  const sw = pdf.text("Judge’s Signature:", X(104), Yy(judgeY), { size: Z.footer });
+  pdf.line(X(104 + sw + 2), Yy(judgeY + 0.8), X(SCORE_SETTINGS.versionLabel ? 170 : right), Yy(judgeY + 0.8), { lw: 0.4 });
+  if (SCORE_SETTINGS.versionLabel) pdf.text(SCORE_SETTINGS.versionLabel, X(right), Yy(judgeY), { size: 6.5, align: "right", colour: ORANGE });
 
-  // The two columns
-  const tableTop = S.mT + 21;
+  // The two columns. Rows are as tall as fits (up to rowMax); the strip and Comments follow straight after.
+  const commentsH = 11, stripH = 9, space = 1.8;
+  const lowest = judgeY - 7.5 - commentsH - space - (sh.strip ? stripH + space : 0);
+  const tableTop = S.tableTop;
   const expand = rows => rows.flatMap(r => r.hideRows
-    ? Array.from({ length: Math.max(1, set.hides || 1) }, (_, i) => ({ text: `${ordinalWord(i + 1)} hide`, value: r.value }))
+    ? Array.from({ length: r.rows || Math.max(1, set.hides || 1) }, (_, i) => ({ text: `${ordinalWord(i + 1)} hide`, value: r.rows && set.hides && i >= set.hides ? (r.unused || "") : r.value }))
     : [r]);
   const cols = [expand(sh.left || []), expand(sh.right || [])];
   const units = rows => rows.reduce((a, r) => a + (r.boxes ? 2.5 : 1), 0);
-  const rowH = Math.min(S.rowMax, (tableBottom - tableTop) / Math.max(...cols.map(units)));
+  const maxUnits = Math.max(...cols.map(units));
+  const rowH = Math.min(S.rowMax, (lowest - tableTop) / maxUnits);
+  const tableBottom = tableTop + rowH * maxUnits;
   const colW = (right - S.mL - S.gap) / 2;
   cols.forEach((rows, ci) => {
     const cx = S.mL + ci * (colW + S.gap);
@@ -1391,26 +1395,43 @@ function drawSheet(pdf, set, dog, ox, oy) {
         const h = Math.max(rowH * 2, tableBottom - y), bw = colW / r.boxes.length;
         r.boxes.forEach((label, k) => {
           pdf.rect(X(cx + k * bw), Yy(y), bw, h);
-          pdf.text(label, X(cx + k * bw + 1.5), Yy(y + 3.4), { size: 8.5 });
+          pdf.text(label, X(cx + k * bw + 1.5), Yy(y + 3.6), { size: Z.box });
         });
         y += h;
         return;
       }
-      const base = y + rowH / 2 + 1.1;
+      const base = y + rowH / 2 + 1.25;
       if (r.head) {
         pdf.rect(X(cx), Yy(y), colW, rowH, { fill: GREY });
-        pdf.text(r.head, X(cx + 1.5), Yy(base), { size: 8.5, bold: true, maxW: colW - 3 });
+        pdf.text(r.head, X(cx + 1.5), Yy(base), { size: Z.row, bold: true, maxW: colW - 3 });
       } else {
         const own = r.value != null;   // rows without a value use the value column for their text
-        pdf.rect(X(cx), Yy(y), (own ? valueX : markX) - cx, rowH);
+        const boxX = r.wide ? cx + colW - S.wideMark : markX;   // calculation rows get a wider box to write in
+        const textEnd = own ? valueX : boxX;
+        pdf.rect(X(cx), Yy(y), textEnd - cx, rowH);
         if (own) pdf.rect(X(valueX), Yy(y), S.value, rowH);
-        pdf.rect(X(markX), Yy(y), S.mark, rowH);
-        pdf.text(r.text, X(cx + 1.5), Yy(base), { size: 8.5, maxW: (own ? valueX : markX) - cx - 3 });
-        if (r.value) pdf.text(r.value, X(valueX + S.value / 2), Yy(base), { size: 8.5, align: "center" });
+        pdf.rect(X(boxX), Yy(y), cx + colW - boxX, rowH);
+        pdf.text(r.text, X(cx + 1.5), Yy(base), { size: Z.row, maxW: textEnd - cx - 3 });
+        if (r.value) pdf.text(r.value, X(valueX + S.value / 2), Yy(base), { size: Z.row, align: "center" });
       }
       y += rowH;
     });
   });
+  let next = tableBottom + space;
+  if (sh.strip) {
+    const total = sh.strip.reduce((a, b) => a + (b.width || 1), 0);
+    let x = S.mL;
+    sh.strip.forEach(b => {
+      const w = (right - S.mL) * (b.width || 1) / total;
+      pdf.rect(X(x), Yy(next), w, stripH);
+      pdf.text(b.label, X(x + 1.5), Yy(next + 3.6), { size: Z.box });
+      if (b.suffix) pdf.text(b.suffix, X(x + w - 2), Yy(next + 7.2), { size: Z.footer, align: "right" });
+      x += w;
+    });
+    next += stripH + space;
+  }
+  pdf.rect(X(S.mL), Yy(next), right - S.mL, commentsH);
+  pdf.text("Comments:", X(S.mL + 1.5), Yy(next + 3.8), { size: Z.box });
 }
 
 /* sets (from scoreSets), paper: "A4" (two per page, cut and stack) or "A5".
@@ -1452,7 +1473,7 @@ const TL = (() => {
 /* =========================================================================
    Trial Lists: the logic (no spreadsheet library needed, so it can be tested on its own)
    ========================================================================= */
-const TOOL = { name: "Trial Lists", version: "5.0" };
+const TOOL = { name: "Trial Lists", version: "5.1" };
 const MASTER = "Master List";
 const SETTINGS_TAB = "Tool Settings";
 const ID_HEAD = "Entry ID", STATUS_HEAD = "Status";
@@ -1621,7 +1642,7 @@ function readTrialTab(name, rows, trialNames, entries) {
   const head = (rows[0] || []).map(lower);
   const at = h => head.indexOf(h.toLowerCase());
   const idCol = at(ID_HEAD);
-  const out = { name, problems: [], rows: [] };
+  const out = { name, problems: [], rows: [], newRows: [] };
   if (idCol < 0) {
     out.unusable = true;
     out.problems.push({ type: "stop", text: `The tab “${name}” has no ${ID_HEAD} column, so it can't be updated.`, fix: `Undo the change that removed it, or delete this tab and duplicate a working trial tab again. It's left as it is.` });
@@ -1638,9 +1659,10 @@ function readTrialTab(name, rows, trialNames, entries) {
       out.problems.push({ type: "warning", text: `An ${ID_HEAD} on “${name}” (row ${i + 1}) has changed: it shows “${raw}”.`, fix: fixed ? `It's read as ${fixed}. If that's wrong, go back to your most recent downloaded copy.` : `Go back to your most recent downloaded copy, or retype the ID to match the ${MASTER}.` });
       id = fixed || id;
     }
-    if (!id) { out.problems.push({ type: "warning", text: `Row ${i + 1} on “${name}” has no ${ID_HEAD}, so it will be left off.`, fix: `New entries go on the ${MASTER}, not on a trial tab. Add it there and update again.` }); return; }
     const values = cols.map(k => k < 0 ? "" : norm(r[k]));
     values[5] = reactivity(values[5]);
+    // A row typed onto the tab without an Entry ID: the audit asks whether it's a late entry.
+    if (!id) { if (values[1] || values[3]) out.newRows.push({ values, sheetRow: i + 1 }); return; }
     if (ids.has(id)) {
       out.problems.push({ type: "warning", text: `${values[1]} and ${values[3]} (${id}) appear twice on “${name}”.`, fix: `Delete one of the rows in Excel, then drop the file back in. For now the first one is kept.` });
       return;
@@ -1707,16 +1729,172 @@ function summaryLines(plan) {
   return plan.tabs.map(t => {
     if (t.mode === "new") return `${t.name} (new tab, random order): ${t.rows.length} ${t.rows.length === 1 ? "entry" : "entries"}.`;
     const parts = [];
-    if (t.removed.length) parts.push(`${t.removed.length} ${t.removed.length === 1 ? "entry" : "entries"} removed (${t.removed.map(r => `${r.id} ${r.why}`).join(", ")})`);
+    if (t.removed.length) parts.push(`${t.removed.length} ${t.removed.length === 1 ? "entry" : "entries"} removed: ${t.removed.map(r => `${who(r.id, r.values)} ${r.why}`).join("; ")}`);
     if (t.mode === "random") {
       if (t.added.length) parts.push(`${t.added.length} late ${t.added.length === 1 ? "entry" : "entries"} included`);
       return `${t.name} (new random order): reshuffled, ${t.rows.length} ${t.rows.length === 1 ? "entry" : "entries"}${parts.length ? ". " + parts.join(". ") : ""}.`;
     }
-    t.rows.forEach((r, k) => { if (r.isNew) parts.push(`Late entry added at the bottom, row ${k + 2}: ${r.values[1]} and ${r.values[3]} (${r.id})`); });
+    t.rows.forEach((r, k) => { if (r.isNew) parts.push(`Late entry added at the bottom, row ${k + 2}: ${who(r.id, r.values)}`); });
+    (t.confirmed || []).forEach(c => parts.push(c));
     if (t.changed) parts.push(`${t.changed} ${t.changed === 1 ? "detail" : "details"} updated from the Master List`);
     const late = t.rows.some(r => r.isNew) ? " Move late entries in Excel if you want them elsewhere." : "";
     return `${t.name} (order kept): ${parts.length ? parts.join(". ") + "." + late : "no changes."}`;
   });
+}
+
+/* "E196 (Jane Smith & Moss)": how an entry is named in every message.
+   values: [Handler Number, Handler, Dog No, Dog Pet Name, Dog Breed, Comments] */
+function who(id, values = []) {
+  const names = [values[1], values[3]].map(norm).filter(Boolean).join(" & ");
+  return id ? (names ? `${id} (${names})` : id) : names || "an unnamed row";
+}
+const list = a => a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1];
+
+/* ---------- Snapshot and audit ----------
+   Each save remembers, in Tool Settings, which trials every entry had on the Master List and
+   which entries were on each trial tab. Next time, comparing both with that snapshot shows where
+   a change was made: on the Master List (the tabs follow it, as before) or on a trial tab (the
+   user is asked about it, and on Yes the Master List is changed to match).
+   Only the main tab of each trial counts (NWAdv1, not a copy such as "NWAdv1 Sat plan"). */
+const isMainTab = t => !t.unusable && !!t.trial && t.name.toLowerCase() === t.trial.toLowerCase();
+function snapshot(entries, tabs) {
+  return {
+    master: Object.fromEntries(entries.map(e => [e.id, [...e.trials].sort()])),
+    withdrawn: entries.filter(e => e.withdrawn).map(e => e.id),
+    tabs: Object.fromEntries(tabs.filter(isMainTab).map(t => [t.trial, t.rows.map(r => r.id)])),
+  };
+}
+
+/* Questions about changes made on the trial tabs. Call once per file: rows typed without an
+   Entry ID that match an existing entry (same handler and dog) are given that entry's ID here.
+   Each question: { key, kind, id, values, from, to, rows, last, no, text, yes, noText }
+     kind  "late"     a row typed onto a tab without an Entry ID, not matching anyone entered
+           "withdraw" taken off a tab, still entered in that trial on the Master List
+           "move"     taken off one tab and put on another
+           "extra"    put on another tab and still on its own (copied)
+     no    "stop"   = No means the file needs checking before it can be updated
+           "master" = No keeps the Master List as it is (files saved before snapshots existed) */
+function audit(entries, tabs, snap) {
+  const byId = new Map(entries.map(e => [e.id, e]));
+  const main = tabs.filter(isMainTab);
+  const has = !!(snap && snap.tabs && snap.master);
+  const problems = [];
+  const inMaster = (e, T) => !!e && !e.withdrawn && e.trials.has(T);
+  const wasMaster = (id, T) => has ? (snap.master[id] || []).includes(T) && !(snap.withdrawn || []).includes(id) : inMaster(byId.get(id), T);
+  const wasTab = (id, T) => has && snap.tabs[T] ? snap.tabs[T].includes(id) : wasMaster(id, T);
+  const onTab = new Map();
+  const mark = (id, T) => { if (!onTab.has(id)) onTab.set(id, new Set()); onTab.get(id).add(T); };
+  main.forEach(t => t.rows.forEach(r => mark(r.id, t.trial)));
+
+  // Rows typed without an Entry ID: an existing entry if the handler and dog match, else perhaps a late entry.
+  const key = v => lower(v[1]) + "|" + lower(v[3]);
+  const late = new Map();
+  main.forEach(t => {
+    t.newRows.forEach(n => {
+      const match = n.values[1] && n.values[3] ? entries.find(e => key(e.values) === key(n.values)) : null;
+      if (match) {
+        if (t.rows.some(r => r.id === match.id)) { problems.push({ type: "warning", text: `${who(match.id, match.values)} appears twice on ${t.name} (row ${n.sheetRow} has no ${ID_HEAD}).`, fix: "Delete the extra row in Excel, then drop the file back in. For now the row with the Entry ID is kept." }); return; }
+        t.rows.push({ id: match.id, values: n.values, sheetRow: n.sheetRow });
+        mark(match.id, t.trial);
+        return;
+      }
+      const k = key(n.values);
+      if (!late.has(k)) late.set(k, { values: n.values, rows: [] });
+      late.get(k).rows.push({ tab: t.name, trial: t.trial, sheetRow: n.sheetRow });
+    });
+    t.rows.sort((a, b) => a.sheetRow - b.sheetRow);
+  });
+
+  const questions = [];
+  const trials = [...new Set(main.map(t => t.trial))];
+  entries.forEach(e => {
+    if (e.newId) return;   // a late entry added on the Master List just now
+    const removed = [], added = [];
+    trials.forEach(T => {
+      const t = !!(onTab.get(e.id) && onTab.get(e.id).has(T));
+      if (t === wasTab(e.id, T) || t === inMaster(e, T)) return;   // tab unchanged, or changed the same way on the Master List
+      (t ? added : removed).push(T);
+    });
+    while (removed.length && added.length) questions.push({ kind: "move", id: e.id, values: e.values, from: removed.shift(), to: added.shift() });
+    added.forEach(to => questions.push({ kind: "extra", id: e.id, values: e.values, to, withdrawn: e.withdrawn }));
+    removed.forEach(from => questions.push({ kind: "withdraw", id: e.id, values: e.values, from }));
+  });
+  late.forEach(l => questions.push({ kind: "late", values: l.values, rows: l.rows, to: [...new Set(l.rows.map(r => r.trial))] }));
+
+  // If every question is answered Yes, which entries end up in no trial (and so are withdrawn)?
+  const after = new Map();
+  questions.forEach(q => {
+    if (!q.id) return;
+    if (!after.has(q.id)) after.set(q.id, new Set([...byId.get(q.id).trials].filter(T => inMaster(byId.get(q.id), T))));
+    const s = after.get(q.id);
+    if (q.from) s.delete(q.from);
+    if (q.to) s.add(q.to);
+  });
+  questions.forEach(q => {
+    const w = q.id ? who(q.id, q.values) : who("", q.values);
+    q.key = [q.kind, q.id || key(q.values), q.from || "", q.to || ""].join(":");
+    q.no = has || q.kind === "late" ? "stop" : "master";
+    if (q.kind === "withdraw") {
+      q.last = after.get(q.id).size === 0;
+      const others = [...after.get(q.id)];
+      q.text = `${w} has been removed from ${q.from}. Have they withdrawn from this trial?`;
+      q.yes = `The x for ${q.from} will be removed on the ${MASTER}.` + (q.last ? ` They're not in any other trial, so they'll be marked Withdrawn.` : ` They stay entered in ${list(others)}.`);
+      q.noText = q.no === "stop" ? `Then the row may have been deleted by mistake. Put ${w} back on the ${q.from} tab (copy the row, including its ${ID_HEAD}, from your most recent downloaded copy), then drop the file in again.`
+        : `They'll be put back on ${q.from}, at the bottom and highlighted.`;
+    } else if (q.kind === "move") {
+      q.text = `${w} has been moved from ${q.from} to ${q.to}. Was this intended?`;
+      q.yes = `On the ${MASTER}, their x will move from ${q.from} to ${q.to}.`;
+      q.noText = q.no === "stop" ? `Please check the ${q.from} and ${q.to} tabs and put the row back where it belongs, then drop the file in again.`
+        : `They'll go back on ${q.from} and be taken off ${q.to}.`;
+    } else if (q.kind === "extra") {
+      const still = [...byId.get(q.id).trials].filter(T => T !== q.to && inMaster(byId.get(q.id), T));
+      q.text = q.withdrawn ? `${w} is marked Withdrawn on the ${MASTER}, but has been added to ${q.to}. Have they entered ${q.to}?`
+        : `${w} has been added to ${q.to}${still.length ? ` and is still in ${list(still)}` : ""}. Have they entered ${q.to} as well?`;
+      q.yes = `An x will be added for ${q.to} on the ${MASTER}.` + (q.withdrawn ? " Withdrawn will be cleared from their Status." : "");
+      q.noText = q.no === "stop" ? `Please check the ${q.to} tab and delete the row if it was copied there by mistake, then drop the file in again.`
+        : `They'll be taken off ${q.to}.`;
+    } else {
+      const tabsList = list([...new Set(q.rows.map(r => r.tab))]);
+      q.text = `A new row has been added to ${tabsList}: ${w}. Is this a late entry?`;
+      q.yes = `They'll be added to the ${MASTER} with their own ${ID_HEAD} and an x for ${list(q.to)}, highlighted yellow. Fill in their email and payment details on the ${MASTER} afterwards.`;
+      q.noText = `Please check the ${tabsList} tab${q.rows.length > 1 ? "s" : ""}. Delete the row, or if this dog is already entered under a different name, copy their row (with its ${ID_HEAD}) from another tab instead. Then drop the file in again.`;
+    }
+  });
+  return { questions, problems, hasSnapshot: has };
+}
+
+/* Apply the questions answered Yes (answers: { key: "yes" | "no" }).
+   Changes entries and tabs in place and returns the Master List edits:
+   { cells: [{ id, trial | status: true, value }], late: [{ id, values, trials }], lines: [summary text] } */
+function applyAnswers(entries, tabs, questions, answers) {
+  let maxLate = entries.reduce((m, e) => { const x = /^L(\d+)$/.exec(e.id); return x ? Math.max(m, Number(x[1])) : m; }, 0);
+  const byId = new Map(entries.map(e => [e.id, e]));
+  const out = { cells: [], late: [], lines: [] };
+  const yes = questions.filter(q => answers[q.key] === "yes");
+  yes.forEach(q => {
+    if (q.kind === "late") {
+      const id = lateId(++maxLate);
+      const e = { id, row: 0, status: "", withdrawn: false, values: q.values, trials: new Set(q.to), isLate: true, newId: true, fromTab: true };
+      entries.push(e); byId.set(id, e);
+      q.rows.forEach(r => { const t = tabs.find(x => x.name === r.tab); if (t) { t.rows.push({ id, values: q.values, sheetRow: r.sheetRow }); t.rows.sort((a, b) => a.sheetRow - b.sheetRow); } });
+      out.late.push({ id, values: q.values, trials: q.to });
+      out.lines.push(`Late entry added to the ${MASTER}: ${who(id, q.values)}, entered in ${list(q.to)}. Fill in their email and payment details there.`);
+      return;
+    }
+    const e = byId.get(q.id);
+    if (q.from) { e.trials.delete(q.from); out.cells.push({ id: q.id, trial: q.from, value: "" }); }
+    if (q.to) { e.trials.add(q.to); out.cells.push({ id: q.id, trial: q.to, value: "x" }); }
+    if (q.kind === "extra" && e.withdrawn) { e.withdrawn = false; e.status = ""; out.cells.push({ id: q.id, status: true, value: "" }); }
+    out.lines.push(q.kind === "move" ? `${who(q.id, e.values)} moved from ${q.from} to ${q.to} on the ${MASTER}.`
+      : q.kind === "extra" ? `${who(q.id, e.values)} also entered in ${q.to} on the ${MASTER}.`
+      : `${who(q.id, e.values)} withdrawn from ${q.from}: x removed on the ${MASTER}.`);
+  });
+  // Anyone left in no trial after a withdrawal is withdrawn from the event.
+  yes.filter(q => q.kind === "withdraw").forEach(q => {
+    const e = byId.get(q.id);
+    if (!e.withdrawn && ![...e.trials].length) { e.withdrawn = true; e.status = "Withdrawn"; out.cells.push({ id: q.id, status: true, value: "Withdrawn" }); out.lines.push(`${who(q.id, e.values)} is in no other trial, so is marked Withdrawn on the ${MASTER}.`); }
+  });
+  return out;
 }
 
 /* ---------- Tool Settings ---------- */
@@ -1760,7 +1938,7 @@ function stamp(d = new Date()) {
 }
 
 
-return { TOOL, MASTER, SETTINGS_TAB, TRIAL_HEADERS, fingerprint, rowsFingerprint, readMaster, readTrialTab, planUpdate, settingsRows, readSettings, stamp };
+return { TOOL, MASTER, SETTINGS_TAB, TRIAL_HEADERS, fingerprint, rowsFingerprint, readMaster, readTrialTab, planUpdate, settingsRows, readSettings, stamp, who, audit };
 })();
 
 if (typeof module !== "undefined") {
@@ -1894,7 +2072,7 @@ function renderCards() {
     const notes = [];
     if (!t.usable) notes.push("This tab doesn't have the columns needed (Handler, Dog Pet Name…).");
     else if (!n) notes.push("No entries on this tab.");
-    else if (noSheet) notes.push(parseClass(tab.cls) ? "There's no score sheet for this class yet." : "Not a class tab, so there's no score sheet for it.");
+    else if (noSheet) notes.push(parseClass(tab.cls) ? "There's no judging sheet for this class yet." : "Not a class tab, so there's no judging sheet for it.");
     else if (t.missing.length) notes.push(`Not found on this tab, left blank: ${t.missing.join(", ")}.`);
 
     const li = el("li", { class: "card" + (on ? "" : " off") },
@@ -2041,7 +2219,7 @@ function renderScorePreview() {
   const box = $("checks");
   box.textContent = "";
   if (problems.length) {
-    box.append(el("span", { text: "Before the score sheets can be downloaded:" }), el("ul", {}, problems.map(p => el("li", { text: p }))));
+    box.append(el("span", { text: "Before the judging sheets can be downloaded:" }), el("ul", {}, problems.map(p => el("li", { text: p }))));
   }
   box.hidden = !problems.length;
   const sheets = sets.reduce((a, s) => a + s.dogs.length, 0);
@@ -2050,13 +2228,13 @@ function renderScorePreview() {
   clearTimeout(pdfTimer);
   if (!sets.length) {
     $("pdfView").hidden = true; $("pdfOpen").hidden = true;
-    $("actionNote").textContent = state.isExample ? "Drop a file to enable the download." : chosen().length ? "Set up the searches to see the score sheets." : "Tick at least one class.";
+    $("actionNote").textContent = state.isExample ? "Drop a file to enable the download." : chosen().length ? "Set up the searches to see the judging sheets." : "Tick at least one class.";
     return;
   }
   $("pdfView").hidden = false;
   pdfTimer = setTimeout(() => {
     try {
-      const { bytes, pages } = buildScorePdf(sets, look.paper, "Score sheets");
+      const { bytes, pages } = buildScorePdf(sets, look.paper, "Judging sheets");
       if (pdfUrl) URL.revokeObjectURL(pdfUrl);
       pdfUrl = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
       $("pdfView").src = pdfUrl + "#view=FitH";
@@ -2241,7 +2419,7 @@ function showStatus(msg, isError) {
 /* ---------- The working file: open, resume, save progress ---------- */
 const DOCS_TOOL = { name: "Trial Documents", version: "2.0" };
 const DAMAGE_NOTE = "This file may have been changed by a program other than Excel. Some trial information could be missing or altered. Apple Numbers or Google Sheets are the most common causes.";
-const DOC_WORDS = { catalogue: "running order", callboard: "callboard", timekeeper: "timekeepers' sheets", judge: "judges' sheets", scoresheet: "score sheets" };
+const DOC_WORDS = { catalogue: "running order", callboard: "callboard", timekeeper: "timekeepers' sheets", judge: "judges' sheets", scoresheet: "judging sheets" };
 let dirty = false, quiet = false;
 
 function markDirty() {
@@ -2324,15 +2502,19 @@ async function openWorkbook(wb, fileName) {
   if (!sheets.length) return showStop("No trial tabs found", [{ type: "stop", text: "This file has no trial tabs with an Entry ID column.", fix: "Drop the file into Trial Lists to make the trial tabs, then drop the new file here." }]);
   const read2 = sheets.map(s => TL.readTrialTab(s.ws.name, s.rows, read.trials, read.entries));
 
+  // Changes made on the trial tabs need confirming in Trial Lists first.
+  const check = TL.audit(read.entries, read2, settings.snap);
+  if (check.questions.length) return showStop("Some changes on the trial tabs need confirming first", check.questions.map(q => ({ type: "stop", text: q.text.replace(/\s*(Have they|Was this|Is this)[^?]*\?$/, ""), fix: "" }))
+    .concat([{ type: "stop", text: "Documents made now could be out of date.", fix: `Drop the file into Trial Lists. It will ask you about each change and update the ${TL.MASTER} to match. Then drop the new file here.` }]));
   // Forgot to run Update in Trial Lists? Then the trial tabs don't match the Master List.
   const plan = TL.planUpdate(read.entries, read2, read.trials, {});
   const pending = [];
-  if (read.late.length) pending.push(`${read.late.length} new ${read.late.length === 1 ? "entry is" : "entries are"} on the ${TL.MASTER} but not on any trial tab yet.`);
+  if (read.late.length) pending.push(`${read.late.length} new ${read.late.length === 1 ? "entry is" : "entries are"} on the ${TL.MASTER} but not on any trial tab yet: ${read.late.map(e => TL.who("", e.values)).join("; ")}.`);
   plan.tabs.forEach(t => {
     if (t.mode === "new") { pending.push(`${t.trial} has entries on the ${TL.MASTER} but no trial tab yet.`); return; }
     const bits = [];
-    if (t.removed.length) bits.push(`${t.removed.length} to remove (${t.removed.map(r => `${r.id} ${r.why}`).join(", ")})`);
-    if (t.added.length) bits.push(`${t.added.length} to add`);
+    if (t.removed.length) bits.push(`${t.removed.length} to remove: ${t.removed.map(r => `${TL.who(r.id, r.values)} ${r.why}`).join("; ")}`);
+    if (t.added.length) bits.push(`${t.added.length} to add: ${t.added.map(e => TL.who(e.id, e.values)).join("; ")}`);
     if (t.changed) bits.push(`${t.changed} ${t.changed === 1 ? "detail differs" : "details differ"}`);
     if (bits.length) pending.push(`${t.name}: ${bits.join("; ")}.`);
   });
