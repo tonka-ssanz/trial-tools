@@ -213,7 +213,7 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
   <header>
     <p class="eyebrow">SSANZ trial tools</p>
     <h1>Trial Documents</h1>
-    <p class="lede">Drop in your trial spreadsheet from Trial Lists (the file ending “(in progress)”). Give each class its level, date and session once, then download the catalogue running orders, callboards, timekeepers' and judges' sheets as Word documents (A4), and the judges' score sheets as a PDF ready to print.</p>
+    <p class="lede">Drop in your trial spreadsheet from Trial Lists (the file ending “(in progress)”). Give each class its level, date and session once, then download the catalogue running orders, callboards, timekeepers' and judges' sheets as Word documents (A4), and the judging sheets as a PDF ready to print.</p>
   </header>
 
   <label class="drop" id="drop" for="file" tabindex="0">
@@ -297,7 +297,7 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
       </div>
       <div class="look" id="lookScore" hidden>
         <label class="field wide">
-          <span>Host club · full name, printed on every score sheet</span>
+          <span>Host club · full name, printed on every judging sheet</span>
           <input type="text" id="host" autocomplete="off" maxlength="60">
         </label>
         <div class="field wide">
@@ -324,13 +324,13 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
       </div>
       <p class="note" id="actionNote">Drop a file to enable the download.</p>
       <div class="pages" id="pages" aria-label="Preview of the pages"></div>
-      <iframe class="pdfview" id="pdfView" title="Preview of the score sheets" hidden></iframe>
+      <iframe class="pdfview" id="pdfView" title="Preview of the judging sheets" hidden></iframe>
       <p class="note" id="pdfOpen" hidden>Preview not showing (some phones and tablets)? <a id="pdfLink" href="#" target="_blank" rel="noopener">Open it in a new tab</a>.</p>
     </div>
   </section>
 
   <aside class="nextstep">
-    <p><b>That's the last step.</b> Open the Word documents to check them before they go into your catalogue, and print the score sheets PDF at actual size.</p>
+    <p><b>That's the last step.</b> Open the Word documents to check them before they go into your catalogue, and print the judging sheets PDF at actual size.</p>
     <a href="index.html">Back to all trial tools</a>
   </aside>
 
@@ -345,9 +345,9 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
       <li><b>Catalogue running orders:</b> each table is kept in one piece, and tables share a page when they fit. A table too long for one page starts on a new page and carries on over the next, with the heading row repeated. The preview's page numbers are a close estimate; Word makes the final fit.</li>
       <li><b>Callboards:</b> each class starts on its own page, with larger text and a Started ✓ column to tick. Set <b>Copies</b> to print more than one. Each copy can have an element line under the title: pick elements from the list in the order they run (each one is added to the end), then edit the text to add numbers such as “Exterior 2”. Or choose <b>Other</b> and type exactly what should be printed (up to one line). If nothing is chosen or typed, a line to write on is printed instead.</li>
       <li><b>Timekeepers and Judges:</b> one sheet per element, up to 8 per class. Each copy has one element (pick it, then add a number if needed, e.g. “Exterior 2”) and the judge's name, printed on the right of the element line. Leave either blank to write it in. The two documents share the same copies, elements and judges, so you only fill them in once.</li>
-      <li><b>Score sheets:</b> one sheet per dog for each search, with the date, host, judge, element, search time and the dog's running-order number filled in. They use the same searches (copies), elements and judges as the Timekeepers and Judges sheets. <b>Standard searches</b> sets up the usual searches for the class in one click. Search times come from the regulations; where the judge sets the time on the day, the range is printed.</li>
-      <li><b>Excellent hides:</b> choose the number of hides for each search. The score sheets won't download until they match the numbers drawn for the trial (3, 3, 3, 2 and 1).</li>
-      <li><b>Printing score sheets:</b> print at actual size (100%, not “Fit to page”) and single-sided, so the cut line stays in the middle of the page.</li>
+      <li><b>Judging sheets:</b> one sheet per dog for each search, with the date, host, judge, element, search time and the dog's running-order number filled in. They use the same searches (copies), elements and judges as the Timekeepers and Judges sheets. <b>Standard searches</b> sets up the usual searches for the class in one click. Search times come from the regulations; where the judge sets the time on the day, the range is printed.</li>
+      <li><b>Excellent hides:</b> choose the number of hides for each search. The judging sheets won't download until they match the numbers drawn for the trial (3, 3, 3, 2 and 1).</li>
+      <li><b>Printing judging sheets:</b> print at actual size (100%, not “Fit to page”) and single-sided, so the cut line stays in the middle of the page.</li>
       <li><b>Don't re-run Trial Lists</b> once the running orders are out: it shuffles the order again and every number would change. Use the spare sheets for late changes.</li>
       <li><b>Save progress</b> puts everything you've entered on this page (dates, levels, searches, judges, logo, host and the rest) into your trial spreadsheet and downloads it. Drop that file in next time and everything comes back. Documents download on their own, so save progress before you close the page; the page reminds you when there are unsaved changes.</li>
       <li><b>Locking:</b> the first time you save progress, the Master List and trial tabs are locked so the documents stay right. To change entries after that, use <b>Make a late change</b> in Trial Lists. When you come back here, the page lists the classes that changed and which documents to reprint.</li>
@@ -465,7 +465,7 @@ const DOCUMENTS = [
     id: "timekeeper",
     label: "Timekeepers",
     fileSuffix: "Timekeepers",
-    about: "For the timekeeper at each search area. One sheet per element, with the judge's name, and a Time column to write in. Shares its copies, elements and judges with the Judges sheets and the score sheets.",
+    about: "For the timekeeper at each search area. One sheet per element, with the judge's name, and a Time column to write in. Shares its copies, elements and judges with the Judges sheets and the judging sheets.",
     bodySizePt: 12,
     rowHeightMm: 8.5,
     onePerPage: true,
@@ -492,7 +492,7 @@ const DOCUMENTS = [
     sideMarginMm: 10,                  // narrow side margins: the extra width goes to Notes
     label: "Judges",
     fileSuffix: "Judges",
-    about: "For the judge at each search area. One sheet per element, with the judge's name, a Hide(s) Found column and room for notes. Shares its copies, elements and judges with the Timekeepers sheets and the score sheets.",
+    about: "For the judge at each search area. One sheet per element, with the judge's name, a Hide(s) Found column and room for notes. Shares its copies, elements and judges with the Timekeepers sheets and the judging sheets.",
     bodySizePt: 10,
     rowHeightMm: 12,
     onePerPage: true,
@@ -519,9 +519,9 @@ const DOCUMENTS = [
   {
     id: "scoresheet",
     kind: "pdf",
-    label: "Score sheets",
-    fileSuffix: "Score Sheets",
-    about: "The judges' score sheets: one per dog for each search, printed as a PDF (A4 two per page, or A5). Shares its searches (copies), elements and judges with the Timekeepers and Judges sheets.",
+    label: "Judging sheets",
+    fileSuffix: "Judging Sheets",
+    about: "The judging sheets: one per dog for each search, printed as a PDF (A4 two per page, or A5). Shares its searches (copies), elements and judges with the Timekeepers and Judges sheets.",
     bodySizePt: 10,
     rowHeightMm: 0,
     onePerPage: true,
@@ -1158,7 +1158,7 @@ function scoreSets(classes, opts) {
   if (!String(opts.host || "").trim()) problems.push("Type the host club's name.");
   classes.forEach(c => {
     const sc = scoreClass(c.cls || c.name);
-    if (!sc) { problems.push(`${c.name}: there's no score sheet for this class yet.`); return; }
+    if (!sc) { problems.push(`${c.name}: there's no judging sheet for this class yet.`); return; }
     const { sheet } = sc;
     if (!c.date) problems.push(`${c.name}: choose the date.`);
     if (sheet.hides === "operator" && sheet.hideSplit) {
@@ -1302,7 +1302,7 @@ PdfDoc.prototype.bytes = function (title) {
   });
   objs[catalog - 1] = `<< /Type /Catalog /Pages ${pagesId} 0 R /ViewerPreferences << /PrintScaling /None >> >>`;
   objs[pagesId - 1] = `<< /Type /Pages /Kids [${kids.map(k => k + " 0 R").join(" ")}] /Count ${kids.length} >>`;
-  const info = add(`<< /Title (${String(title || "Score sheets").replace(/[()\\]/g, "").replace(/[^\x20-\x7e]/g, "")}) /Producer (SSANZ trial tools) >>`);
+  const info = add(`<< /Title (${String(title || "Judging sheets").replace(/[()\\]/g, "").replace(/[^\x20-\x7e]/g, "")}) /Producer (SSANZ trial tools) >>`);
   push("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
   objs.forEach((body, i) => {
     offsets[i] = len;
@@ -1918,7 +1918,7 @@ function renderCards() {
     const notes = [];
     if (!t.usable) notes.push("This tab doesn't have the columns needed (Handler, Dog Pet Name…).");
     else if (!n) notes.push("No entries on this tab.");
-    else if (noSheet) notes.push(parseClass(tab.cls) ? "There's no score sheet for this class yet." : "Not a class tab, so there's no score sheet for it.");
+    else if (noSheet) notes.push(parseClass(tab.cls) ? "There's no judging sheet for this class yet." : "Not a class tab, so there's no judging sheet for it.");
     else if (t.missing.length) notes.push(`Not found on this tab, left blank: ${t.missing.join(", ")}.`);
 
     const li = el("li", { class: "card" + (on ? "" : " off") },
@@ -2065,7 +2065,7 @@ function renderScorePreview() {
   const box = $("checks");
   box.textContent = "";
   if (problems.length) {
-    box.append(el("span", { text: "Before the score sheets can be downloaded:" }), el("ul", {}, problems.map(p => el("li", { text: p }))));
+    box.append(el("span", { text: "Before the judging sheets can be downloaded:" }), el("ul", {}, problems.map(p => el("li", { text: p }))));
   }
   box.hidden = !problems.length;
   const sheets = sets.reduce((a, s) => a + s.dogs.length, 0);
@@ -2073,13 +2073,13 @@ function renderScorePreview() {
   clearTimeout(pdfTimer);
   if (!sets.length) {
     $("pdfView").hidden = true; $("pdfOpen").hidden = true;
-    $("actionNote").textContent = state.isExample ? "Drop a file to enable the download." : chosen().length ? "Set up the searches to see the score sheets." : "Tick at least one class.";
+    $("actionNote").textContent = state.isExample ? "Drop a file to enable the download." : chosen().length ? "Set up the searches to see the judging sheets." : "Tick at least one class.";
     return;
   }
   $("pdfView").hidden = false;
   pdfTimer = setTimeout(() => {
     try {
-      const { bytes, pages } = buildScorePdf(sets, look.paper, "Score sheets");
+      const { bytes, pages } = buildScorePdf(sets, look.paper, "Judging sheets");
       if (pdfUrl) URL.revokeObjectURL(pdfUrl);
       pdfUrl = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
       $("pdfView").src = pdfUrl + "#view=FitH";
@@ -2224,7 +2224,7 @@ function showStatus(msg, isError) {
 /* ---------- The working file: open, resume, save progress ---------- */
 const DOCS_TOOL = { name: "Trial Documents", version: "2.0" };
 const DAMAGE_NOTE = "This file may have been changed by a program other than Excel. Some trial information could be missing or altered. Apple Numbers or Google Sheets are the most common causes.";
-const DOC_WORDS = { catalogue: "running order", callboard: "callboard", timekeeper: "timekeepers' sheets", judge: "judges' sheets", scoresheet: "score sheets" };
+const DOC_WORDS = { catalogue: "running order", callboard: "callboard", timekeeper: "timekeepers' sheets", judge: "judges' sheets", scoresheet: "judging sheets" };
 let dirty = false, quiet = false;
 
 function markDirty() {
