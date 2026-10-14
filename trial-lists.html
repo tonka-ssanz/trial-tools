@@ -93,6 +93,19 @@ code { font-family: var(--font-mono); font-size: .9em; background: var(--accent-
 .choice.random { background: var(--warn-soft); }
 .randomwarn { grid-column: 1 / -1; margin: 0; font-size: 13px; color: var(--warn); }
 @media (max-width: 560px) { .choice { grid-template-columns: 1fr 1fr; } .choice .tn { grid-column: 1 / -1; } }
+.questions { display: grid; gap: 10px; }
+.questions h3 { font-family: var(--font-display); font-size: 18px; margin: 0; }
+.qlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.q { display: grid; gap: 8px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); border-left: 4px solid var(--warn); background: var(--surface); }
+.q.yes { border-left-color: var(--accent); }
+.q.no { border-left-color: var(--stop); }
+.q > p { margin: 0; font-size: 15px; }
+.q .qtext { font-weight: 700; }
+.q .answer { color: var(--muted); font-size: 14px; }
+.q .yesno { display: flex; gap: 8px; }
+.q .yesno button { min-width: 72px; }
+.q .yesno button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.q.no .yesno button[aria-pressed="true"] { background: var(--stop); border-color: var(--stop); color: #fff; }
 .diffs { margin: 0; padding-left: 20px; font-size: 14px; display: grid; gap: 2px; }
 details.more summary { cursor: pointer; font-size: 14px; color: var(--accent); font-weight: 700; }
 
@@ -192,6 +205,15 @@ tr:last-child td { border-bottom: 0; }
     <h2>Update trial tabs</h2>
     <p class="resumed" id="resumed"></p>
     <ul class="msgs" id="updateMsgs"></ul>
+    <div class="questions" id="questions" hidden>
+      <h3 id="qTitle">Changes made on the trial tabs</h3>
+      <p class="note" id="qNote"></p>
+      <ol class="qlist" id="qList"></ol>
+      <div class="warnbox" id="qStop" hidden>
+        <h3>Please check the file before updating</h3>
+        <p>You answered No to at least one question above, so the trial spreadsheet may have been changed by mistake. Nothing has been changed yet. Fix it in Excel using the notes above, then drop the file in again. Or change your answer if you picked No by mistake.</p>
+      </div>
+    </div>
     <div class="excelhelp" id="updateExcel" hidden></div>
     <div id="diffBox" hidden>
       <p class="note"><b id="diffCount"></b></p>
@@ -265,8 +287,10 @@ tr:last-child td { border-bottom: 0; }
       <li><b>Your trial spreadsheet</b> is one file you keep adding to. Each download ends in “(in progress)”. Always drop the newest one back in.</li>
       <li><b>Sheet 1</b> is the website download, exactly as downloaded. It's locked: you can see and copy it, but not type in it.</li>
       <li><b>Make changes on the Master List:</b> add a late entry as a new row (leave Entry ID blank and put x in its trial columns), type <code>Withdrawn</code> in Status to withdraw an entry from the whole event (the row turns grey and struck through), delete an x to scratch it from one trial, or correct a name. Then drop the file back in here and choose <b>Update trial tabs</b>.</li>
-      <li><b>On the trial tabs</b> you can move rows to change the running order, and duplicate a tab to try another order. Start a copy's name with the trial code, e.g. “NWAdv1 Sat plan”. Anything else typed on a trial tab is replaced by the Master List on update, and you'll be shown what changes first.</li>
-      <li><b>Entry IDs</b> (E014, L001…) link each entry across the tabs. Don't change or delete them.</li>
+      <li><b>On the trial tabs</b> you can move rows to change the running order, and duplicate a tab to try another order. Start a copy's name with the trial code, e.g. “NWAdv1 Sat plan”. Names and other details typed on a trial tab are replaced by the Master List on update, and you'll be shown what changes first.</li>
+      <li><b>Changes made on a trial tab</b> are spotted when you drop the file back in: a row deleted from a trial, a dog moved or copied to another trial, or a new row typed in. You'll be asked about each one, for example “E196 (Jane Smith &amp; Moss) has been removed from NWAdv1. Have they withdrawn from this trial?”. Answer Yes and the Master List is updated to match (changed cells are highlighted yellow; someone left in no trial is marked Withdrawn; a late entry gets its own Entry ID). Answer No and you're asked to check the file first.</li>
+      <li><b>Copies of a trial tab</b> (for a different running order, e.g. when elements run separately) must have exactly the same entrants as the trial's main tab, just in a different order. If a dog is missing from, or extra on, some of them, you'll be asked about it in the same way, and on Yes every tab for that trial is updated to match.</li>
+      <li><b>Entry IDs</b> (E014, L001…) link each entry across the tabs. Messages always show the handler and dog too, e.g. “E014 (Jane Smith &amp; Moss)”. Don't change or delete the IDs; when you copy or move a dog to another trial tab, copy the whole row including its ID.</li>
       <li><b>Rows start in random order</b>, shuffled separately for each tab, so a dog entered in two trials will usually be in a different spot on each.</li>
       <li><b>Comments:</b> trial tabs show only reactivity: <code>D</code> dog-reactive, <code>H</code> people-reactive, <code>D + H</code> both. Check the Master List for other requests.</li>
       <li><b>Tool Settings</b> holds what the tools need to carry on where you left off. Please don't edit or delete it.</li>
@@ -283,7 +307,7 @@ tr:last-child td { border-bottom: 0; }
 /* =========================================================================
    Trial Lists: the logic (no spreadsheet library needed, so it can be tested on its own)
    ========================================================================= */
-const TOOL = { name: "Trial Lists", version: "5.0" };
+const TOOL = { name: "Trial Lists", version: "5.1" };
 const MASTER = "Master List";
 const SETTINGS_TAB = "Tool Settings";
 const ID_HEAD = "Entry ID", STATUS_HEAD = "Status";
@@ -452,7 +476,7 @@ function readTrialTab(name, rows, trialNames, entries) {
   const head = (rows[0] || []).map(lower);
   const at = h => head.indexOf(h.toLowerCase());
   const idCol = at(ID_HEAD);
-  const out = { name, problems: [], rows: [] };
+  const out = { name, problems: [], rows: [], newRows: [] };
   if (idCol < 0) {
     out.unusable = true;
     out.problems.push({ type: "stop", text: `The tab “${name}” has no ${ID_HEAD} column, so it can't be updated.`, fix: `Undo the change that removed it, or delete this tab and duplicate a working trial tab again. It's left as it is.` });
@@ -469,9 +493,10 @@ function readTrialTab(name, rows, trialNames, entries) {
       out.problems.push({ type: "warning", text: `An ${ID_HEAD} on “${name}” (row ${i + 1}) has changed: it shows “${raw}”.`, fix: fixed ? `It's read as ${fixed}. If that's wrong, go back to your most recent downloaded copy.` : `Go back to your most recent downloaded copy, or retype the ID to match the ${MASTER}.` });
       id = fixed || id;
     }
-    if (!id) { out.problems.push({ type: "warning", text: `Row ${i + 1} on “${name}” has no ${ID_HEAD}, so it will be left off.`, fix: `New entries go on the ${MASTER}, not on a trial tab. Add it there and update again.` }); return; }
     const values = cols.map(k => k < 0 ? "" : norm(r[k]));
     values[5] = reactivity(values[5]);
+    // A row typed onto the tab without an Entry ID: the audit asks whether it's a late entry.
+    if (!id) { if (values[1] || values[3]) out.newRows.push({ values, sheetRow: i + 1 }); return; }
     if (ids.has(id)) {
       out.problems.push({ type: "warning", text: `${values[1]} and ${values[3]} (${id}) appear twice on “${name}”.`, fix: `Delete one of the rows in Excel, then drop the file back in. For now the first one is kept.` });
       return;
@@ -538,16 +563,187 @@ function summaryLines(plan) {
   return plan.tabs.map(t => {
     if (t.mode === "new") return `${t.name} (new tab, random order): ${t.rows.length} ${t.rows.length === 1 ? "entry" : "entries"}.`;
     const parts = [];
-    if (t.removed.length) parts.push(`${t.removed.length} ${t.removed.length === 1 ? "entry" : "entries"} removed (${t.removed.map(r => `${r.id} ${r.why}`).join(", ")})`);
+    if (t.removed.length) parts.push(`${t.removed.length} ${t.removed.length === 1 ? "entry" : "entries"} removed: ${t.removed.map(r => `${who(r.id, r.values)} ${r.why}`).join("; ")}`);
     if (t.mode === "random") {
       if (t.added.length) parts.push(`${t.added.length} late ${t.added.length === 1 ? "entry" : "entries"} included`);
       return `${t.name} (new random order): reshuffled, ${t.rows.length} ${t.rows.length === 1 ? "entry" : "entries"}${parts.length ? ". " + parts.join(". ") : ""}.`;
     }
-    t.rows.forEach((r, k) => { if (r.isNew) parts.push(`Late entry added at the bottom, row ${k + 2}: ${r.values[1]} and ${r.values[3]} (${r.id})`); });
+    t.rows.forEach((r, k) => { if (r.isNew) parts.push(`Late entry added at the bottom, row ${k + 2}: ${who(r.id, r.values)}`); });
+    (t.confirmed || []).forEach(c => parts.push(c));
     if (t.changed) parts.push(`${t.changed} ${t.changed === 1 ? "detail" : "details"} updated from the Master List`);
     const late = t.rows.some(r => r.isNew) ? " Move late entries in Excel if you want them elsewhere." : "";
     return `${t.name} (order kept): ${parts.length ? parts.join(". ") + "." + late : "no changes."}`;
   });
+}
+
+/* "E196 (Jane Smith & Moss)": how an entry is named in every message.
+   values: [Handler Number, Handler, Dog No, Dog Pet Name, Dog Breed, Comments] */
+function who(id, values = []) {
+  const names = [values[1], values[3]].map(norm).filter(Boolean).join(" & ");
+  return id ? (names ? `${id} (${names})` : id) : names || "an unnamed row";
+}
+const list = a => a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1];
+
+/* ---------- Snapshot and audit ----------
+   Each save remembers, in Tool Settings, which trials every entry had on the Master List and
+   which entries were on each trial tab. Next time, comparing both with that snapshot shows where
+   a change was made: on the Master List (the tabs follow it, as before) or on a trial tab (the
+   user is asked about it, and on Yes the Master List is changed to match).
+   Copies of a trial tab (e.g. "NWAdv1 Sat plan", for a different running order) must have exactly
+   the same entrants as the trial's main tab: a dog missing from, or extra on, some of them counts as
+   a change and is asked about too. */
+const isTrialTab = t => !t.unusable && !!t.trial;
+const isMainTab = t => isTrialTab(t) && t.name.toLowerCase() === t.trial.toLowerCase();
+function snapshot(entries, tabs) {
+  const byTrial = {};
+  tabs.filter(isTrialTab).forEach(t => { if (!byTrial[t.trial] || isMainTab(t)) byTrial[t.trial] = t.rows.map(r => r.id); });
+  return {
+    master: Object.fromEntries(entries.map(e => [e.id, [...e.trials].sort()])),
+    withdrawn: entries.filter(e => e.withdrawn).map(e => e.id),
+    tabs: byTrial,
+  };
+}
+
+/* Questions about changes made on the trial tabs. Call once per file: rows typed without an
+   Entry ID that match an existing entry (same handler and dog) are given that entry's ID here.
+   Each question: { key, kind, id, values, from, to, rows, last, no, text, yes, noText }
+     kind  "late"     a row typed onto a tab without an Entry ID, not matching anyone entered
+           "withdraw" taken off a tab, still entered in that trial on the Master List
+           "move"     taken off one tab and put on another
+           "extra"    put on another tab and still on its own (copied)
+     no    "stop"   = No means the file needs checking before it can be updated
+           "master" = No keeps the Master List as it is (files saved before snapshots existed) */
+function audit(entries, tabs, snap) {
+  const byId = new Map(entries.map(e => [e.id, e]));
+  const all = tabs.filter(isTrialTab);
+  const tabsOf = new Map();
+  all.forEach(t => { if (!tabsOf.has(t.trial)) tabsOf.set(t.trial, []); tabsOf.get(t.trial).push(t); });
+  const has = !!(snap && snap.tabs && snap.master);
+  const problems = [];
+  const inMaster = (e, T) => !!e && !e.withdrawn && e.trials.has(T);
+  const wasMaster = (id, T) => has ? (snap.master[id] || []).includes(T) && !(snap.withdrawn || []).includes(id) : inMaster(byId.get(id), T);
+  const wasTab = (id, T) => has && snap.tabs[T] ? snap.tabs[T].includes(id) : wasMaster(id, T);
+
+  // Rows typed without an Entry ID: an existing entry if the handler and dog match, else perhaps a late entry.
+  const key = v => lower(v[1]) + "|" + lower(v[3]);
+  const late = new Map();
+  all.forEach(t => {
+    t.newRows.forEach(n => {
+      const match = n.values[1] && n.values[3] ? entries.find(e => key(e.values) === key(n.values)) : null;
+      if (match) {
+        if (t.rows.some(r => r.id === match.id)) { problems.push({ type: "warning", text: `${who(match.id, match.values)} appears twice on ${t.name} (row ${n.sheetRow} has no ${ID_HEAD}).`, fix: "Delete the extra row in Excel, then drop the file back in. For now the row with the Entry ID is kept." }); return; }
+        t.rows.push({ id: match.id, values: n.values, sheetRow: n.sheetRow });
+        return;
+      }
+      const k = key(n.values);
+      if (!late.has(k)) late.set(k, { values: n.values, rows: [] });
+      late.get(k).rows.push({ tab: t.name, trial: t.trial, sheetRow: n.sheetRow });
+    });
+    t.rows.sort((a, b) => a.sheetRow - b.sheetRow);
+  });
+
+  const questions = [];
+  entries.forEach(e => {
+    if (e.newId) return;   // a late entry added on the Master List just now
+    const removed = [], added = [];
+    tabsOf.forEach((ts, T) => {
+      const on = ts.filter(t => t.rows.some(r => r.id === e.id)).map(t => t.name), off = ts.map(t => t.name).filter(n => !on.includes(n));
+      const base = wasTab(e.id, T);
+      // On every tab of the trial, on none, or on some (copies disagree: counts as a change from before).
+      const t = !off.length ? true : !on.length ? false : !base;
+      if (t === base || t === inMaster(e, T)) return;   // unchanged, or changed the same way on the Master List
+      (t ? added : removed).push({ T, on, off });
+    });
+    while (removed.length && added.length) { const a = removed.shift(), b = added.shift(); questions.push({ kind: "move", id: e.id, values: e.values, from: a.T, to: b.T, gone: a, came: b }); }
+    added.forEach(b => questions.push({ kind: "extra", id: e.id, values: e.values, to: b.T, came: b, withdrawn: e.withdrawn }));
+    removed.forEach(a => questions.push({ kind: "withdraw", id: e.id, values: e.values, from: a.T, gone: a }));
+  });
+  late.forEach(l => {
+    const to = [...new Set(l.rows.map(r => r.trial))], typed = l.rows.map(r => r.tab);
+    const others = to.flatMap(T => tabsOf.get(T).map(t => t.name)).filter(n => !typed.includes(n));
+    questions.push({ kind: "late", values: l.values, rows: l.rows, to, others });
+  });
+
+  // If every question is answered Yes, which entries end up in no trial (and so are withdrawn)?
+  const after = new Map();
+  questions.forEach(q => {
+    if (!q.id) return;
+    if (!after.has(q.id)) after.set(q.id, new Set([...byId.get(q.id).trials].filter(T => inMaster(byId.get(q.id), T))));
+    const s = after.get(q.id);
+    if (q.from) s.delete(q.from);
+    if (q.to) s.add(q.to);
+  });
+  questions.forEach(q => {
+    const w = q.id ? who(q.id, q.values) : who("", q.values);
+    q.key = [q.kind, q.id || key(q.values), q.from || "", q.to || ""].join(":");
+    q.no = has || q.kind === "late" ? "stop" : "master";
+    if (q.kind === "withdraw") {
+      q.last = after.get(q.id).size === 0;
+      const others = [...after.get(q.id)];
+      const g = q.gone;
+      q.text = `${w} has been removed from ${list(g.off)}${g.on.length ? ` but is still on ${list(g.on)}` : ""}. Have they withdrawn from ${q.from}?`;
+      q.yes = `The x for ${q.from} will be removed on the ${MASTER}${g.on.length ? ` and they'll be taken off ${list(g.on)} too` : ""}.` + (q.last ? ` They're not in any other trial, so they'll be marked Withdrawn.` : ` They stay entered in ${list(others)}.`);
+      q.noText = q.no === "stop" ? (g.on.length
+          ? `Then every ${q.from} tab should still have them. Put ${w} back on ${list(g.off)} (copy the whole row, including its ${ID_HEAD}, from ${g.on[0]}), then drop the file in again.`
+          : `Then the row may have been deleted by mistake. Put ${w} back on ${list(g.off)} (copy the row, including its ${ID_HEAD}, from your most recent downloaded copy), then drop the file in again.`)
+        : `They'll be put back on ${list(g.off)}, at the bottom and highlighted.`;
+    } else if (q.kind === "move") {
+      const g = q.gone, c = q.came, partial = g.on.length || c.off.length;
+      q.text = partial ? `${w} has been taken off ${list(g.off)} and added to ${list(c.on)}. Was this move from ${q.from} to ${q.to} intended?`
+        : `${w} has been moved from ${q.from} to ${q.to}. Was this intended?`;
+      q.yes = `On the ${MASTER}, their x will move from ${q.from} to ${q.to}.` + (partial ? ` Every ${q.from} and ${q.to} tab will be updated to match.` : "");
+      q.noText = q.no === "stop" ? `Please check the ${q.from} and ${q.to} tabs and put the row back where it belongs, then drop the file in again.`
+        : `They'll go back on ${q.from} and be taken off ${q.to}.`;
+    } else if (q.kind === "extra") {
+      const still = [...byId.get(q.id).trials].filter(T => T !== q.to && inMaster(byId.get(q.id), T));
+      const c = q.came, where = list(c.on) + (c.off.length ? ` (but not ${list(c.off)})` : "");
+      q.text = q.withdrawn ? `${w} is marked Withdrawn on the ${MASTER}, but has been added to ${where}. Have they entered ${q.to}?`
+        : `${w} has been added to ${where}${still.length ? ` and is still in ${list(still)}` : ""}. Have they entered ${q.to} as well?`;
+      q.yes = `An x will be added for ${q.to} on the ${MASTER}` + (c.off.length ? ` and they'll be added to ${list(c.off)} too, at the bottom and highlighted.` : ".") + (q.withdrawn ? " Withdrawn will be cleared from their Status." : "");
+      q.noText = q.no === "stop" ? `Please check ${list(c.on)} and delete the row if it was copied there by mistake, then drop the file in again.`
+        : `They'll be taken off ${q.to}.`;
+    } else {
+      const tabsList = list([...new Set(q.rows.map(r => r.tab))]);
+      q.text = `A new row has been added to ${tabsList}: ${w}. Is this a late entry?`;
+      q.yes = `They'll be added to the ${MASTER} with their own ${ID_HEAD} and an x for ${list(q.to)}, highlighted yellow` + (q.others.length ? `, and added to ${list(q.others)} too, at the bottom` : "") + `. Fill in their email and payment details on the ${MASTER} afterwards.`;
+      q.noText = `Please check the ${tabsList} tab${q.rows.length > 1 ? "s" : ""}. Delete the row, or if this dog is already entered under a different name, copy their row (with its ${ID_HEAD}) from another tab instead. Then drop the file in again.`;
+    }
+  });
+  return { questions, problems, hasSnapshot: has };
+}
+
+/* Apply the questions answered Yes (answers: { key: "yes" | "no" }).
+   Changes entries and tabs in place and returns the Master List edits:
+   { cells: [{ id, trial | status: true, value }], late: [{ id, values, trials }], lines: [summary text] } */
+function applyAnswers(entries, tabs, questions, answers) {
+  let maxLate = entries.reduce((m, e) => { const x = /^L(\d+)$/.exec(e.id); return x ? Math.max(m, Number(x[1])) : m; }, 0);
+  const byId = new Map(entries.map(e => [e.id, e]));
+  const out = { cells: [], late: [], lines: [] };
+  const yes = questions.filter(q => answers[q.key] === "yes");
+  yes.forEach(q => {
+    if (q.kind === "late") {
+      const id = lateId(++maxLate);
+      const e = { id, row: 0, status: "", withdrawn: false, values: q.values, trials: new Set(q.to), isLate: true, newId: true, fromTab: true };
+      entries.push(e); byId.set(id, e);
+      q.rows.forEach(r => { const t = tabs.find(x => x.name === r.tab); if (t) { t.rows.push({ id, values: q.values, sheetRow: r.sheetRow }); t.rows.sort((a, b) => a.sheetRow - b.sheetRow); } });
+      out.late.push({ id, values: q.values, trials: q.to });
+      out.lines.push(`Late entry added to the ${MASTER}: ${who(id, q.values)}, entered in ${list(q.to)}. Fill in their email and payment details there.`);
+      return;
+    }
+    const e = byId.get(q.id);
+    if (q.from) { e.trials.delete(q.from); out.cells.push({ id: q.id, trial: q.from, value: "" }); }
+    if (q.to) { e.trials.add(q.to); out.cells.push({ id: q.id, trial: q.to, value: "x" }); }
+    if (q.kind === "extra" && e.withdrawn) { e.withdrawn = false; e.status = ""; out.cells.push({ id: q.id, status: true, value: "" }); }
+    out.lines.push(q.kind === "move" ? `${who(q.id, e.values)} moved from ${q.from} to ${q.to} on the ${MASTER}.`
+      : q.kind === "extra" ? `${who(q.id, e.values)} also entered in ${q.to} on the ${MASTER}.`
+      : `${who(q.id, e.values)} withdrawn from ${q.from}: x removed on the ${MASTER}.`);
+  });
+  // Anyone left in no trial after a withdrawal is withdrawn from the event.
+  yes.filter(q => q.kind === "withdraw").forEach(q => {
+    const e = byId.get(q.id);
+    if (!e.withdrawn && ![...e.trials].length) { e.withdrawn = true; e.status = "Withdrawn"; out.cells.push({ id: q.id, status: true, value: "Withdrawn" }); out.lines.push(`${who(q.id, e.values)} is in no other trial, so is marked Withdrawn on the ${MASTER}.`); }
+  });
+  return out;
 }
 
 /* ---------- Tool Settings ---------- */
@@ -592,7 +788,7 @@ function stamp(d = new Date()) {
 
 if (typeof module !== "undefined") {
   module.exports = { TOOL, MASTER, SETTINGS_TAB, TRIAL_HEADERS, reactivity, shuffle, fingerprint, rowsFingerprint, entryId, columns, looksLikeEntries,
-    buildMaster, readMaster, startTabs, doubles, readTrialTab, planUpdate, summaryLines, settingsRows, readSettings, stamp };
+    buildMaster, readMaster, startTabs, doubles, readTrialTab, planUpdate, summaryLines, settingsRows, readSettings, stamp, who, snapshot, audit, applyAnswers };
 }
 
 if (typeof module === "undefined") {
@@ -765,6 +961,33 @@ function rowStyles(ws) {
   });
   return out;
 }
+/* Put confirmed trial-tab changes onto the Master List: x added or removed, Status, and new late-entry rows. All highlighted. */
+function writeMasterEdits(ws, read, edits) {
+  const c = read.columns, width = (sheetRows(ws)[0] || []).length;
+  const trialCol = T => { const t = c.trials.find(x => x.name === T); return t ? t.i + 1 : 0; };
+  const rowOf = new Map(read.entries.map(e => [e.id, e.row]));
+  edits.cells.forEach(e => {
+    const row = rowOf.get(e.id), col = e.status ? c.status + 1 : trialCol(e.trial);
+    if (!row || col < 1) return;
+    const cell = ws.getCell(row, col);
+    cell.value = e.value;
+    cell.fill = LATE_FILL;
+  });
+  if (!edits.late.length) return;
+  const rows = sheetRows(ws);
+  let last = rows.length;
+  while (last > 1 && (rows[last - 1] || []).every(isBlank)) last--;
+  edits.late.forEach(l => {
+    last++;
+    const e = read.entries.find(x => x.id === l.id);
+    if (e) e.row = last;
+    const put = (col, v) => { if (col >= 0) ws.getCell(last, col + 1).value = (col === c.handlerNo || col === c.dogNo) && /^\d+$/.test(v) ? Number(v) : v; };
+    put(c.id, l.id); ws.getCell(last, c.id + 1).numFmt = "@";
+    [c.handlerNo, c.handler, c.dogNo, c.pet, c.breed, c.comments].forEach((col, k) => put(col, l.values[k] || ""));
+    l.trials.forEach(T => { const col = trialCol(T); if (col) ws.getCell(last, col).value = "x"; });
+    for (let k = 1; k <= width; k++) ws.getCell(last, k).fill = LATE_FILL;
+  });
+}
 async function writeSettings(wb, settings) {
   settings.savedAt = stamp();
   const old = wb.getWorksheet(SETTINGS_TAB);
@@ -805,6 +1028,7 @@ async function start(wb, sourceWs, rows, baseName, fileLabel, notes = []) {
     sheet1Fingerprint: rowsFingerprint(rows), locked: false,
     steps: [step(`Started: Master List and ${tabs.length} trial tabs made`)],
     tabs: Object.fromEntries(tabs.map(t => [t.name, { trial: t.trial, madeBy: TOOL.name, changed: stamp() }])),
+    snap: snapshot(read.entries, tabs),
   };
   await writeSettings(wb, settings);
   current = { wb, baseName, settings, tabs };
@@ -853,7 +1077,8 @@ async function resume(wb, baseName, fileLabel, opts = {}) {
   try { read = readMaster(sheetRows(masterWs)); }
   catch (err) { return showStop(`The ${MASTER} can't be read`, [splitMsg(err)], { excel: true }); }
   const tabs = trialCandidates(wb, settings).map(w => readTrialTab(w.name, sheetRows(w), read.trials, read.entries));
-  current = { wb, baseName, fileLabel, settings, read, tabs, masterWs, sourceWs, choices: {} };
+  const check = audit(read.entries, tabs, settings.snap);
+  current = { wb, baseName, fileLabel, settings, read, tabs, masterWs, sourceWs, choices: {}, check, answers: {} };
   tabs.filter(t => !t.unusable).forEach(t => { current.choices[t.name] = "keep"; });
   renderUpdate();
 }
@@ -863,7 +1088,7 @@ function renderUpdate() {
   hideAll();
   $("result").hidden = true;
   $("resumed").textContent = `Resumed: settings saved ${settings.savedAt || "earlier"}. ${read.entries.filter(e => !e.withdrawn).length} entries on the ${MASTER}${read.entries.some(e => e.withdrawn) ? `, ${read.entries.filter(e => e.withdrawn).length} withdrawn` : ""}.`;
-  const msgs = [...read.problems, ...tabs.flatMap(t => t.problems)];
+  const msgs = [...read.problems, ...tabs.flatMap(t => t.problems), ...current.check.problems];
   const plan = planUpdate(read.entries, tabs, read.trials, {});
   plan.tabs.filter(t => t.mode === "new").forEach(t => msgs.push({ type: "info", text: `A new tab, ${t.name}, will be made for ${t.rows.length} ${t.rows.length === 1 ? "entry" : "entries"} in a trial that had no tab yet.`, fix: "Nothing to do. It will be in random order." }));
   $("updateMsgs").textContent = "";
@@ -874,11 +1099,46 @@ function renderUpdate() {
   if (plan.diffs.length) {
     $("diffCount").textContent = `${plan.diffs.length} ${plan.diffs.length === 1 ? "detail on a trial tab differs" : "details on trial tabs differ"} from the ${MASTER} and will be replaced with the ${MASTER} version. If a change belongs on the ${MASTER}, go back and make it there first.`;
     const ul = $("diffList"); ul.textContent = "";
-    plan.diffs.forEach(d => { const li = document.createElement("li"); li.textContent = `${d.tab}, ${d.id}, ${d.field}: “${d.was}” → “${d.now}”`; ul.append(li); });
+    const byId = new Map(read.entries.map(e => [e.id, e]));
+    plan.diffs.forEach(d => { const li = document.createElement("li"); li.textContent = `${d.tab}, ${who(d.id, (byId.get(d.id) || {}).values)}, ${d.field}: “${d.was}” → “${d.now}”`; ul.append(li); });
   }
+  renderQuestions();
   renderChoices();
   $("restartBox").hidden = true;
   $("update").hidden = false;
+}
+/* Yes / No questions about changes made on the trial tabs. Update stays off until every one is answered Yes,
+   or (for files saved before this check existed) answered either way. */
+function renderQuestions() {
+  const { questions, hasSnapshot } = current.check, answers = current.answers;
+  $("questions").hidden = !questions.length;
+  $("qTitle").textContent = `${questions.length} ${questions.length === 1 ? "change" : "changes"} made on the trial tabs`;
+  $("qNote").textContent = hasSnapshot
+    ? `These were changed on a trial tab, not on the ${MASTER}. Answer each one. Nothing is changed until you choose Update trial tabs.`
+    : `This file was saved before the tools kept track of changes, so these are the differences between the trial tabs and the ${MASTER}. Answer each one. Nothing is changed until you choose Update trial tabs.`;
+  const ol = $("qList");
+  ol.textContent = "";
+  questions.forEach((q, i) => {
+    const a = answers[q.key];
+    const li = document.createElement("li");
+    li.className = "q" + (a ? " " + a : "");
+    const p = document.createElement("p"); p.className = "qtext"; p.textContent = q.text;
+    const row = document.createElement("div"); row.className = "yesno"; row.setAttribute("role", "group"); row.setAttribute("aria-label", q.text);
+    [["yes", "Yes"], ["no", "No"]].forEach(([v, label]) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "small"; b.textContent = label; b.setAttribute("aria-pressed", a === v ? "true" : "false");
+      b.addEventListener("click", () => { answers[q.key] = v; renderQuestions(); const again = $("qList").children[i]; if (again) again.querySelector(`button:nth-child(${v === "yes" ? 1 : 2})`).focus(); });
+      row.append(b);
+    });
+    li.append(p, row);
+    if (a) { const n = document.createElement("p"); n.className = "answer"; n.textContent = a === "yes" ? q.yes : q.noText; li.append(n); }
+    ol.append(li);
+  });
+  const stop = questions.some(q => answers[q.key] === "no" && q.no === "stop");
+  const open = questions.filter(q => !answers[q.key]).length;
+  $("qStop").hidden = !stop;
+  $("doUpdate").disabled = stop || open > 0;
+  $("doUpdate").title = stop ? "Check the file first (see above)" : open ? `Answer the ${open} ${open === 1 ? "question" : "questions"} above first` : "";
 }
 function renderChoices() {
   const box = $("choices");
@@ -909,10 +1169,13 @@ $("doUpdate").addEventListener("click", async () => {
   const { wb, settings, read, tabs, masterWs } = current;
   const btn = $("doUpdate"); btn.disabled = true;
   try {
+    // Changes confirmed on the trial tabs go onto the Master List first, highlighted.
+    const edits = applyAnswers(read.entries, tabs, current.check.questions, current.answers);
+    writeMasterEdits(masterWs, read, edits);
     const plan = planUpdate(read.entries, tabs, read.trials, current.choices);
-    // New IDs for late entries go onto the Master List.
+    // New IDs for late entries added on the Master List go into their ID cells.
     const idCol = head(masterWs).indexOf("entry id") + 1;
-    read.entries.filter(e => e.newId).forEach(e => { const c = masterWs.getCell(e.row, idCol); c.value = e.id; c.numFmt = "@"; });
+    read.entries.filter(e => e.newId && !e.fromTab).forEach(e => { const c = masterWs.getCell(e.row, idCol); c.value = e.id; c.numFmt = "@"; });
     masterRules(masterWs);
     const now = stamp();
     plan.tabs.forEach(t => {
@@ -924,8 +1187,9 @@ $("doUpdate").addEventListener("click", async () => {
       const prev = (settings.tabs || {})[t.name] || {};
       settings.tabs[t.name] = { ...prev, trial: t.trial, madeBy: prev.madeBy || (t.mode === "new" ? TOOL.name : "user copy"), changed: changed ? now : prev.changed || now };
     });
-    const lines = summaryLines(plan);
-    settings.steps.push(step(`Trial tabs updated (${plan.tabs.length} tabs)`));
+    const lines = [...edits.lines, ...summaryLines(plan)];
+    settings.snap = snapshot(read.entries, plan.tabs);
+    settings.steps.push(step(`Trial tabs updated (${plan.tabs.length} tabs${edits.lines.length ? `, ${edits.lines.length} ${edits.lines.length === 1 ? "change" : "changes"} from the trial tabs confirmed` : ""})`));
     await writeSettings(wb, settings);
     current.done = true;
     hideAll();
@@ -933,7 +1197,8 @@ $("doUpdate").addEventListener("click", async () => {
     renderResult({ title: "Trial tabs updated", label: current.fileLabel, tabs: plan.tabs,
       stats: [live, plan.tabs.length, read.entries.filter(e => e.newId).length, new Set(plan.tabs.flatMap(t => t.removed.map(r => r.id))).size],
       labels: ["new late entries", "entries taken off tabs"], summary: lines });
-    $("actionNote").textContent = "Download the updated spreadsheet. Late entries are highlighted in yellow at the bottom of each tab they were added to: move them in Excel if you want them elsewhere.";
+    $("actionNote").textContent = "Download the updated spreadsheet. Changes on the Master List and late entries on the trial tabs are highlighted in yellow." +
+      (edits.late.length ? ` Remember to fill in email and payment details on the Master List for ${edits.late.map(l => who(l.id, l.values)).join(", ")}.` : "");
   } catch (err) {
     showStop("The update didn't work", [{ type: "stop", text: String(err.message || err), fix: "Drop the file in again. If it happens again, go back to your most recent downloaded copy." }]);
   } finally { btn.disabled = false; }
