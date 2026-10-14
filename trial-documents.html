@@ -102,11 +102,15 @@ input[type=color] { width: 48px; height: 36px; padding: 2px; border: 1px solid v
 .copy { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 10px; align-items: center; }
 .copy.choosing { grid-template-columns: auto minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1.6fr) auto; }
 .copy-label { font-size: 13px; color: var(--muted); font-weight: 700; white-space: nowrap; }
-.copy.judging.choosing1 { grid-template-columns: auto minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1.3fr); }
-.copy.judging.other1 { grid-template-columns: auto minmax(0, 1.1fr) minmax(0, 2.4fr) minmax(0, 1.3fr); }
-.copy.judging.choosing1.hides { grid-template-columns: auto minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1.3fr) minmax(0, .9fr); }
-.copy.judging.other1.hides { grid-template-columns: auto minmax(0, 1.1fr) minmax(0, 2.2fr) minmax(0, 1.3fr) minmax(0, .9fr); }
-.copy.judging.fixed1 { grid-template-columns: auto minmax(0, 1.4fr) minmax(0, 1.3fr); }
+.copy.search { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.copy.search .copy-label { flex: 0 0 66px; }
+.copy.search select.el { flex: 0 1 170px; }
+.copy.search .copy-other { flex: 1 1 190px; }
+.copy.search input.time { flex: 0 0 96px; }
+.copy.search input.judge { flex: 1 1 170px; }
+.copy.search select.hides { flex: 0 0 104px; }
+.copy.search .copy-fixed { flex: 0 1 auto; }
+select.needed { border-color: var(--warn); background: var(--warn-soft); }
 .copy-fixed { font-size: 14px; color: var(--muted); }
 .copy-fixed b { color: var(--ink); }
 .page .pelement.split { display: flex; justify-content: space-between; gap: 12px; }
@@ -114,7 +118,7 @@ input[type=color] { width: 48px; height: 36px; padding: 2px; border: 1px solid v
 .copy-other { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .copy-other input { flex: 1; }
 .copy-count { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
-@media (max-width: 640px) { .copy.judging { grid-template-columns: auto minmax(0, 1fr) !important; } .copy.judging > :nth-child(n+3) { grid-column: 2; }
+@media (max-width: 640px) { .copy.search .copy-label { flex-basis: 100%; }
   .copy.other {grid-template-columns: auto minmax(0, 1fr); } .copy.other > :nth-child(n+3) { grid-column: 2; }
   .copy.choosing { grid-template-columns: auto minmax(0, 1fr); } .copy.choosing > :nth-child(n+3) { grid-column: 2; } }
 input[type=number] { font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; }
@@ -128,7 +132,7 @@ input[type=number] { font: inherit; font-size: 15px; color: var(--ink); backgrou
 .radios label { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; font-size: 14px; cursor: pointer; }
 .radios input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--accent); }
 .radios small { display: block; color: var(--muted); font-size: 13px; }
-.spares input { max-width: 110px; }
+.copies-head select.spares { width: auto; min-width: 150px; }
 .logo-thumb { height: 40px; max-width: 140px; object-fit: contain; background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 2px; }
 @media (max-width: 560px) { .look { grid-template-columns: 1fr; } }
 
@@ -210,6 +214,30 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .nextstep p b { color: var(--ink); }
 .nextstep a { font-weight: 700; color: var(--accent-ink); background: var(--accent); border-radius: 10px; padding: 10px 16px; text-decoration: none; white-space: nowrap; }
 .nextstep a:focus-visible, .crumbs a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+.report details { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.report summary { cursor: pointer; padding: 14px 18px; font-family: var(--font-display); font-size: 17px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.report summary::-webkit-details-marker { display: none; }
+.report summary::after { content: "+"; font-size: 22px; line-height: 1; color: var(--accent); }
+.report details[open] summary::after { content: "–"; }
+.report summary:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; border-radius: 14px; }
+.report .rbody { display: grid; gap: 12px; padding: 0 18px 18px; }
+.report .rbody > p { margin: 0; font-size: 15px; color: var(--muted); max-width: 66ch; }
+.report .rprivacy { padding: 10px 14px; border-radius: 10px; border-left: 4px solid var(--warn); background: var(--bg); color: var(--ink) !important; }
+.report .rgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
+.report .rgrid .wide { grid-column: 1 / -1; }
+.report label { display: grid; gap: 4px; font-size: 14px; color: var(--muted); min-width: 0; }
+.report label b { color: var(--ink); }
+.report input, .report select, .report textarea { font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; width: 100%; min-width: 0; }
+.report textarea { min-height: 72px; resize: vertical; }
+.report input:focus-visible, .report select:focus-visible, .report textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.report .ractions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.report .ractions a, .report .ractions button { font: inherit; font-weight: 700; font-size: 15px; border-radius: 10px; padding: 10px 16px; cursor: pointer; text-decoration: none; }
+.report .rsend { background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent); }
+.report .rcopy { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.report .rnote { font-size: 14px; color: var(--muted); margin: 0; }
+.report .rnote.err { color: var(--warn); font-weight: 700; }
+@media (max-width: 560px) { .report .rgrid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -313,15 +341,11 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
             <label><input type="radio" name="paper" value="A5"><span><b>A5, one sheet per page</b><small>For printers that take A5 paper. The sheets come out in running order.</small></span></label>
           </div>
         </div>
-        <label class="field spares">
-          <span>Spare sheets at the end of each search (0–10)</span>
-          <input type="number" id="spares" min="0" max="10">
-        </label>
         <div class="field wide" id="paperColoursField" hidden>
           <span>Paper colour for each element · starts as the usual colours (Containers yellow, Interior pink, Exterior blue, Vehicle green, to match the results sheet). Change any of them; they're saved with your trial.</span>
           <div class="colours" id="paperColours"></div>
         </div>
-        <p class="note wide" style="grid-column: 1 / -1">Spare sheets have the date, host, judge and number of hides filled in, ready for late entries or mistakes. On A4, one more spare is added when needed so that every page has two sheets.</p>
+        <p class="note wide" style="grid-column: 1 / -1">Choose the number of spare sheets for each class in step 1 (0–9): a few for a small class, more for a big one. Spares have the date, host, judge and number of hides filled in, ready for late entries or mistakes. On A4, one more spare is added when needed so that every page has two sheets.</p>
       </div>
       <p class="note" id="redNote"></p>
     </div>
@@ -358,8 +382,9 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
       <li><b>One setup, several documents:</b> level, date and session are entered once and used by every document. Which classes are ticked, the order and the copies are kept separately for each document, so you can print just one or two callboards without changing the catalogue.</li>
       <li><b>Catalogue running orders:</b> each table is kept in one piece, and tables share a page when they fit. A table too long for one page starts on a new page and carries on over the next, with the heading row repeated. The preview's page numbers are a close estimate; Word makes the final fit.</li>
       <li><b>Callboards:</b> each class starts on its own page, with larger text and a Started ✓ column to tick. Set <b>Copies</b> to print more than one. Each copy can have an element line under the title: pick elements from the list in the order they run (each one is added to the end), then edit the text to add numbers such as “Exterior 2”. Or choose <b>Other</b> and type exactly what should be printed (up to one line). If nothing is chosen or typed, a line to write on is printed instead.</li>
-      <li><b>Timekeepers and Judges:</b> one sheet per element, up to 8 per class. Each copy has one element (pick it, then add a number if needed, e.g. “Exterior 2”) and the judge's name, printed on the right of the element line. Leave either blank to write it in. The two documents share the same copies, elements and judges, so you only fill them in once.</li>
-      <li><b>Judging sheets:</b> one sheet per dog for each search, with the date, host, judge, element, search time and the dog's running-order number filled in. They use the same searches (copies), elements and judges as the Timekeepers and Judges sheets. <b>Standard searches</b> sets up the usual searches for the class in one click. Search times come from the regulations; where the judge sets the time on the day, the range is printed.</li>
+      <li><b>Timekeepers and Judges:</b> one sheet per search, up to 8 per class. Choose each search's element from the list, or choose <b>Other</b> and type it. An element used twice in a class is numbered for you (Exterior 1, Exterior 2). The judge's name prints on the right of the element line; leave it blank to write it in. Every search needs an element before the sheets download. Timekeepers, Judges and the judging sheets share the same searches, so you only fill them in once.</li>
+      <li><b>Judging sheets:</b> one sheet per dog for each search, with the date, host, judge, element, search time and the dog's running-order number filled in. They use the same searches (copies), elements and judges as the Timekeepers and Judges sheets. <b>Standard searches</b> sets up the usual searches for the class in one click. Search times come from the regulations; where the judge sets the time on the day, the range is printed. If you type an element under Other, a usual one (e.g. “Interior 2”) gets the regulation time for the class; anything else asks you for its time in minutes.</li>
+      <li><b>Spare judging sheets:</b> choose 0–9 for each class, a few for a small class and more for a big one. The judging sheets won't download until every class has a number.</li>
       <li><b>Excellent hides:</b> choose the number of hides for each search. The judging sheets won't download until they match the numbers drawn for the trial (3, 3, 3, 2 and 1).</li>
       <li><b>Coloured paper for each element:</b> the usual colours are filled in (Containers yellow, Interior pink, Exterior blue, Vehicle green); change any of them once and they're saved with your trial. Then use the buttons under the download, one per element: load that colour of paper, print, and move on to the next. The Download button still gives every element in one file.</li>
       <li><b>Printing judging sheets:</b> print at actual size (100%, not “Fit to page”) and single-sided, so the cut line stays in the middle of the page.</li>
@@ -372,6 +397,79 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
       <li>The file never leaves your computer. All the work happens in this page.</li>
     </ul>
   </section>
+
+  <section class="report" aria-label="Report a problem">
+    <details id="report">
+      <summary>Found a problem? Report it</summary>
+      <div class="rbody">
+        <p>These tools are being tested. If something goes wrong, looks odd or is confusing, tell us here. Your report opens in your email app, ready to send. Nothing is sent until you press Send there.</p>
+        <p class="rprivacy"><b>Please don't attach your entries file</b> or type anyone's name, email or other details. Describe the problem instead, for example “row 14 of NWAdv1” or “the third dog on the Judges sheet”.</p>
+        <div class="rgrid">
+          <label>Which tool?<select id="rTool"><option>Not sure</option><option>Payment Split</option><option>Email List</option><option>Trial Lists</option><option selected>Trial Documents</option><option>Front page</option></select></label>
+          <label>Your name (optional, so we can ask you more)<input type="text" id="rName" autocomplete="name" maxlength="60"></label>
+          <label class="wide"><span><b>What went wrong?</b> What you saw, any message on the screen, and which step you were on</span><textarea id="rWhat" maxlength="1200"></textarea></label>
+          <label class="wide">What did you expect to happen? (optional)<textarea id="rExpect" maxlength="600"></textarea></label>
+          <label>Your computer<select id="rDevice"><option value="">Choose…</option><option>Windows</option><option>Mac</option><option>iPad or tablet</option><option>Phone</option><option>Other</option></select></label>
+          <label>Spreadsheet program you used<select id="rSheet"><option value="">Choose…</option><option>Excel (installed)</option><option>Excel for the web</option><option>Google Sheets</option><option>Numbers</option><option>Other</option><option>None yet</option></select></label>
+          <label class="wide">Web browser (filled in for you)<input type="text" id="rBrowser" maxlength="80"></label>
+        </div>
+        <div class="ractions">
+          <a class="rsend" id="rSend" href="mailto:tonka.watson@gmail.com">Open email to send</a>
+          <button class="rcopy" type="button" id="rCopy">Copy report</button>
+        </div>
+        <p class="rnote" id="rNote">No email app opens? Copy the report and email it to tonka.watson@gmail.com.</p>
+      </div>
+    </details>
+  </section>
+<script>
+(() => {
+  const TO = "tonka.watson@gmail.com";
+  const $ = id => document.getElementById(id);
+  const ua = navigator.userAgent, pick = (re, name) => { const m = re.exec(ua); return m ? `${name} ${m[1]}` : ""; };
+  $("rBrowser").value = pick(/Edg\/(\d+)/, "Edge") || pick(/OPR\/(\d+)/, "Opera") || pick(/Firefox\/(\d+)/, "Firefox")
+    || pick(/(?:Chrome|CriOS)\/(\d+)/, "Chrome") || pick(/Version\/(\d+)[\d.]* .*Safari/, "Safari") || "";
+  const pad = n => String(n).padStart(2, "0"), now = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+  function report() {
+    const v = id => $(id).value.trim();
+    return {
+      subject: `Trial tools problem: ${v("rTool")}`,
+      body: [
+        `Tool: ${v("rTool")}`,
+        `Page: ${document.title} (${location.pathname.split("/").pop() || "index.html"})`,
+        `When: ${now()}`,
+        `Computer: ${v("rDevice") || "not given"}`,
+        `Spreadsheet program: ${v("rSheet") || "not given"}`,
+        `Browser: ${v("rBrowser") || "not given"}`,
+        `Screen: ${window.innerWidth} x ${window.innerHeight}`,
+        v("rName") ? `From: ${v("rName")}` : "",
+        "", "WHAT WENT WRONG", v("rWhat") || "(not filled in)",
+        "", "WHAT I EXPECTED", v("rExpect") || "(not filled in)",
+      ].filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n"),
+    };
+  }
+  function check() {
+    if ($("rWhat").value.trim()) return true;
+    $("rNote").textContent = "Please say what went wrong first.";
+    $("rNote").className = "rnote err";
+    $("rWhat").focus();
+    return false;
+  }
+  $("rSend").addEventListener("click", e => {
+    if (!check()) { e.preventDefault(); return; }
+    const r = report();
+    window.mailtoOpening = true; setTimeout(() => { window.mailtoOpening = false; }, 1500);   // opening email isn't leaving the page
+    $("rSend").href = `mailto:${TO}?subject=${encodeURIComponent(r.subject)}&body=${encodeURIComponent(r.body)}`;
+    $("rNote").textContent = `Your email app should open with the report. Check it and press Send. If nothing opens, use Copy report and email it to ${TO}.`;
+    $("rNote").className = "rnote";
+  });
+  $("rCopy").addEventListener("click", async () => {
+    if (!check()) return;
+    const r = report(), text = `To: ${TO}\nSubject: ${r.subject}\n\n${r.body}`;
+    try { await navigator.clipboard.writeText(text); $("rNote").textContent = `Copied. Paste it into an email to ${TO}.`; $("rNote").className = "rnote"; }
+    catch (err) { $("rNote").textContent = `Copying didn't work here. Please select and copy what you typed, and email it to ${TO}.`; $("rNote").className = "rnote err"; }
+  });
+})();
+</script>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
@@ -650,7 +748,7 @@ function elementLine(el, layout) {
   const text = String(el.text || "").trim();
   const single = layout && layout.singleElement;
   if (!text) return single ? WRITE_IN_ONE : WRITE_IN;
-  if (single && el.mode === "choose") return "Element: " + text;
+  if (single) return "Element: " + text;   // Judges / Timekeepers: chosen or typed, always one element
   if (el.mode === "other" || el.mode === "write") return text;
   return (/[+,&]/.test(text) ? "Elements: " : "Element: ") + text;
 }
@@ -967,7 +1065,7 @@ function buildDocx(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
    ========================================================================= */
 const SCORE_SETTINGS = {
   versionLabel: "",                            // optional small label at the bottom right of every sheet ("" for none)
-  spares: 4,                                   // spare sheets at the end of each set (users can change)
+  maxSpares: 9,                                // most spare sheets per class; users choose 0–9 for each class
   paperColours: {                              // usual paper colour per element (matches the results sheet); users can change them
     Containers: "yellow", Interior: "pink", Exterior: "blue", Vehicle: "green",
   },
@@ -1141,6 +1239,29 @@ function timeFor(sheet, base) {
   const t = sheet.times || {};
   return t[base] != null ? t[base] : t.any != null ? t.any : "";
 }
+/* Search time typed for an element that isn't one of the usual ones: minutes, or a range ("3-4"). */
+const SPARE_RE = /^[0-9]$/;
+const TIME_RE = /^\d{1,2}(\s*[-–]\s*\d{1,2})?$/;
+/* The usual elements, in order: Containers, Interior, Exterior, Vehicle, Sand, Water. */
+const ELEMENT_ORDER = Object.keys(SCORE_SETTINGS.elements);
+const byElementOrder = list => [...list].sort((a, b) => { const i = ELEMENT_ORDER.indexOf(a), j = ELEMENT_ORDER.indexOf(b); return (i < 0 ? 99 : i) - (j < 0 ? 99 : j); });
+function elementNames(sheet) { return sheet.searches ? byElementOrder([...new Set(sheet.searches.filter(Boolean))]) : [sheet.element].filter(Boolean); }
+/* Typed elements group together for paper colours by their first word, in title case ("garden 2" → "Garden"). */
+function otherGroup(text) { const w = String(text || "").trim().split(/\s+/)[0] || "Other"; return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }
+/* Numbers for elements used more than once in a class: ["Exterior", "Containers", "Exterior"] → [1, 0, 2].
+   Elements typed with a number ("Exterior 2") keep it and that number isn't given to another. 0 = no number. */
+function numberRepeats(texts) {
+  const info = texts.map(t => { const s = String(t || "").trim(), el = elementOf(s); return el ? { base: el.base, typed: /\d/.test(s) ? Number((/(\d+)\s*$/.exec(s) || [])[1]) || -1 : 0 } : null; });
+  const out = texts.map(() => 0), used = {}, count = {};
+  info.forEach(x => { if (!x) return; count[x.base] = (count[x.base] || 0) + 1; if (x.typed > 0) (used[x.base] = used[x.base] || new Set()).add(x.typed); });
+  info.forEach((x, k) => {
+    if (!x || x.typed || count[x.base] < 2) return;
+    const u = used[x.base] = used[x.base] || new Set();
+    let n = 1; while (u.has(n)) n++;
+    u.add(n); out[k] = n;
+  });
+  return out;
+}
 function ordinalWord(n) { return n + ordinal(n); }
 
 /* Long date for the sheets: "Saturday 9 May 2026". */
@@ -1151,19 +1272,20 @@ function longDate(iso) {
 }
 
 /* ---------- Score sheets: what gets printed ----------
-   classes: [{ name, date (ISO), rows: [{ cells: [No., Handler, Dog] }], copies: [{ mode, text, judge, hides }] }]
-   opts: { host, spares }
+   classes: [{ name, date (ISO), spares (0–9, chosen per class), rows: [{ cells: [No., Handler, Dog] }], copies: [{ mode, text, judge, hides, time }] }]
+   opts: { host }
    Returns { sets, problems } — one set per search (copy), each with its sheets in running order then spares.
    problems lists anything that stops printing. */
 function scoreSets(classes, opts) {
   const sets = [], problems = [];
-  const spares = Math.max(0, Math.min(10, Math.round(Number(opts.spares) || 0)));
   if (!String(opts.host || "").trim()) problems.push("Type the host club's name.");
   classes.forEach(c => {
     const sc = scoreClass(c.cls || c.name);
     if (!sc) { problems.push(`${c.name}: there's no judging sheet for this class yet.`); return; }
     const { sheet } = sc;
     if (!c.date) problems.push(`${c.name}: choose the date.`);
+    const spares = SPARE_RE.test(String(c.spares ?? "")) ? Number(c.spares) : null;
+    if (spares == null) problems.push(`${c.name}: choose how many spare sheets to print (0–${SCORE_SETTINGS.maxSpares}).`);
     if (sheet.hides === "operator" && sheet.hideSplit) {
       const got = c.copies.map(k => Number(k.hides) || 0);
       const want = [...sheet.hideSplit].sort((a, b) => b - a).join(",");
@@ -1172,24 +1294,33 @@ function scoreSets(classes, opts) {
       else if ([...got].sort((a, b) => b - a).join(",") !== want) problems.push(`${c.name}: the hides must be ${sheet.hideSplit.join(", ")} (one number per search, ${sheet.hideSplit.reduce((a, b) => a + b, 0)} in total). You have ${got.join(", ")}.`);
     }
     // An element used twice in a class is numbered (Exterior 1, Exterior 2) unless numbers were typed
-    const bases = c.copies.map(copy => sc.fixedElement ? null : elementOf(copy.text));
-    const seen = {};
+    const nums = sc.fixedElement ? [] : numberRepeats(c.copies.map(copy => copy.text));
     c.copies.forEach((copy, k) => {
-      let el = sc.fixedElement ? { base: sc.fixedElement.split(/\s*\+\s*/)[0], label: sc.fixedElement.toUpperCase() } : elementOf(copy.text);
-      if (!sc.fixedElement && !el) {
-        problems.push(`${c.name}, search ${k + 1}: choose the element${String(copy.text || "").trim() ? ` (“${String(copy.text).trim()}” isn't one of ${sheet.searches.filter(Boolean).join(", ")})` : ""}.`);
+      const typed = String(copy.text || "").trim();
+      let el = sc.fixedElement ? { base: sc.fixedElement.split(/\s*\+\s*/)[0], label: sc.fixedElement.toUpperCase() } : elementOf(typed);
+      let time;
+      if (!sc.fixedElement && !typed) {
+        problems.push(copy.mode === "other" ? `${c.name}, search ${k + 1}: type the element.` : `${c.name}, search ${k + 1}: choose the element.`);
         return;
       }
-      if (!sc.fixedElement && !/\d/.test(el.label) && bases.filter(b => b && b.base === el.base).length > 1) {
-        seen[el.base] = (seen[el.base] || 0) + 1;
-        el = { ...el, label: `${el.label} ${seen[el.base]}` };
+      if (!sc.fixedElement && !el) {
+        // Typed under Other and not one of the usual elements: printed as typed, with the time the user gives.
+        const t = String(copy.time || "").trim();
+        if (!TIME_RE.test(t)) {
+          problems.push(`${c.name}, search ${k + 1}: “${typed}” isn't one of ${elementNames(sheet).join(", ")}, so type its search time in minutes (e.g. 3, or 3-4 if the judge sets it on the day).`);
+          return;
+        }
+        el = { base: otherGroup(typed), label: typed.toUpperCase() };
+        time = MINUTES(t);
       }
+      if (nums[k]) el = { ...el, label: `${el.label} ${nums[k]}` };
+      if (time == null) time = MINUTES(timeFor(sheet, el.base));
       const hides = sheet.hides === "operator" ? Number(copy.hides) || 0 : sheet.hides;
       const dogs = c.rows.map(r => ({ order: r.cells[0], handler: r.cells[1], dog: r.cells[2] }));
-      for (let i = 0; i < spares; i++) dogs.push({ order: "", handler: "", dog: "" });
+      for (let i = 0; i < (spares || 0); i++) dogs.push({ order: "", handler: "", dog: "" });
       sets.push({
-        className: c.name, group: sc.fixedElement || el.base, sheet, element: el.label, time: MINUTES(timeFor(sheet, el.base)), hides,
-        date: longDate(c.date), host: String(opts.host || "").trim(), judge: String(copy.judge || "").trim(), dogs, spares,
+        className: c.name, group: sc.fixedElement || el.base, sheet, element: el.label, time, hides,
+        date: longDate(c.date), host: String(opts.host || "").trim(), judge: String(copy.judge || "").trim(), dogs, spares: spares || 0,
       });
     });
   });
@@ -1958,12 +2089,12 @@ return { TOOL, MASTER, SETTINGS_TAB, TRIAL_HEADERS, fingerprint, rowsFingerprint
 
 if (typeof module !== "undefined") {
   module.exports = { LAYOUT, DOCUMENTS, CLASS_NAMES, layoutFor, parseClass, defaultLevels, defaultOrder, titleParts, titleText, reactiveCode, extractTable, buildDocx, ordinal, planPages, elementLine, judgeText, elementChoices,
-    TL, SCORE_SETTINGS, SCORE_SHEETS, scoreClass, elementOf, scoreSets, cutAndStack, buildScorePdf, longDate, pdfCodes, textWidth, standardSearches };
+    TL, SCORE_SETTINGS, SCORE_SHEETS, scoreClass, elementOf, numberRepeats, scoreSets, cutAndStack, buildScorePdf, longDate, pdfCodes, textWidth, standardSearches };
 } else {
 const $ = id => document.getElementById(id);
 let state = null;    // { baseName, tabs: [...], isExample }
 const look = { doc: DOCUMENTS[0].id, logo: null, logoUrl: null, eventName: "", eachOnNewPage: false, titleColour: LAYOUT.colours.title, headerColour: LAYOUT.colours.header,
-  host: "", paper: "A4", spares: SCORE_SETTINGS.spares, paperColours: { ...SCORE_SETTINGS.paperColours } };
+  host: "", paper: "A4", paperColours: { ...SCORE_SETTINGS.paperColours } };
 const MAX_COPIES = 10;
 const newCopy = doc => ({ mode: doc.judgeField ? "choose" : "none", text: "", judge: "", hides: "" });
 /* Copies are kept per document, or per copyGroup when documents share them (Judges + Timekeepers + Score sheets). */
@@ -2014,7 +2145,7 @@ function loadSheets(sheets, baseName, isExample, classOf = n => n) {
       include[d.id] = tables[d.id].usable && tables[d.id].rows.length > 0 && TRIAL_TAB.test(classes[i]) && (!isPdf(d) || !!scoreClass(classes[i]));
     });
     const p = parseClass(classes[i]);
-    return { name, cls: classes[i], level: levels[i], date: "", session: "", include, tables, type: p ? p.typeCode : "", copies: {}, defaultPos: 0 };
+    return { name, cls: classes[i], level: levels[i], date: "", session: "", spares: "", include, tables, type: p ? p.typeCode : "", copies: {}, defaultPos: 0 };
   });
   defaultOrder(classes).forEach((idx, pos) => { tabs[idx].defaultPos = pos; });
   tabs.sort((a, b) => a.defaultPos - b.defaultPos);
@@ -2054,7 +2185,9 @@ function renderDocSwitch() {
   $("pdfOpen").hidden = true;
   $("download").textContent = `Download ${doc.label} (${pdf ? "PDF" : "Word"})`;
   $("tablesHelp").textContent = pdf
-    ? "Tick the classes to print. Give each class its date, then set up its searches: the element, the judge and (Excellent only) the number of hides. Searches, elements and judges are shared with the Timekeepers and Judges sheets."
+    ? "Tick the classes to print. Give each class its date and the number of spare sheets, then set up its searches: the element, the judge and (Excellent only) the number of hides. Searches, elements and judges are shared with the Timekeepers and Judges sheets."
+    : doc.singleElement
+    ? "Tick the classes to print. Set the number of searches, then choose the element for each one (Other lets you type it) and the judge. Searches, elements and judges are shared with the other judging documents."
     : doc.copies
     ? "Tick the classes to print. Each one starts on its own page, in the order shown. Use ▲ ▼ to move a class. Level, date and session are shared with the other documents."
     : "Tick the tabs to include. Each ticked tab becomes one table, in the order shown. Use ▲ ▼ to move a table. Level, date and session are shared with the other documents.";
@@ -2114,6 +2247,7 @@ function renderCards() {
 /* Copies and element lines (callboards, judges, timekeepers, score sheets). */
 function copiesBlock(tab, id, doc) {
   const copies = copiesOf(tab, doc), maxN = doc.maxCopies || MAX_COPIES;
+  const single = !!doc.singleElement;
   const count = el("input", { type: "number", min: 1, max: maxN, value: copies.length, id: id + "n",
     onchange: e => {
       const n = Math.max(1, Math.min(maxN, Math.round(Number(e.target.value)) || 1));
@@ -2125,29 +2259,93 @@ function copiesBlock(tab, id, doc) {
   const sc = doc.judgeField ? scoreClass(tab.cls) : null;
   const std = sc ? el("button", { class: "small", type: "button", title: "Set up the usual searches for this class",
     onclick: () => { tab.copies[doc.copyGroup || doc.id] = standardSearches(tab.cls, copies); renderCards(); renderPreview(); } }, "Standard searches") : null;
-  const rows = doc.elementLine ? copies.map((c, k) => copyRow(tab, c, k, id, doc)) : [];
+  // Judging sheets: how many spare sheets to print for this class (asked every time, 0–9).
+  let spares = null;
+  if (isPdf(doc)) {
+    const max = SCORE_SETTINGS.maxSpares;
+    const sel = el("select", { id: id + "p", class: "spares" + (SPARE_RE.test(String(tab.spares ?? "")) ? "" : " needed"), "aria-label": `Spare judging sheets for ${tab.name}`,
+      onchange: e => { tab.spares = e.target.value; e.target.classList.toggle("needed", !e.target.value); renderPreview(); } },
+      el("option", { value: "", text: "Choose…" }), Array.from({ length: max + 1 }, (_, n) => el("option", { value: String(n), text: n === 0 ? "None" : `${n} spare${n === 1 ? "" : "s"}` })));
+    sel.value = String(tab.spares ?? "");
+    spares = el("label", { class: "field", for: id + "p" }, el("span", { text: "Spare sheets per search" }), sel);
+  }
+  const rows = doc.elementLine ? copies.map((c, k) => single ? searchRow(tab, copies, c, k, id, doc) : copyRow(tab, c, k, id, doc)) : [];
   return el("div", { class: "copies" },
     el("div", { class: "copies-head" },
-      el("label", { class: "field copies-n", for: id + "n" }, el("span", { text: doc.singleElement ? (isPdf(doc) ? `Searches (up to ${maxN}, one element each)` : `Copies (up to ${maxN}, one element each)`) : "Copies" }), count),
-      std),
+      el("label", { class: "field copies-n", for: id + "n" }, el("span", { text: single ? `Searches (up to ${maxN}, one element each)` : "Copies" }), count),
+      spares, std),
     rows.length ? el("div", { class: "copy-list" }, rows) : null);
 }
 
+/* One search on the Judges, Timekeepers and judging sheets (they share these): the element from one
+   drop-down (Choose… · the class's elements · Other), the judge, and for Excellent the number of hides.
+   Other opens a box to type the element. On the judging sheets, a typed element that isn't one of the
+   usual ones also asks for its search time. */
+const OTHER = "__other__";
+function searchRow(tab, copies, c, k, id, doc) {
+  const cid = `${id}e${k}`;
+  const fixed = fixedElementOf(tab);
+  const sc = isPdf(doc) ? scoreClass(tab.cls) : null;
+  const label = el("span", { class: "copy-label", text: `Search ${k + 1}` });
+  const judge = el("input", { type: "text", class: "judge", id: cid + "j", value: c.judge || "", maxlength: doc.judgeMaxChars || 25, autocomplete: "off", placeholder: "Judge's name",
+    "aria-label": `${label.textContent}: judge's name (leave blank to write it in)`, oninput: e => { c.judge = e.target.value; renderPreview(); } });
+  // Buried Hides: the element comes from the class (Sand, Water, Sand + Water).
+  if (fixed) {
+    return el("div", { class: "copy search" }, label,
+      el("span", { class: "copy-fixed" }, "Element: ", el("b", { text: fixed })), judge);
+  }
+  const choices = byElementOrder(elementChoices(tab.type));
+  // Something typed before this version (e.g. "Exterior 2" in the old text box) shows under Other.
+  if (c.mode !== "other" && c.text && !choices.includes(c.text)) c.mode = "other";
+  if (c.mode !== "other") c.mode = "choose";
+  const max = doc.elementMaxChars || 25;
+  const pick = el("select", { id: cid + "m", class: "el" + (c.mode === "choose" && !c.text ? " needed" : ""), "aria-label": `${label.textContent}: element`,
+    onchange: e => {
+      const v = e.target.value;
+      if (v === OTHER) { if (c.mode !== "other") c.text = ""; c.mode = "other"; }
+      else { c.mode = "choose"; c.text = v; }
+      renderCards(); renderPreview();
+      const next = c.mode === "other" ? $(cid + "t") : $(cid + "m"); if (next) next.focus();
+    } },
+    el("option", { value: "", text: "Choose…" }), choices.map(v => el("option", { value: v, text: v })), el("option", { value: OTHER, text: "Other" }));
+  pick.value = c.mode === "other" ? OTHER : (c.text || "");
+  const parts = [label, pick];
+  if (c.mode === "other") {
+    const timeBox = () => {
+      // Judging sheets only: a typed element that isn't a usual one needs its search time.
+      if (!sc) return null;
+      const known = !!elementOf(c.text);
+      return el("input", { type: "text", class: "time", id: cid + "time", value: c.time || "", maxlength: 5, autocomplete: "off", inputmode: "numeric",
+        placeholder: "Minutes", hidden: known || !String(c.text || "").trim(), title: "Search time in minutes, e.g. 3, or 3-4 if the judge sets it on the day",
+        "aria-label": `${label.textContent}: search time in minutes`, oninput: e => { c.time = e.target.value; renderPreview(); } });
+    };
+    const time = timeBox();
+    const text = el("input", { type: "text", id: cid + "t", value: c.text, maxlength: max, autocomplete: "off", placeholder: "Type the element, e.g. Interior 2",
+      "aria-label": `${label.textContent}: element (typed)`, oninput: e => {
+        c.text = e.target.value;
+        const n = $(cid + "c"); if (n) n.textContent = `${c.text.length}/${max}`;
+        if (time) time.hidden = !!elementOf(c.text) || !c.text.trim();
+        renderPreview();
+      } });
+    parts.push(el("div", { class: "copy-other" }, text, el("span", { class: "copy-count", id: cid + "c", text: `${c.text.length}/${max}` })));
+    if (time) parts.push(time);
+  }
+  parts.push(judge);
+  if (sc && sc.sheet.hides === "operator") {
+    const hideChoices = [...new Set(sc.sheet.hideSplit || [1, 2, 3])].sort((a, b) => a - b);
+    const sel = el("select", { id: cid + "h", class: "hides", "aria-label": `${label.textContent}: number of hides`, onchange: e => { c.hides = e.target.value; renderPreview(); } },
+      el("option", { value: "", text: "Hides…" }), hideChoices.map(h => el("option", { value: String(h), text: `${h} ${h === 1 ? "hide" : "hides"}` })));
+    sel.value = String(c.hides || "");
+    parts.push(sel);
+  }
+  return el("div", { class: "copy search" }, parts);
+}
+
+/* Callboard copies: an element line built from a list (several elements per sheet), or typed. */
 function copyRow(tab, c, k, id, doc) {
   const cid = `${id}e${k}`;
-  const single = !!doc.singleElement;
-  const sc = isPdf(doc) ? scoreClass(tab.cls) : null;
-  const label = el("span", { class: "copy-label", text: isPdf(doc) ? `Search ${k + 1}` : `Copy ${k + 1}` });
-  const judgeInput = () => el("input", { type: "text", class: "judge", id: cid + "j", value: c.judge || "", maxlength: doc.judgeMaxChars || 25, autocomplete: "off", placeholder: "Judge's name",
-    "aria-label": `${label.textContent}: judge's name (leave blank to write it in)`, oninput: e => { c.judge = e.target.value; renderPreview(); } });
-  // Buried Hides score sheets: the element comes from the class (Sand, Water, Sand + Water)
-  if (sc && sc.fixedElement) {
-    return el("div", { class: "copy judging fixed1" }, label,
-      el("span", { class: "copy-fixed" }, "Element: ", el("b", { text: sc.fixedElement })), judgeInput());
-  }
-  const options = single
-    ? [["choose", "Choose element"], ["other", "Other (type)"]]
-    : [["none", "No element line"], ["choose", "Choose elements"], ["other", "Other (type your own)"]];
+  const label = el("span", { class: "copy-label", text: `Copy ${k + 1}` });
+  const options = [["none", "No element line"], ["choose", "Choose elements"], ["other", "Other (type your own)"]];
   if (!options.some(([v]) => v === c.mode)) c.mode = options[0][0];
   const mode = el("select", { id: cid + "m", "aria-label": `${label.textContent} element line`, onchange: e => {
       c.mode = e.target.value; renderCards(); renderPreview();
@@ -2156,7 +2354,7 @@ function copyRow(tab, c, k, id, doc) {
   mode.value = c.mode;
   const parts = [label, mode];
   const max = doc.elementMaxChars || 60;
-  const textMax = c.mode === "choose" && !single ? max - 10 : max;
+  const textMax = c.mode === "choose" ? max - 10 : max;
   const counter = () => el("span", { class: "copy-count", id: cid + "c", text: `${c.text.length}/${textMax}` });
   const typed = e => { c.text = e.target.value; const n = $(cid + "c"); if (n) n.textContent = `${c.text.length}/${textMax}`; renderPreview(); };
   if (c.mode === "other") {
@@ -2166,32 +2364,21 @@ function copyRow(tab, c, k, id, doc) {
   }
   if (c.mode === "choose") {
     const text = el("input", { type: "text", id: cid + "t", value: c.text, maxlength: textMax, autocomplete: "off",
-      placeholder: single ? "e.g. Exterior 2" : "e.g. Exterior 1 + Containers",
-      "aria-label": `${label.textContent} ${single ? "element" : "elements"} (you can edit this)`, oninput: typed });
-    const add = el("select", { id: cid + "a", "aria-label": `${single ? "Choose the element" : "Add an element"} for ${label.textContent}`, onchange: e => {
+      placeholder: "e.g. Exterior 1 + Containers", "aria-label": `${label.textContent} elements (you can edit this)`, oninput: typed });
+    const add = el("select", { id: cid + "a", "aria-label": `Add an element for ${label.textContent}`, onchange: e => {
         const v = e.target.value; if (!v) return;
-        const next = single || !c.text.trim() ? v : `${c.text.trim()} + ${v}`;
+        const next = !c.text.trim() ? v : `${c.text.trim()} + ${v}`;
         if (next.length > textMax) { showStatus(`That would make the element line too long to fit on one line (${textMax} characters).`, true); e.target.value = ""; return; }
         showStatus("");
         c.text = next;
         renderCards(); renderPreview();
-        const again = $(cid + "t"); if (again && single) { again.focus(); again.setSelectionRange(again.value.length, again.value.length); }
-        else { const a = $(cid + "a"); if (a) a.focus(); }
+        const a = $(cid + "a"); if (a) a.focus();
       } },
-      el("option", { value: "", text: single ? "Element…" : "Add element…" }), elementChoices(tab.type).map(v => el("option", { value: v, text: v })));
+      el("option", { value: "", text: "Add element…" }), elementChoices(tab.type).map(v => el("option", { value: v, text: v })));
     parts.push(add, el("div", { class: "copy-other" }, text, counter()));
-    if (!single) parts.push(el("button", { class: "small", type: "button", disabled: !c.text, onclick: () => { c.text = ""; renderCards(); renderPreview(); } }, "Clear"));
+    parts.push(el("button", { class: "small", type: "button", disabled: !c.text, onclick: () => { c.text = ""; renderCards(); renderPreview(); } }, "Clear"));
   }
-  if (doc.judgeField) parts.push(judgeInput());
-  const hides = sc && sc.sheet.hides === "operator";
-  if (hides) {
-    const choices = [...new Set(sc.sheet.hideSplit || [1, 2, 3])].sort((a, b) => a - b);
-    const sel = el("select", { id: cid + "h", "aria-label": `${label.textContent}: number of hides`, onchange: e => { c.hides = e.target.value; renderPreview(); } },
-      el("option", { value: "", text: "Hides…" }), choices.map(h => el("option", { value: String(h), text: `${h} ${h === 1 ? "hide" : "hides"}` })));
-    sel.value = String(c.hides || "");
-    parts.push(sel);
-  }
-  const cls = doc.judgeField ? (c.mode === "choose" ? " judging choosing1" : " judging other1") + (hides ? " hides" : "") : c.mode === "choose" ? " choosing" : c.mode === "other" ? " other" : "";
+  const cls = c.mode === "choose" ? " choosing" : c.mode === "other" ? " other" : "";
   return el("div", { class: "copy" + cls }, parts);
 }
 
@@ -2216,15 +2403,37 @@ function printItems() {
   const items = [];
   chosen().forEach(tab => {
     const copies = doc.copies ? copiesOf(tab, doc) : [{ mode: "none", text: "" }];
-    copies.forEach(c => items.push({ tab, parts: titleParts(tab.level, tab.date, tab.session), rows: tab.tables[doc.id].rows, element: doc.elementLine ? c : null }));
+    const shown = doc.singleElement ? searchElements(tab, copies) : null;
+    copies.forEach((c, k) => items.push({ tab, parts: titleParts(tab.level, tab.date, tab.session), rows: tab.tables[doc.id].rows,
+      element: !doc.elementLine ? null : shown ? { ...c, mode: "choose", text: shown[k] } : c }));
   });
   return items;
+}
+/* The element a class always uses (Buried Hides Sand / Water / Sand + Water), or "". */
+function fixedElementOf(tab) { const sc = scoreClass(tab.cls); return sc ? sc.fixedElement : ""; }
+/* What each search prints on Judges and Timekeepers sheets: the element chosen or typed, with repeats
+   numbered (Exterior 1, Exterior 2), the same as on the judging sheets. "" = not chosen yet. */
+function searchElements(tab, copies) {
+  const fixed = fixedElementOf(tab);
+  if (fixed) return copies.map(() => fixed);
+  const nums = numberRepeats(copies.map(c => c.text));
+  return copies.map((c, k) => { const s = String(c.text || "").trim(); return s ? (nums[k] ? `${s} ${nums[k]}` : s) : ""; });
+}
+/* Searches still without an element, for documents with one element per sheet. */
+function missingElements(doc) {
+  if (!doc.singleElement) return [];
+  const out = [];
+  chosen().forEach(tab => {
+    if (fixedElementOf(tab)) return;
+    copiesOf(tab, doc).forEach((c, k) => { if (!String(c.text || "").trim()) out.push(`${tab.name}, search ${k + 1}: ${c.mode === "other" ? "type" : "choose"} the element.`); });
+  });
+  return out;
 }
 /* Score sheets for the ticked classes: { sets, problems }. */
 function currentScore() {
   const doc = curDoc();
-  const classes = chosen().map(tab => ({ name: tab.name, cls: tab.cls, date: tab.date, rows: tab.tables[doc.id].rows, copies: copiesOf(tab, doc) }));
-  return scoreSets(classes, { host: look.host, spares: look.spares });
+  const classes = chosen().map(tab => ({ name: tab.name, cls: tab.cls, date: tab.date, spares: tab.spares, rows: tab.tables[doc.id].rows, copies: copiesOf(tab, doc) }));
+  return scoreSets(classes, { host: look.host });
 }
 
 /* ---------- Preview ---------- */
@@ -2254,7 +2463,7 @@ function renderScorePreview() {
       pdfUrl = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
       $("pdfView").src = pdfUrl + "#view=FitH";
       $("pdfLink").href = pdfUrl; $("pdfOpen").hidden = false;
-      const what = `${sheets} score ${sheets === 1 ? "sheet" : "sheets"} (${sets.length} ${sets.length === 1 ? "search" : "searches"}) on ${pages} ${look.paper} ${pages === 1 ? "page" : "pages"}.`;
+      const what = `${sheets} judging ${sheets === 1 ? "sheet" : "sheets"} (${sets.length} ${sets.length === 1 ? "search" : "searches"}) on ${pages} ${look.paper} ${pages === 1 ? "page" : "pages"}.`;
       $("actionNote").textContent = state.isExample ? `${what} Drop a file to enable the download.` : problems.length ? `${what} The preview shows what's ready so far.` : what;
     } catch (err) {
       $("actionNote").textContent = "The preview didn't work: " + (err.message || err);
@@ -2263,7 +2472,8 @@ function renderScorePreview() {
 }
 /* Paper colours and one download per element, for printing each element on its own colour of paper. */
 const GROUP_ORDER = [...Object.keys(SCORE_SETTINGS.elements), "Sand + Water"];
-const groupsOf = sets => [...new Set(sets.map(s => s.group))].sort((a, b) => GROUP_ORDER.indexOf(a) - GROUP_ORDER.indexOf(b));
+const groupRank = g => { const i = GROUP_ORDER.indexOf(g); return i < 0 ? GROUP_ORDER.length : i; };
+const groupsOf = sets => [...new Set(sets.map(s => s.group))].sort((a, b) => groupRank(a) - groupRank(b) || a.localeCompare(b));
 const pagesFor = sets => sets.reduce((a, s) => a + (look.paper === "A5" ? s.dogs.length : Math.ceil(s.dogs.length / 2)), 0);
 let colourKey = "";
 function renderByElement(sets, problems) {
@@ -2352,14 +2562,18 @@ function renderPreview() {
 
   const noDate = list.filter(t => !t.date).map(t => t.name);
   const noLevel = list.filter(t => !String(t.level).trim()).map(t => t.name);
-  const emptyEl = doc.elementLine ? list.filter(t => copiesOf(t, doc).some(c => (c.mode === "choose" || c.mode === "other") && !c.text.trim())).map(t => t.name) : [];
+  const emptyEl = doc.elementLine && !doc.singleElement ? list.filter(t => copiesOf(t, doc).some(c => (c.mode === "choose" || c.mode === "other") && !c.text.trim())).map(t => t.name) : [];
+  const missing = missingElements(doc);
   const msgs = [];
   if (noDate.length) msgs.push(`No date yet: ${noDate.join(", ")}.`);
   if (noLevel.length) msgs.push(`No level yet: ${noLevel.join(", ")}.`);
   if (emptyEl.length) msgs.push(`Nothing chosen or typed for a copy of ${emptyEl.join(", ")}, so it prints a line to write on.`);
-  $("checks").textContent = msgs.join(" ") + (noDate.length || noLevel.length ? " You can still download, and fix it in Word later." : "");
-  $("checks").hidden = !msgs.length;
-  $("download").disabled = state.isExample || !items.length;
+  const checks = $("checks");
+  checks.textContent = "";
+  if (missing.length) checks.append(el("span", { text: `Before the ${doc.label} sheets can be downloaded:` }), el("ul", {}, missing.map(m => el("li", { text: m }))));
+  if (msgs.length) checks.append(el("span", { text: msgs.join(" ") + (noDate.length || noLevel.length ? " You can still download, and fix it in Word later." : "") }));
+  checks.hidden = !msgs.length && !missing.length;
+  $("download").disabled = state.isExample || !items.length || missing.length > 0;
   const pages = groups.length ? groups[groups.length - 1].last + 1 : 0;
   const what = doc.copies ? `${items.length} ${items.length === 1 ? "sheet" : "sheets"} (${list.length} ${list.length === 1 ? "class" : "classes"})` : `${items.length} ${items.length === 1 ? "table" : "tables"}`;
   $("actionNote").textContent = state.isExample ? "Drop a file to enable the download."
@@ -2410,11 +2624,6 @@ $("redNote").textContent = LAYOUT.reactive.footerNote
 /* Score sheet options */
 $("host").addEventListener("input", e => { look.host = e.target.value; renderPreview(); });
 document.querySelectorAll("input[name=paper]").forEach(r => r.addEventListener("change", e => { if (e.target.checked) { look.paper = e.target.value; renderPreview(); } }));
-$("spares").value = look.spares;
-$("spares").addEventListener("change", e => {
-  look.spares = Math.max(0, Math.min(10, Math.round(Number(e.target.value)) || 0));
-  e.target.value = look.spares; renderPreview();
-});
 
 $("resetOrder").addEventListener("click", () => { if (!state) return; state.tabs.sort((a, b) => a.defaultPos - b.defaultPos); renderCards(); renderPreview(); });
 $("fillDown").addEventListener("click", () => {
@@ -2451,7 +2660,8 @@ function renderSaveBar() {
     : state.settings && state.settings.docs ? `All changes saved (${state.settings.docs.savedAt}).` : "Nothing to save yet.";
   $("saveBar").classList.toggle("dirty", !!(real && dirty));
 }
-window.addEventListener("beforeunload", e => { if (dirty && state && !state.isExample) { e.preventDefault(); e.returnValue = ""; } });
+// window.mailtoOpening: set for a moment when an email link is clicked (Report a problem), which isn't leaving the page.
+window.addEventListener("beforeunload", e => { if (dirty && state && !state.isExample && !window.mailtoOpening) { e.preventDefault(); e.returnValue = ""; } });
 
 /* ---------- Messages ---------- */
 function msgEl(m) {
@@ -2561,14 +2771,13 @@ function syncLookInputs() {
   $("eachPage").checked = !!look.eachOnNewPage;
   $("host").value = look.host || "";
   document.querySelectorAll("input[name=paper]").forEach(r => r.checked = r.value === look.paper);
-  $("spares").value = look.spares;
   if (look.logoUrl) { $("logoThumb").src = look.logoUrl; $("logoThumb").hidden = false; $("logoClear").hidden = false; $("logoPick").textContent = "Change logo…"; }
   else { $("logoThumb").hidden = true; $("logoClear").hidden = true; $("logoPick").textContent = "Choose logo…"; }
 }
 function bytesToB64(bytes) { let s = ""; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); }
 function b64ToBytes(b64) { const bin = atob(b64), b = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i); return b; }
 function assignTab(t, s) {
-  ["level", "date", "session"].forEach(k => { if (s[k] != null) t[k] = s[k]; });
+  ["level", "date", "session", "spares"].forEach(k => { if (s[k] != null) t[k] = s[k]; });
   if (s.include) Object.keys(t.include).forEach(k => {
     if (k in s.include) t.include[k] = !!s.include[k] && t.tables[k].usable && t.tables[k].rows.length > 0 && (!isPdf(docOf(k)) || !!scoreClass(t.cls));
   });
@@ -2578,7 +2787,7 @@ function applySaved(d) {
   const orphans = [];
   if (!d) { syncLookInputs(); return { orphans }; }
   const L = d.look || {};
-  ["eventName", "titleColour", "headerColour", "eachOnNewPage", "host", "paper", "spares"].forEach(k => { if (L[k] != null) look[k] = L[k]; });
+  ["eventName", "titleColour", "headerColour", "eachOnNewPage", "host", "paper"].forEach(k => { if (L[k] != null) look[k] = L[k]; });
   look.paperColours = { ...SCORE_SETTINGS.paperColours, ...(L.paperColours || {}) }; colourKey = "";
   if (L.doc && DOCUMENTS.some(x => x.id === L.doc)) look.doc = L.doc;
   if (look.logoUrl) URL.revokeObjectURL(look.logoUrl);
@@ -2591,6 +2800,8 @@ function applySaved(d) {
   syncLookInputs();
   const byName = new Map(state.tabs.map(t => [t.name, t]));
   Object.entries(d.tabs || {}).forEach(([name, s]) => { const t = byName.get(name); if (t) assignTab(t, s); else orphans.push({ name, saved: s }); });
+  // Files saved before spares were chosen per class had one number for every class: start each class from it.
+  if (L.spares != null) state.tabs.forEach(t => { if (t.spares === "" || t.spares == null) t.spares = String(Math.max(0, Math.min(SCORE_SETTINGS.maxSpares, Math.round(Number(L.spares)) || 0))); });
   if (Array.isArray(d.order)) {
     const pos = new Map(d.order.map((n, i) => [n, i]));
     state.tabs.sort((a, b) => (pos.has(a.name) ? pos.get(a.name) : 1e6 + a.defaultPos) - (pos.has(b.name) ? pos.get(b.name) : 1e6 + b.defaultPos));
@@ -2602,10 +2813,10 @@ function collectSettings() {
   return {
     tool: DOCS_TOOL.version, savedAt: TL.stamp(),
     look: { doc: look.doc, eventName: look.eventName, titleColour: look.titleColour, headerColour: look.headerColour, eachOnNewPage: look.eachOnNewPage,
-      host: look.host, paper: look.paper, spares: look.spares, paperColours: look.paperColours,
+      host: look.host, paper: look.paper, paperColours: look.paperColours,
       logo: look.logo ? { b64: bytesToB64(look.logo.bytes), type: look.logo.type, width: look.logo.width, height: look.logo.height } : null },
     order: state.tabs.map(t => t.name),
-    tabs: Object.fromEntries(state.tabs.map(t => [t.name, { level: t.level, date: t.date, session: t.session, include: t.include, copies: t.copies }])),
+    tabs: Object.fromEntries(state.tabs.map(t => [t.name, { level: t.level, date: t.date, session: t.session, spares: t.spares, include: t.include, copies: t.copies }])),
     made: state.made || {},
   };
 }
@@ -2660,7 +2871,7 @@ $("restartSettings").addEventListener("click", () => {
   if (!state || !state.sheets) return;
   quiet = true;
   ["eventName", "host"].forEach(k => look[k] = "");
-  Object.assign(look, { titleColour: LAYOUT.colours.title, headerColour: LAYOUT.colours.header, eachOnNewPage: false, paper: "A4", spares: SCORE_SETTINGS.spares, paperColours: { ...SCORE_SETTINGS.paperColours } });
+  Object.assign(look, { titleColour: LAYOUT.colours.title, headerColour: LAYOUT.colours.header, eachOnNewPage: false, paper: "A4", paperColours: { ...SCORE_SETTINGS.paperColours } });
   colourKey = "";
   if (look.logoUrl) URL.revokeObjectURL(look.logoUrl);
   look.logo = null; look.logoUrl = null;
@@ -2777,6 +2988,7 @@ $("download").addEventListener("click", async () => {
       recordMade(doc.id, chosen());
       return;
     }
+    if (missingElements(doc).length) throw new Error("choose the element for every search first (listed above).");
     if (typeof JSZip === "undefined") throw new Error("The Word library didn't load. Check your internet connection and reload the page.");
     const tables = printItems().map(it => ({ parts: it.parts, rows: it.rows, element: it.element }));
     const files = buildDocx(tables, { titleColour: look.titleColour, headerColour: look.headerColour, eventName: look.eventName, eachOnNewPage: look.eachOnNewPage, logo: look.logo }, layoutFor(doc));
@@ -2808,6 +3020,7 @@ look.host = EXAMPLE_HOST; $("host").value = EXAMPLE_HOST;
 state.tabs.forEach(t => {
   if (!scoreClass(t.cls)) return;
   t.date = t.name === "NWAdv2" ? "2026-05-10" : "2026-05-09";
+  t.spares = "2";
   const judges = ["Pat Judge", "Lee Judge", "Pat Judge", "Lee Judge", "Pat Judge"], hides = ["3", "2", "3", "1", "3"];
   t.copies.judging = standardSearches(t.cls, []).map((c, k) => ({ ...c, judge: judges[k], hides: t.name === "NWExc1" ? hides[k] : "" }));
   if (t.name === "NWExc1") t.copies.judging[4].text = "Exterior";
