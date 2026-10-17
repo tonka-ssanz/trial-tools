@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trial Entry Email List</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow working column — drop zone, who-to-include choice, then summary, actions, preview. */
+:root {
+  --bg: #f5f6f2;
+  --surface: #ffffff;
+  --ink: #1d2420;
+  --muted: #5d6a62;
+  --line: #d9ded7;
+  --accent: #2f6b4f;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3efe8;
+  --warn: #8a5a12;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141916; --surface: #1c2320; --ink: #e6ebe7; --muted: #9aa8a0; --line: #2f3933;
+    --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; --warn: #e0b060;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141916; --surface: #1c2320; --ink: #e6ebe7; --muted: #9aa8a0; --line: #2f3933;
+  --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; --warn: #e0b060;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 760px; margin: 0 auto; padding-inline: 16px; padding-block: 40px 64px; display: grid; gap: 28px; }
+header { display: grid; gap: 8px; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0; }
+h1 { font-family: var(--font-display); font-size: clamp(30px, 6vw, 42px); line-height: 1.1; margin: 0; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); max-width: 62ch; }
+.lede code, .help code { font-family: var(--font-mono); font-size: .9em; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
+
+.drop { border: 2px dashed var(--line); border-radius: 14px; background: var(--surface); padding: 32px 20px; text-align: center; cursor: pointer; display: grid; gap: 6px; justify-items: center; transition: border-color .15s, background .15s; }
+.drop:hover, .drop.over { border-color: var(--accent); background: var(--accent-soft); }
+.drop:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.drop strong { font-family: var(--font-display); font-size: 20px; }
+.drop span { color: var(--muted); font-size: 14px; }
+
+.status { margin: 0; padding: 12px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 15px; }
+.status.error { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
+
+.picker, .who { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--accent); border-radius: 14px; background: var(--surface); }
+.picker h2, .who h2 { font-family: var(--font-display); font-size: 20px; margin: 0; }
+.picker-list { display: grid; gap: 8px; }
+.pick { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; width: 100%; text-align: left; background: transparent; color: var(--ink); border: 1px solid var(--line); font-weight: 400; }
+.pick:hover { border-color: var(--accent); background: var(--accent-soft); }
+.pick b { font-weight: 700; overflow-wrap: anywhere; min-width: 0; }
+.pick span { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+.who-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; }
+.modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 520px) { .modes { grid-template-columns: 1fr; } }
+.mode { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: start; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; }
+.mode:hover { border-color: var(--accent); }
+.mode:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.mode input { margin: 4px 0 0; accent-color: var(--accent); grid-row: span 2; }
+.mode b { font-weight: 700; }
+.mode span { font-size: 14px; color: var(--muted); }
+.trials { display: grid; gap: 10px; }
+.quick { display: flex; flex-wrap: wrap; gap: 8px; }
+.quick button { padding: 6px 12px; font-size: 14px; border-radius: 999px; background: transparent; color: var(--accent); }
+.quick button:hover { background: var(--accent-soft); }
+.tlist { display: grid; gap: 6px; }
+.trow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; }
+.trow:hover { border-color: var(--accent); }
+.trow:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.trow input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+.trow .tname { min-width: 0; overflow-wrap: anywhere; }
+.trow code { font-family: var(--font-mono); font-size: 13px; color: var(--muted); margin-left: 6px; }
+.trow .tcount { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.example-flag { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+
+.result { display: grid; gap: 18px; }
+.result-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.result-head h2 { font-family: var(--font-display); font-size: 22px; margin: 0; }
+.tag { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+.file { color: var(--muted); font-size: 14px; margin: 0; overflow-wrap: anywhere; }
+
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.stat { background: var(--surface); padding: 14px 16px; display: grid; gap: 2px; }
+.stat b { font-family: var(--font-display); font-size: 28px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat span { font-size: 13px; color: var(--muted); }
+.stat.key b { color: var(--accent); }
+@media (max-width: 560px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+button { font: inherit; font-weight: 700; border-radius: 10px; padding: 11px 18px; cursor: pointer; border: 1px solid var(--accent); }
+button.primary { background: var(--accent); color: var(--accent-ink); }
+button.secondary { background: transparent; color: var(--accent); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button:focus-visible, .mode:has(input:focus-visible), .trow:has(input:focus-visible) { outline: 3px solid var(--ink); outline-offset: 2px; }
+.note { font-size: 14px; color: var(--muted); margin: 0; }
+.note code { font-family: var(--font-mono); font-size: .95em; color: var(--ink); }
+
+.bcc { display: grid; gap: 6px; }
+.bcc label { font-size: 13px; font-weight: 700; color: var(--muted); }
+textarea { width: 100%; min-height: 84px; resize: vertical; font-family: var(--font-mono); font-size: 13px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+
+.table-box { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); max-height: 420px; overflow-y: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 8px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { position: sticky; top: 0; background: var(--surface); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+td.email, td.codes { font-family: var(--font-mono); font-size: 13px; }
+td.codes { color: var(--muted); }
+td.n { color: var(--muted); font-variant-numeric: tabular-nums; width: 1%; }
+tr:last-child td { border-bottom: 0; }
+.empty td { color: var(--muted); white-space: normal; }
+
+.help { border-top: 1px solid var(--line); padding-top: 20px; display: grid; gap: 10px; font-size: 15px; }
+.help h3 { font-family: var(--font-display); font-size: 17px; margin: 0; }
+.help ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--muted); max-width: 66ch; }
+.help li b { color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">SSANZ trial tools</p>
+    <h1>Trial Entry Email List</h1>
+    <p class="lede">Drop in a trial entries download and choose who to include: everyone, or just the people entered in the trials you tick. You get the same spreadsheet back with a new <code>Emails</code> tab: one row per person (duplicates removed), plus a single cell you can paste straight into BCC.</p>
+  </header>
+
+  <label class="drop" id="drop" for="file" tabindex="0">
+    <strong>Drop your entries file here</strong>
+    <span>or click to choose · Excel (.xlsx) or CSV</span>
+    <input type="file" id="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+  </label>
+
+  <p class="status" id="status" hidden></p>
+
+  <section class="picker" id="picker" hidden aria-live="polite">
+    <h2>Which tab should I use?</h2>
+    <p class="note" id="pickerNote">More than one tab has an “Entry Email” column.</p>
+    <div class="picker-list" id="pickerList"></div>
+  </section>
+
+  <section class="who" id="who" aria-labelledby="whoTitle">
+    <div class="who-head">
+      <h2 id="whoTitle">Who should be on the list?</h2>
+      <span class="example-flag" id="whoFlag">Example data</span>
+    </div>
+    <div class="modes" role="radiogroup" aria-labelledby="whoTitle">
+      <label class="mode"><input type="radio" name="mode" id="modeAll" value="all"><b>All entries</b><span>Everyone in the file</span></label>
+      <label class="mode"><input type="radio" name="mode" id="modeSome" value="some"><b>Only certain trials</b><span>Tick one or more trials below</span></label>
+    </div>
+    <div class="trials" id="trials" hidden>
+      <div class="quick" id="quick" aria-label="Quick select"></div>
+      <div class="tlist" id="tlist"></div>
+      <p class="note">People entered in <b>any</b> of the ticked trials are included, once each.</p>
+    </div>
+  </section>
+
+  <section class="result" id="result" aria-live="polite">
+    <div class="result-head">
+      <h2 id="resultTitle">Example result</h2>
+      <span class="tag" id="resultTag">Example data</span>
+    </div>
+    <p class="file" id="fileName">This preview uses made-up entries so you can see what you'll get. Drop a real file above to replace it.</p>
+
+    <div class="stats">
+      <div class="stat"><b id="sRows">0</b><span id="sRowsLabel">entries read</span></div>
+      <div class="stat"><b id="sEmails">0</b><span>emails found</span></div>
+      <div class="stat"><b id="sDupes">0</b><span>duplicates removed</span></div>
+      <div class="stat key"><b id="sUnique">0</b><span>unique people</span></div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="download" type="button" disabled>Download spreadsheet with Emails tab</button>
+      <button class="secondary" id="copy" type="button">Copy BCC list</button>
+    </div>
+    <p class="note" id="actionNote">Drop a file to enable the download.</p>
+
+    <div class="bcc">
+      <label for="bccText">Paste-ready list (semicolon-separated, works in Outlook and Gmail)</label>
+      <textarea id="bccText" readonly></textarea>
+    </div>
+
+    <div class="table-box">
+      <table>
+        <thead><tr><th>#</th><th>Email</th><th>Full name</th><th>Entered in</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="help">
+    <h3>Good to know</h3>
+    <ul>
+      <li><b>Only certain trials</b> lists every trial column with at least one entry, e.g. <code>NWAdv1</code> (Nosework Advanced, trial 1). Tick one or several, or use the quick buttons to tick a whole trial. Anyone entered in any ticked trial is included.</li>
+      <li><b>Entered in</b> shows which trials each person is in (only the ticked ones, if you picked trials). Someone with two dogs gets one row listing both dogs' trials.</li>
+      <li><b>Tab names</b> follow your choice: <code>Emails</code> for all entries, or e.g. <code>Emails NWAdv1</code> or <code>Emails Trial 1</code>. The top of the tab says exactly who is included. Drop the downloaded file in again to add a list for other trials alongside it.</li>
+      <li><b>Running the same choice again</b> replaces that tab rather than adding a copy.</li>
+      <li><b>Email just one payment group:</b> run Payment Split first, then pick the Paid, Part Paid or Not Paid tab here. You can still narrow it to certain trials.</li>
+      <li><b>Using Google Sheets?</b> In your sheet choose File → Download → Microsoft Excel (.xlsx), drop that file here, then open the result in Google Sheets with File → Import.</li>
+      <li><b>Duplicates</b> are matched ignoring capitals and stray spaces, so <code>Jo@Mail.com</code> and <code>jo@mail.com </code> count as one person. A couple sharing an address get one row with both names, like “Sam Lee / Alex Lee”.</li>
+      <li>The file never leaves your computer. All the work happens in this page.</li>
+    </ul>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+const EMAIL_HEADER = "entry email";
+const NAME_HEADER = "entry full name";
+const OUT_SHEET = "Emails";
+const TRIAL_RE = /^[A-Za-z]+[1-9]$/;               // e.g. NWAdv1, BHNovS2 (same rule as Trial Lists)
+const TYPE_NAMES = { NW: "Nosework", BH: "Buried Hides", LIR: "Lost Item Recovery" };
+const LEVEL_NAMES = { Nov: "Novice", Int: "Intermediate", Adv: "Advanced", Exc: "Excellent", Pre: "Premium" };
+const SURFACE_NAMES = { S: "Sand", W: "Water" };
+
+const filled = v => String(v ?? "").trim() !== "";
+
+/* "NWAdv1" → "Nosework Advanced – Trial 1"; unknown codes → null. */
+function trialLabel(code) {
+  const m = String(code).match(/^(NW|BH|LIR)(Nov|Int|Adv|Exc|Pre)(S|W)?([1-9])$/);
+  if (!m) return null;
+  const parts = [TYPE_NAMES[m[1]], LEVEL_NAMES[m[2]]];
+  if (m[3]) parts.push(SURFACE_NAMES[m[3]]);
+  return parts.join(" ") + " – Trial " + m[4];
+}
+
+/* Trial columns that have at least one entry, in column order. */
+function findTrialColumns(rows) {
+  const header = (rows[0] || []).map(h => String(h ?? "").trim());
+  const cols = [];
+  header.forEach((h, i) => {
+    if (!TRIAL_RE.test(h)) return;
+    let count = 0;
+    for (const r of rows.slice(1)) if (r && filled(r[i])) count++;
+    if (count) cols.push({ index: i, code: h, count, trial: Number(h.slice(-1)), name: trialLabel(h) });
+  });
+  return cols;
+}
+
+/* Pure logic. rows: arrays of strings, header first.
+   selected: trial columns to filter on (null = all entries). trialCols: all trial columns, for "Entered in". */
+function extractEmails(rows, selected = null, trialCols = []) {
+  const header = (rows[0] || []).map(h => String(h ?? "").trim().toLowerCase());
+  const ei = header.indexOf(EMAIL_HEADER);
+  const ni = header.indexOf(NAME_HEADER);
+  if (ei === -1) throw new Error("Couldn't find an 'Entry Email' column in the first row. Check this is a trial entries download.");
+  const shown = selected || trialCols;
+  const byKey = new Map();
+  let total = 0, entries = 0, found = 0, skipped = 0;
+  for (const r of rows.slice(1)) {
+    if (!r || !r.some(filled)) continue;
+    total++;
+    if (selected && !selected.some(c => filled(r[c.index]))) continue;
+    entries++;
+    const raw = String(r[ei] ?? "").trim();
+    if (!raw) continue;
+    if (!raw.includes("@")) { skipped++; continue; }
+    found++;
+    const key = raw.toLowerCase();
+    const name = ni === -1 ? "" : String(r[ni] ?? "").trim();
+    if (!byKey.has(key)) byKey.set(key, { email: raw, names: [], trials: new Set() });
+    const rec = byKey.get(key);
+    if (name && !rec.names.some(n => n.toLowerCase() === name.toLowerCase())) rec.names.push(name);
+    shown.forEach(c => { if (filled(r[c.index])) rec.trials.add(c.code); });
+  }
+  const people = [...byKey.values()].map(p => ({
+    email: p.email, name: p.names.join(" / "),
+    entered: shown.filter(c => p.trials.has(c.code)).map(c => c.code).join(", "),
+  }));
+  people.sort((a, b) => (a.name || a.email).localeCompare(b.name || b.email, undefined, { sensitivity: "base" }));
+  return { people, total, entries, found, skipped, dupes: found - people.length, bcc: people.map(p => p.email).join("; ") };
+}
+
+/* Tab name for a choice; always ≤ 31 characters (Excel's limit). */
+function tabNameFor(selected, trialCols) {
+  if (!selected) return OUT_SHEET;
+  const codes = selected.map(c => c.code);
+  if (selected.length > 1 && selected.length === trialCols.length) return "Emails all trials";
+  if (selected.length === 1) return ("Emails " + codes[0]).slice(0, 31);
+  const nums = [...new Set(selected.map(c => c.trial))].sort((a, b) => a - b);
+  const wholeTrials = nums.every(n => trialCols.filter(c => c.trial === n).every(c => codes.includes(c.code)));
+  if (wholeTrials) return "Emails Trial " + nums.join("+");
+  const joined = "Emails " + codes.join("+");
+  return joined.length <= 31 ? joined : `Emails ${selected.length} trials`;
+}
+
+/* Words written at the top of the tab, so it's clear later who is on it. */
+function selectionTitle(selected) {
+  if (!selected) return "Emails for: all entries";
+  const names = selected.map(c => c.name ? `${c.code} (${c.name})` : c.code);
+  return (selected.length === 1 ? "Emails for: anyone entered in " : "Emails for: anyone entered in any of ") + names.join(", ");
+}
+
+if (typeof module !== "undefined") { module.exports = { extractEmails, findTrialColumns, trialLabel, tabNameFor, selectionTitle }; }
+else {
+const $ = id => document.getElementById(id);
+let state = null; // { example, rows, trialCols, mode, ticked:Set, source, baseName, label }
+let lastResult = null;
+
+function cellText(cell) {
+  const v = cell.value;
+  if (v == null) return "";
+  if (typeof v === "object") {
+    if (v.text != null) return typeof v.text === "string" ? v.text : (v.text.richText || []).map(t => t.text).join("");
+    if (v.richText) return v.richText.map(t => t.text).join("");
+    if (v.result != null) return String(v.result);
+    if (v instanceof Date) return v.toISOString();
+  }
+  return String(v);
+}
+
+function sheetRows(ws) {
+  const rows = [];
+  ws.eachRow({ includeEmpty: true }, (row, n) => {
+    const arr = [];
+    row.eachCell({ includeEmpty: true }, (cell, c) => { arr[c - 1] = cellText(cell); });
+    rows[n - 1] = arr;
+  });
+  for (let i = 0; i < rows.length; i++) if (!rows[i]) rows[i] = [];
+  return rows;
+}
+
+/* Decide the tab: replace one made earlier for the same choice, otherwise add a new one. */
+function placeTab(wb, base, title) {
+  const a1 = ws => cellText(ws.getCell("A1")).trim();
+  const ex = wb.getWorksheet(base);
+  if (!ex) return { name: base };
+  if (a1(ex) === title || (base === OUT_SHEET && a1(ex).toLowerCase() === "email")) return { name: base, replace: ex };
+  for (let k = 2; k < 100; k++) {
+    const name = base.slice(0, 28) + " " + k;
+    const e = wb.getWorksheet(name);
+    if (!e) return { name };
+    if (a1(e) === title) return { name, replace: e };
+  }
+  return { name: base, replace: ex };
+}
+
+function writeEmailsSheet(wb, result, selected, trialCols) {
+  const title = selectionTitle(selected);
+  const spot = placeTab(wb, tabNameFor(selected, trialCols), title);
+  if (spot.replace) wb.removeWorksheet(spot.replace.id);
+  const ws = wb.addWorksheet(spot.name);
+  [36, 30, 24, 3, 60].forEach((w, i) => { ws.getColumn(i + 1).width = w; });
+  ws.getCell("A1").value = title;
+  ws.getCell("A1").font = { bold: true, size: 12 };
+  const made = new Date().toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" });
+  ws.getCell("A2").value = `${result.people.length} unique emails from ${result.entries} entries (${result.dupes} duplicates removed) · made ${made}`;
+  ws.getCell("A2").font = { italic: true, color: { argb: "FF5D6A62" } };
+  ws.getRow(4).values = ["Email", "Full Name", "Entered in", "", "Paste-ready list (copy cell E5 into BCC)"];
+  ws.getRow(4).font = { bold: true };
+  result.people.forEach((p, i) => { ws.getRow(5 + i).values = [p.email, p.name, p.entered]; });
+  ws.getCell("E5").value = result.bcc;
+  ws.getCell("E5").alignment = { wrapText: true, vertical: "top" };
+  ws.views = [{ state: "frozen", ySplit: 4 }];
+  return spot.name;
+}
+
+function currentSelection() {
+  if (!state || state.mode !== "some") return null;
+  return state.trialCols.filter(c => state.ticked.has(c.code));
+}
+
+function renderWho() {
+  const has = state.trialCols.length > 0;
+  $("who").hidden = !has;
+  $("whoFlag").hidden = !state.example;
+  $("modeAll").checked = state.mode === "all";
+  $("modeSome").checked = state.mode === "some";
+  $("trials").hidden = state.mode !== "some";
+  const quick = $("quick");
+  quick.textContent = "";
+  const nums = [...new Set(state.trialCols.map(c => c.trial))].sort((a, b) => a - b);
+  const addQuick = (text, fn) => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = text;
+    b.addEventListener("click", () => { fn(); renderWho(); update(); });
+    quick.appendChild(b);
+  };
+  if (nums.length > 1) nums.forEach(n => addQuick("All of Trial " + n, () => state.trialCols.filter(c => c.trial === n).forEach(c => state.ticked.add(c.code))));
+  if (state.trialCols.length > 1) addQuick("Tick all", () => state.trialCols.forEach(c => state.ticked.add(c.code)));
+  addQuick("Clear", () => state.ticked.clear());
+  const list = $("tlist");
+  list.textContent = "";
+  state.trialCols.forEach((c, i) => {
+    const row = document.createElement("label"); row.className = "trow";
+    const box = document.createElement("input"); box.type = "checkbox"; box.id = "trial-" + i;
+    box.checked = state.ticked.has(c.code);
+    box.addEventListener("change", () => { box.checked ? state.ticked.add(c.code) : state.ticked.delete(c.code); update(); });
+    const name = document.createElement("span"); name.className = "tname";
+    name.textContent = c.name || c.code;
+    if (c.name) { const code = document.createElement("code"); code.textContent = c.code; name.appendChild(code); }
+    const count = document.createElement("span"); count.className = "tcount";
+    count.textContent = c.count + (c.count === 1 ? " entry" : " entries");
+    row.append(box, name, count);
+    list.appendChild(row);
+  });
+}
+
+function update() {
+  const chosen = state.mode === "all" || state.mode === "some";
+  $("result").hidden = !chosen;
+  if (!chosen) return;
+  const sel = currentSelection();
+  const result = extractEmails(state.rows, sel, state.trialCols);
+  lastResult = { result, sel };
+  $("resultTitle").textContent = state.example ? "Example result" : "Ready";
+  $("resultTag").textContent = state.example ? "Example data" : "Your file";
+  let label = state.label;
+  if (sel) label += ` · ${result.entries} of ${result.total} entries are in the ticked trial${sel.length === 1 ? "" : "s"}`;
+  if (result.skipped) label += ` · ${result.skipped} entr${result.skipped === 1 ? "y" : "ies"} skipped (no @ in the email)`;
+  $("fileName").textContent = label;
+  $("sRows").textContent = result.entries;
+  $("sRowsLabel").textContent = sel ? "matching entries" : "entries read";
+  $("sEmails").textContent = result.found;
+  $("sDupes").textContent = result.dupes;
+  $("sUnique").textContent = result.people.length;
+  $("bccText").value = result.bcc;
+  const tb = $("rows");
+  tb.textContent = "";
+  if (!result.people.length) {
+    const tr = document.createElement("tr"); tr.className = "empty";
+    const td = document.createElement("td"); td.colSpan = 4;
+    td.textContent = sel && !sel.length ? "Tick at least one trial above." : "No email addresses for this choice.";
+    tr.appendChild(td); tb.appendChild(tr);
+  }
+  result.people.forEach((p, i) => {
+    const tr = document.createElement("tr");
+    [[String(i + 1), "n"], [p.email, "email"], [p.name, ""], [p.entered, "codes"]].forEach(([t, c]) => {
+      const td = document.createElement("td"); td.textContent = t; if (c) td.className = c; tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+  const ok = result.people.length > 0;
+  $("download").disabled = state.example || !ok;
+  $("copy").disabled = !ok;
+  const note = $("actionNote");
+  note.textContent = "";
+  if (state.example) note.textContent = "Drop a file to enable the download.";
+  else if (sel && !sel.length) note.textContent = "Tick at least one trial to make a list.";
+  else if (!ok) note.textContent = "Nobody to email for this choice.";
+  else {
+    note.append("The download is your original file plus a tab called ");
+    const code = document.createElement("code"); code.textContent = tabNameFor(sel, state.trialCols);
+    note.append(code, ".");
+  }
+}
+
+function showStatus(msg, isError) {
+  const s = $("status");
+  s.textContent = msg; s.className = "status" + (isError ? " error" : ""); s.hidden = !msg;
+}
+
+function chooseTab(matches) {
+  return new Promise(resolve => {
+    const list = $("pickerList");
+    list.textContent = "";
+    matches.forEach(m => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "pick";
+      const name = document.createElement("b"); name.textContent = m.ws.name;
+      const info = document.createElement("span");
+      const n = extractEmails(m.rows).entries;
+      info.textContent = n + (n === 1 ? " entry" : " entries");
+      b.append(name, info);
+      b.addEventListener("click", () => { $("picker").hidden = true; resolve(m); });
+      list.appendChild(b);
+    });
+    $("pickerNote").textContent = `${matches.length} tabs have an “Entry Email” column. Pick the one to take emails from. Your other tabs stay as they are.`;
+    $("picker").hidden = false;
+    showStatus("");
+    list.querySelector("button").focus();
+  });
+}
+
+let busy = 0;
+async function handleFile(file) {
+  const run = ++busy;
+  $("picker").hidden = true;
+  showStatus("Reading " + file.name + "…");
+  const ext = file.name.split(".").pop().toLowerCase();
+  const baseName = file.name.replace(/\.[^.]+$/, "").replace(/ \(with Emails\)$/, "");
+  try {
+    if (typeof ExcelJS === "undefined") throw new Error("The spreadsheet library didn't load. Check your internet connection and reload the page.");
+    let rows, source, label = file.name;
+    if (ext === "xlsx") {
+      const buffer = await file.arrayBuffer();
+      const wb = new ExcelJS.Workbook();
+      await wb.xlsx.load(buffer.slice(0));
+      const matches = [];
+      for (const w of wb.worksheets) {
+        const r = sheetRows(w);
+        if ((r[0] || []).some(h => String(h).trim().toLowerCase() === EMAIL_HEADER)) matches.push({ ws: w, rows: r });
+      }
+      if (!matches.length) throw new Error("Couldn't find an 'Entry Email' column in the first row of any tab. Check this is a trial entries download.");
+      $("who").hidden = true; $("result").hidden = true;
+      const pick = matches.length === 1 ? matches[0] : await chooseTab(matches);
+      if (run !== busy) return; // a newer file was dropped while choosing
+      rows = pick.rows;
+      if (matches.length > 1) label += " · tab “" + pick.ws.name + "”";
+      source = { type: "xlsx", buffer };
+    } else if (ext === "csv") {
+      const text = await file.text();
+      rows = Papa.parse(text.replace(/^﻿/, ""), { skipEmptyLines: false }).data;
+      source = { type: "csv", rows };
+    } else if (ext === "xls") {
+      throw new Error("This is an old-style .xls file. Open it in Excel and use Save As → Excel Workbook (.xlsx), then drop that file here.");
+    } else {
+      throw new Error("Please drop an Excel (.xlsx) or CSV file.");
+    }
+    const all = extractEmails(rows);
+    if (!all.people.length) throw new Error("The 'Entry Email' column is there, but it's empty.");
+    const trialCols = findTrialColumns(rows);
+    state = { example: false, rows, trialCols, mode: trialCols.length ? null : "all", ticked: new Set(), source, baseName, label };
+    renderWho();
+    update();
+    showStatus(trialCols.length ? "Choose who should be on the list." : "");
+    if (trialCols.length) $("modeAll").focus();
+  } catch (err) {
+    showStatus(err.message || String(err), true);
+  }
+}
+
+["modeAll", "modeSome"].forEach(id => $(id).addEventListener("change", e => {
+  if (!state) return;
+  state.mode = e.target.value;
+  if (!state.example) showStatus("");
+  renderWho(); update();
+}));
+
+$("file").addEventListener("change", e => { const f = e.target.files[0]; if (f) handleFile(f); e.target.value = ""; });
+const drop = $("drop");
+["dragenter", "dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
+drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("file").click(); } });
+
+$("copy").addEventListener("click", () => {
+  const t = $("bccText");
+  const done = ok => { $("copy").textContent = ok ? "Copied" : "Select the text below and copy"; setTimeout(() => $("copy").textContent = "Copy BCC list", 2000); };
+  try {
+    navigator.clipboard.writeText(t.value).then(() => done(true), () => { t.focus(); t.select(); done(false); });
+  } catch { t.focus(); t.select(); done(false); }
+});
+
+$("download").addEventListener("click", async () => {
+  if (!state || state.example || !lastResult) return;
+  const btn = $("download");
+  btn.disabled = true;
+  try {
+    // Start from the original file each time, so each download holds exactly one new list.
+    const wb = new ExcelJS.Workbook();
+    if (state.source.type === "xlsx") await wb.xlsx.load(state.source.buffer.slice(0));
+    else { const ws = wb.addWorksheet("Entries"); state.source.rows.forEach(r => ws.addRow(r)); }
+    const tab = writeEmailsSheet(wb, lastResult.result, lastResult.sel, state.trialCols);
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const filename = state.baseName + " (with Emails).xlsx";
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    $("actionNote").textContent = "Saved as “" + filename + "” with a tab called “" + tab + "”.";
+  } catch (err) {
+    $("actionNote").textContent = "The download didn't work: " + (err.message || err) + ". You can still copy the BCC list above.";
+  } finally { btn.disabled = false; }
+});
+
+/* Opening view: made-up entries, showing a trial choice. */
+const exampleRows = [
+  ["Entry Full Name", "Entry Email", "Dog Pet Name", "NWAdv1", "NWExc1", "NWAdv2"],
+  ["Kiri Example", "kiri@example.com", "Tui", "x", "", "x"],
+  ["Kiri Example", "Kiri@Example.com ", "Moss", "", "x", ""],
+  ["Tom Sample", "tom.sample@example.co.nz", "Ruru", "x", "", ""],
+  ["Ana Placeholder", "ana@example.org", "Pip", "", "", "x"],
+  ["Rua Demo", "rua.demo@example.net", "Kea", "x", "", "x"],
+  ["Hemi Test", "hemi@example.com", "Nova", "", "x", ""],
+];
+state = { example: true, rows: exampleRows, trialCols: findTrialColumns(exampleRows), mode: "some", ticked: new Set(["NWAdv1"]),
+  label: "This preview uses made-up entries so you can see what you'll get. Drop a real file above to replace it." };
+renderWho();
+update();
+}
+</script>
+
+</body>
+</html>
