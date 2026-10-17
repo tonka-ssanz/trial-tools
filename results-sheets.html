@@ -1,0 +1,1339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Results Sheets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #f5f6f2;
+  --surface: #ffffff;
+  --ink: #1d2420;
+  --muted: #5d6a62;
+  --line: #d9ded7;
+  --accent: #2f6b4f;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3efe8;
+  --warn: #8a5a12;
+  --warn-soft: #f6ecd9;
+  --stop: #a3332b;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141916; --surface: #1c2320; --ink: #e6ebe7; --muted: #9aa8a0; --line: #2f3933;
+    --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; --warn: #e0b060; --warn-soft: #2e2618; --stop: #f0948a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141916; --surface: #1c2320; --ink: #e6ebe7; --muted: #9aa8a0; --line: #2f3933;
+  --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; --warn: #e0b060; --warn-soft: #2e2618; --stop: #f0948a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 860px; margin: 0 auto; padding-inline: 16px; padding-block: 40px 64px; display: grid; gap: 28px; }
+header { display: grid; gap: 8px; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0; }
+h1 { font-family: var(--font-display); font-size: clamp(30px, 6vw, 42px); line-height: 1.1; margin: 0; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); max-width: 62ch; }
+a { color: var(--accent); }
+
+.drop { border: 2px dashed var(--line); border-radius: 14px; background: var(--surface); padding: 28px 20px; text-align: center; cursor: pointer; display: grid; gap: 6px; justify-items: center; transition: border-color .15s, background .15s; }
+.drop:hover, .drop.over { border-color: var(--accent); background: var(--accent-soft); }
+.drop:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.drop strong { font-family: var(--font-display); font-size: 20px; }
+.drop span { color: var(--muted); font-size: 14px; max-width: 56ch; }
+
+.files { display: grid; gap: 8px; }
+.filerow { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 4px 10px; align-items: start; padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.filerow .dot { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700; border: 2px solid var(--line); color: var(--muted); margin-top: 1px; }
+.filerow.ok .dot { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.filerow b { display: block; }
+.filerow small { display: block; color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+
+.status { margin: 0; padding: 12px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 15px; }
+.status.error { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
+
+.result { display: grid; gap: 28px; }
+.result-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.result-head h2 { font-family: var(--font-display); font-size: 24px; margin: 0; }
+.tag { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+
+.step { display: grid; gap: 12px; }
+.step h3 { font-family: var(--font-display); font-size: 19px; margin: 0; display: flex; gap: 10px; align-items: baseline; }
+.step h3 .n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 14px; flex: none; }
+.step > p { margin: 0; color: var(--muted); font-size: 14px; max-width: 66ch; }
+
+.classes { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.classes label { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 12px; align-items: start; padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); cursor: pointer; }
+.classes label:has(input:checked) { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.classes input { width: 18px; height: 18px; margin: 4px 0 0; accent-color: var(--accent); }
+.classes .ctext { display: grid; gap: 1px; min-width: 0; }
+.classes .cname { font-weight: 700; }
+.classes .cname { min-width: 0; overflow-wrap: anywhere; }
+.classes .cname code { font-family: var(--font-mono); font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 6px; white-space: nowrap; display: inline-block; }
+.classes label > * { min-width: 0; }
+.classes small { color: var(--muted); font-size: 14px; }
+.classes small.bad { color: var(--warn); }
+
+.form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.form .wide { grid-column: 1 / -1; }
+.field { display: grid; gap: 3px; min-width: 0; }
+.field > span { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+.field .hint { font-size: 13px; color: var(--muted); margin: 0; }
+.field .hint.bad { color: var(--warn); }
+.field.check { grid-template-columns: auto 1fr; align-items: start; gap: 10px; cursor: pointer; }
+.field.check input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--accent); }
+.field.check span { font-size: 14px; letter-spacing: 0; color: var(--ink); }
+.questions { display: grid; gap: 10px; }
+.question { display: grid; gap: 8px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--warn); background: var(--warn-soft); }
+.question p { margin: 0; font-size: 15px; }
+.question .opts { display: grid; gap: 6px; }
+.question label { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; font-size: 15px; cursor: pointer; }
+.question input[type=radio] { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+.question input[type=text] { max-width: 320px; }
+.judges { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; }
+.judges .from { font-size: 12px; color: var(--muted); }
+.orgown { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 8px 10px; }
+@media (max-width: 600px) { .form, .judges, .orgown { grid-template-columns: minmax(0, 1fr); } }
+input[type=text], input[type=date], select { font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; width: 100%; min-width: 0; }
+input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+table.dogs { border-collapse: collapse; width: 100%; font-size: 14px; }
+table.dogs th, table.dogs td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.dogs th { font-size: 12px; letter-spacing: .04em; color: var(--muted); font-weight: 700; background: var(--bg); position: sticky; top: 0; }
+table.dogs td.num { font-variant-numeric: tabular-nums; color: var(--muted); }
+table.dogs tr:last-child td { border-bottom: 0; }
+.scroll { max-height: 460px; overflow-y: auto; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button { font: inherit; font-weight: 700; border-radius: 10px; padding: 11px 18px; cursor: pointer; border: 1px solid var(--accent); background: transparent; color: var(--accent); }
+button.primary { background: var(--accent); color: var(--accent-ink); }
+button.small { font-size: 13px; padding: 6px 10px; border-radius: 8px; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.note { font-size: 14px; color: var(--muted); margin: 0; }
+
+.panel { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.panel h2 { font-family: var(--font-display); font-size: 21px; margin: 0; }
+.panel.stop { border-color: var(--stop); }
+.panel.stop h2 { color: var(--stop); }
+.msgs { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.msg { display: grid; gap: 4px; padding: 10px 12px; border-radius: 10px; border-left: 4px solid var(--line); background: var(--bg); }
+.msg.stop { border-left-color: var(--stop); }
+.msg.warning { border-left-color: var(--warn); }
+.msg.info { border-left-color: var(--accent); }
+.msg .kind { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; color: var(--muted); }
+.msg.stop .kind { color: var(--stop); } .msg.warning .kind { color: var(--warn); } .msg.info .kind { color: var(--accent); }
+.msg p { margin: 0; font-size: 15px; }
+.msg .fix { color: var(--muted); }
+
+.help { border-top: 1px solid var(--line); padding-top: 20px; display: grid; gap: 10px; font-size: 15px; }
+.help h3 { font-family: var(--font-display); font-size: 17px; margin: 0; }
+.help ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--muted); max-width: 66ch; }
+.help li b { color: var(--ink); }
+
+.crumbs { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; font-size: 14px; margin-bottom: -12px; }
+.crumbs a { color: var(--accent); font-weight: 700; text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; }
+.crumbs span { color: var(--muted); }
+.nextstep { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 20px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.nextstep p { margin: 0; font-size: 15px; color: var(--muted); max-width: 52ch; }
+.nextstep p b { color: var(--ink); }
+.nextstep a { font-weight: 700; color: var(--accent-ink); background: var(--accent); border-radius: 10px; padding: 10px 16px; text-decoration: none; white-space: nowrap; }
+.nextstep a:focus-visible, .crumbs a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.report details { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.report summary { cursor: pointer; padding: 14px 18px; font-family: var(--font-display); font-size: 17px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.report summary::-webkit-details-marker { display: none; }
+.report summary::after { content: "+"; font-size: 22px; line-height: 1; color: var(--accent); }
+.report details[open] summary::after { content: "–"; }
+.report summary:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; border-radius: 14px; }
+.report .rbody { display: grid; gap: 12px; padding: 0 18px 18px; }
+.report .rbody > p { margin: 0; font-size: 15px; color: var(--muted); max-width: 66ch; }
+.report .rprivacy { padding: 10px 14px; border-radius: 10px; border-left: 4px solid var(--warn); background: var(--bg); color: var(--ink) !important; }
+.report .rgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
+.report .rgrid .wide { grid-column: 1 / -1; }
+.report label { display: grid; gap: 4px; font-size: 14px; color: var(--muted); min-width: 0; }
+.report label b { color: var(--ink); }
+.report input, .report select, .report textarea { font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; width: 100%; min-width: 0; }
+.report textarea { min-height: 72px; resize: vertical; }
+.report input:focus-visible, .report select:focus-visible, .report textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.report .ractions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.report .ractions a, .report .ractions button { font: inherit; font-weight: 700; font-size: 15px; border-radius: 10px; padding: 10px 16px; cursor: pointer; text-decoration: none; }
+.report .rsend { background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent); }
+.report .rcopy { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.report .rnote { font-size: 14px; color: var(--muted); margin: 0; }
+.report .rnote.err { color: var(--warn); font-weight: 700; }
+@media (max-width: 560px) { .report .rgrid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav class="crumbs" aria-label="Trial tools"><a href="index.html">← All trial tools</a><span>Step 5 of 5</span></nav>
+  <header>
+    <p class="eyebrow">SSANZ trial tools</p>
+    <h1>Results Sheets</h1>
+    <p class="lede">Fills in the official SSANZ results spreadsheet for one class: organisation, Org Ref ID, date, venue, Trial #, judges and every dog, in alphabetical order of handler. The admin team then only types the points and times. Everything else on the SSANZ sheet stays exactly as SSANZ made it, including its lock and formulas.</p>
+  </header>
+
+  <label class="drop" id="drop" for="file" tabindex="0">
+    <strong>Drop your files here</strong>
+    <span>or click to choose. You need two: your trial spreadsheet (the file ending “(in progress)”, after Save progress in Trial Documents) and the SSANZ results files zip for the sport (Nosework or Buried Hides) from the SSANZ Organisation Resources page. Drop them together or one at a time.</span>
+    <input type="file" id="file" multiple accept=".xlsx,.zip,.gz,.gzip,.tgz,.tar,application/zip,application/gzip,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+  </label>
+
+  <div class="files" id="files">
+    <div class="filerow" id="rowTrial"><span class="dot">1</span><div><b>Trial spreadsheet</b><small id="trialState">Not added yet. Showing made-up example classes below.</small></div></div>
+    <div class="filerow" id="rowZip"><span class="dot">2</span><div><b>SSANZ results files</b><small id="zipState">Not added yet. Download the zip from the SSANZ website each time, so you always use the current version.</small></div></div>
+  </div>
+
+  <p class="status" id="status" hidden></p>
+
+  <section class="panel stop" id="stop" hidden aria-live="polite">
+    <h2 id="stopTitle">This file can't be used</h2>
+    <ul class="msgs" id="stopList"></ul>
+    <div class="actions"><button type="button" id="stopBack">OK</button></div>
+  </section>
+
+  <section class="result" id="result" aria-live="polite">
+    <div class="result-head">
+      <h2 id="resultTitle">Example</h2>
+      <span class="tag" id="resultTag">Example data</span>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">1</span>Choose the class</h3>
+      <p>One results sheet per class. Come back and choose the next class when this one is downloaded.</p>
+      <ul class="classes" id="classes"></ul>
+    </div>
+
+    <div class="step" id="detailsStep">
+      <h3><span class="n">2</span>Check the details</h3>
+      <p id="detailsHelp">Filled in from Trial Documents. Changes made here go into this results sheet only; to keep them for next time, change them in Trial Documents and save progress there.</p>
+      <div class="form" id="form">
+        <div class="field wide">
+          <span>Organisation running the trial</span>
+          <select id="org"></select>
+          <div class="orgown" id="orgOwn" hidden>
+            <label class="field" for="orgName"><span>Organisation name</span><input type="text" id="orgName" maxlength="60" autocomplete="off"></label>
+            <label class="field" for="orgId"><span>Org Ref ID · e.g. DF2302</span><input type="text" id="orgId" maxlength="12" autocomplete="off"></label>
+          </div>
+        </div>
+        <label class="field" for="date"><span>Date of this class</span><input type="date" id="date"></label>
+        <label class="field" for="trialNo"><span>Trial # · from the <a href="https://www.scentsports.nz/eventspage.php" target="_blank" rel="noopener">SSANZ events page</a></span><input type="text" id="trialNo" maxlength="16" autocomplete="off" placeholder="e.g. DF10261"></label>
+        <label class="field wide check" id="trialOkField" hidden><input type="checkbox" id="trialOk"><span id="trialOkText">This Trial # is right.</span></label>
+        <label class="field wide" for="venue"><span>Venue</span><input type="text" id="venue" maxlength="80" autocomplete="off"></label>
+        <div class="field wide" id="typeField" hidden><span>Type</span><p class="hint" id="typeOut"></p></div>
+        <div class="field wide">
+          <span>Judges</span>
+          <div class="judges" id="judges"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">3</span>Dogs</h3>
+      <p id="dogsHelp"></p>
+      <div class="questions" id="questions" hidden></div>
+      <div class="tablewrap scroll"><table class="dogs" id="dogs"></table></div>
+    </div>
+
+    <div class="step">
+      <h3><span class="n">4</span>Download</h3>
+      <ul class="msgs" id="checks"></ul>
+      <div class="actions">
+        <button class="primary" type="button" id="download" disabled>Download results sheet (.xlsx)</button>
+      </div>
+      <p class="note" id="downloadNote"></p>
+    </div>
+  </section>
+
+  <aside class="nextstep">
+    <p><b>That's the last step.</b> Open each results sheet in Excel to check it, then the admin team types in the points and times on the day. Send the finished sheet to SSANZ.</p>
+    <a href="index.html">Back to all trial tools</a>
+  </aside>
+
+  <section class="help">
+    <h3>Good to know</h3>
+    <ul>
+      <li><b>Before you start:</b> in Trial Documents, choose your organisation, give every class its date, venue, Trial # and judges (the searches on the Judges, Timekeepers or Judging sheets page), then <b>Save progress</b>. Drop the file that downloads here.</li>
+      <li><b>The SSANZ zip:</b> download it fresh from the SSANZ Organisation Resources page for each trial (one zip for Nosework, one for Buried Hides) and drop the whole zip here; the page picks the right level. A results sheet for a single level works too. Some browsers save the zip as a GZip file (.gz); that's fine, drop it as it is. Don't reuse an old copy: SSANZ updates the sheets.</li>
+      <li><b>What's filled in:</b> organisation name, Org Ref ID, date, venue, Trial #, the judge for each search (and, for Buried Hides Novice and Intermediate, Sand or Water), and for every dog its Dog No., pet name, Handler ID and handler's name. Points and times are left for the admin team.</li>
+      <li><b>Big classes:</b> the SSANZ sheet has room for 51 dogs. If a class has more, the extra rows are added for you, with the same formulas, placings and colours, and on the Printable Version too.</li>
+      <li><b>Trial #:</b> made of your organisation's letters, the month and year, then the trial's number that month (Dogs First, October 2026, first trial: DF10261). If it doesn't match the class's date the page stops you; if it really is right, tick the box to say so.</li>
+      <li><b>Names with marks in them</b> (e.g. “Sam Smith**”): the page asks what should go on the results sheet, because the marks may be a note someone typed.</li>
+      <li><b>Order:</b> dogs are listed in alphabetical order of the handler's first name, then surname. Dogs already withdrawn (taken off the trial tab in Trial Lists) aren't included.</li>
+      <li><b>On the day:</b> if a dog withdraws, type SCRATCHED after the handler's name. Times go in as seconds only, with the hundredths: 2:23.12 on the stopwatch is 143.12.</li>
+      <li><b>Judges:</b> each search's judge goes in the column for its element (Container, Interior, Exterior, Vehicle). At Excellent and Premium, a second search of the same element (e.g. Exterior 2) goes under Other Search 1, then Other Search 2. Check them in step 2.</li>
+      <li><b>The SSANZ sheet is not changed:</b> only the boxes a person is allowed to type in are filled. Its password lock, formulas, colours and Printable Version stay exactly as SSANZ made them, and Excel works out the totals when you open the file.</li>
+      <li><b>Open and save the results sheet in Excel</b> (desktop or free Excel for the web). Apple Numbers and Google Sheets can lose the lock and formulas.</li>
+      <li><b>Privacy:</b> everything happens in your browser. Nothing is uploaded or stored.</li>
+    </ul>
+  </section>
+  <section class="report" aria-label="Report a problem">
+    <details id="report">
+      <summary>Found a problem? Report it</summary>
+      <div class="rbody">
+        <p>These tools are being tested. If something goes wrong, looks odd or is confusing, tell us here. Your report opens in your email app, ready to send. Nothing is sent until you press Send there.</p>
+        <p class="rprivacy"><b>Please don't attach your entries file</b> or type anyone's name, email or other details. Describe the problem instead, for example “row 14 of NWAdv1” or “the third dog on the Judges sheet”.</p>
+        <div class="rgrid">
+          <label>Which tool?<select id="rTool"><option>Not sure</option><option>Payment Split</option><option>Email List</option><option>Trial Lists</option><option>Trial Documents</option><option selected>Results Sheets</option><option>Front page</option></select></label>
+          <label>Your name (optional, so we can ask you more)<input type="text" id="rName" autocomplete="name" maxlength="60"></label>
+          <label class="wide"><span><b>What went wrong?</b> What you saw, any message on the screen, and which step you were on</span><textarea id="rWhat" maxlength="1200"></textarea></label>
+          <label class="wide">What did you expect to happen? (optional)<textarea id="rExpect" maxlength="600"></textarea></label>
+          <label>Your computer<select id="rDevice"><option value="">Choose…</option><option>Windows</option><option>Mac</option><option>iPad or tablet</option><option>Phone</option><option>Other</option></select></label>
+          <label>Spreadsheet program you used<select id="rSheet"><option value="">Choose…</option><option>Excel (installed)</option><option>Excel for the web</option><option>Google Sheets</option><option>Numbers</option><option>Other</option><option>None yet</option></select></label>
+/* ---------- SSANZ organisations ----------
+   Name and Org Ref ID exactly as on https://www.scentsports.nz/organisations.php ("Org. Name / Ref.ID").
+   When an organisation joins or changes, edit this list: one ["Name", "RefID"] per line, in any order (the page sorts it).
+   List checked 17 Oct 2026 (22 organisations). */
+const ORGANISATIONS = [
+  ["A.C.E Dog Training Ltd", "ACE1901"],
+  ["CANINE.NZ Dog Training", "CDT2206"],
+  ["Confident Canines", "CC2503"],
+  ["Dogs First", "DF2302"],
+  ["Hastings Scentwork", "HBD2001"],
+  ["Hide And Scent", "HAS2301"],
+  ["Horowhenua Dog Training Club", "HWH2004"],
+  ["Hybrid Dog Training", "HDT1906"],
+  ["K9 Kitea Scent", "KKW1907"],
+  ["K9 Scent Seekers", "K9SS2204"],
+  ["K9 Scentwork NZ", "K9SW2502"],
+  ["K9Scentcraft", "K9SC2503"],
+  ["Kenson K9 Solutions", "KKS1902"],
+  ["More Than Dog Training", "ACA1905"],
+  ["My Dog And Me", "MDAM2604"],
+  ["Noseworx", "NWH1903"],
+  ["Scent Ways NZ", "SWNZ2603"],
+  ["Scentral Dog Training", "ScDT2602"],
+  ["Sniffing With K9's", "SWK92601"],
+  ["Tararua Allbreeds DTC", "TAD2301"],
+  ["Taupo Scent Work", "TSW2604"],
+  ["Tauranga Nosework Team", "TNT2401"],
+];
+const ORG_PAGE = "https://www.scentsports.nz/organisations.php", EVENTS_PAGE = "https://www.scentsports.nz/eventspage.php";
+/* Org Ref ID = the organisation's letters (may include digits, e.g. K9SS) then 4 digits.
+   Trial # = the same letters then 5 digits (Dogs First DF2302 → DF10261). */
+const ORG_ID_RE = /^[A-Za-z][A-Za-z0-9]*\d{4}$/;
+const cleanCode = v => String(v ?? "").replace(/\s+/g, "");
+const orgPrefix = id => ORG_ID_RE.test(cleanCode(id)) ? cleanCode(id).slice(0, -4) : "";
+function orgIdProblem(id) {
+  id = cleanCode(id);
+  if (!id) return "Type the Org Ref ID, e.g. DF2302.";
+  return ORG_ID_RE.test(id) ? "" : `Org Ref ID “${id}” should be your organisation's letters then 4 digits, e.g. DF2302.`;
+}
+/* Tidy a typed Trial #: no spaces, and the organisation's letters written as in its Org Ref ID. */
+function fixTrialNo(no, orgId) {
+  no = cleanCode(no);
+  const p = orgPrefix(orgId);
+  if (p && no.slice(0, p.length).toUpperCase() === p.toUpperCase()) no = p + no.slice(p.length);
+  return no;
+}
+/* Problem with one class's Trial #, or "" if it looks right. others = [{name, trialNo}] of the other classes. */
+function trialNoProblem(no, orgId, others = []) {
+  no = cleanCode(no);
+  if (!no) return "";
+  const p = orgPrefix(orgId);
+  if (p) {
+    if (no.slice(0, p.length).toUpperCase() !== p.toUpperCase())
+      return `Trial # ${no} doesn't start with ${p}, your organisation's letters. Check it on the SSANZ events page.`;
+    if (!/^\d{5}$/.test(no.slice(p.length))) return `Trial # ${no} should be ${p} then 5 digits, e.g. ${p}10261.`;
+  } else if (!/^[A-Za-z][A-Za-z0-9]*\d{5}$/.test(no)) return `Trial # ${no} should be your organisation's letters then 5 digits, e.g. DF10261.`;
+  const dup = others.find(o => cleanCode(o.trialNo).toUpperCase() === no.toUpperCase());
+  if (dup) return `${dup.name} has the same Trial #. Each class has its own number on the SSANZ events page.`;
+  return "";
+}
+
+/* Trial # = letters + month + year + the trial's number that month (DF10261 = October 2026, trial 1).
+   A warning here; the Results Sheets page asks the user to confirm before it goes on the results sheet. */
+function trialNoDateNote(no, orgId, iso) {
+  no = cleanCode(no);
+  const p = orgPrefix(orgId), m = /^(\d{4})-(\d{2})-\d{2}$/.exec(String(iso || ""));
+  if (!p || !m || no.slice(0, p.length).toUpperCase() !== p.toUpperCase() || !/^\d{5}$/.test(no.slice(p.length))) return "";
+  const mmyy = m[2] + m[1].slice(2);
+  if (no.slice(p.length, p.length + 4) === mmyy) return "";
+  const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][Number(m[2]) - 1];
+  return `Trial # ${no} doesn't match the date: Trial #s for ${month} ${m[1]} start ${p}${mmyy} (letters, month, year, then the trial's number). Check it on the SSANZ events page.`;
+}
+
+          <label class="wide">Web browser (filled in for you)<input type="text" id="rBrowser" maxlength="80"></label>
+        </div>
+        <div class="ractions">
+          <a class="rsend" id="rSend" href="mailto:tonka.watson@gmail.com">Open email to send</a>
+          <button class="rcopy" type="button" id="rCopy">Copy report</button>
+        </div>
+        <p class="rnote" id="rNote">No email app opens? Copy the report and email it to tonka.watson@gmail.com.</p>
+      </div>
+    </details>
+  </section>
+<script>
+(() => {
+  const TO = "tonka.watson@gmail.com";
+  const $ = id => document.getElementById(id);
+  const ua = navigator.userAgent, pick = (re, name) => { const m = re.exec(ua); return m ? `${name} ${m[1]}` : ""; };
+  $("rBrowser").value = pick(/Edg\/(\d+)/, "Edge") || pick(/OPR\/(\d+)/, "Opera") || pick(/Firefox\/(\d+)/, "Firefox")
+    || pick(/(?:Chrome|CriOS)\/(\d+)/, "Chrome") || pick(/Version\/(\d+)[\d.]* .*Safari/, "Safari") || "";
+  const pad = n => String(n).padStart(2, "0"), now = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+  function report() {
+    const v = id => $(id).value.trim();
+    return {
+      subject: `Trial tools problem: ${v("rTool")}`,
+      body: [
+        `Tool: ${v("rTool")}`,
+        `Page: ${document.title} (${location.pathname.split("/").pop() || "index.html"})`,
+        `When: ${now()}`,
+        `Computer: ${v("rDevice") || "not given"}`,
+        `Spreadsheet program: ${v("rSheet") || "not given"}`,
+        `Browser: ${v("rBrowser") || "not given"}`,
+        `Screen: ${window.innerWidth} x ${window.innerHeight}`,
+        v("rName") ? `From: ${v("rName")}` : "",
+        "", "WHAT WENT WRONG", v("rWhat") || "(not filled in)",
+        "", "WHAT I EXPECTED", v("rExpect") || "(not filled in)",
+      ].filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n"),
+    };
+  }
+  function check() {
+    if ($("rWhat").value.trim()) return true;
+    $("rNote").textContent = "Please say what went wrong first.";
+    $("rNote").className = "rnote err";
+    $("rWhat").focus();
+    return false;
+  }
+  $("rSend").addEventListener("click", e => {
+    if (!check()) { e.preventDefault(); return; }
+    const r = report();
+    window.mailtoOpening = true; setTimeout(() => { window.mailtoOpening = false; }, 1500);   // opening email isn't leaving the page
+    $("rSend").href = `mailto:${TO}?subject=${encodeURIComponent(r.subject)}&body=${encodeURIComponent(r.body)}`;
+    $("rNote").textContent = `Your email app should open with the report. Check it and press Send. If nothing opens, use Copy report and email it to ${TO}.`;
+    $("rNote").className = "rnote";
+  });
+  $("rCopy").addEventListener("click", async () => {
+    if (!check()) return;
+    const r = report(), text = `To: ${TO}\nSubject: ${r.subject}\n\n${r.body}`;
+    try { await navigator.clipboard.writeText(text); $("rNote").textContent = `Copied. Paste it into an email to ${TO}.`; $("rNote").className = "rnote"; }
+    catch (err) { $("rNote").textContent = `Copying didn't work here. Please select and copy what you typed, and email it to ${TO}.`; $("rNote").className = "rnote err"; }
+  });
+})();
+</script>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+"use strict";
+/* =========================================================================
+   Settings
+   ========================================================================= */
+
+/* SSANZ organisations: name and Org Ref ID exactly as on https://www.scentsports.nz/organisations.php.
+   Keep this list the same as the one in Trial Documents. List checked 17 Oct 2026 (22 organisations). */
+const ORGANISATIONS = [
+  ["A.C.E Dog Training Ltd", "ACE1901"],
+  ["CANINE.NZ Dog Training", "CDT2206"],
+  ["Confident Canines", "CC2503"],
+  ["Dogs First", "DF2302"],
+  ["Hastings Scentwork", "HBD2001"],
+  ["Hide And Scent", "HAS2301"],
+  ["Horowhenua Dog Training Club", "HWH2004"],
+  ["Hybrid Dog Training", "HDT1906"],
+  ["K9 Kitea Scent", "KKW1907"],
+  ["K9 Scent Seekers", "K9SS2204"],
+  ["K9 Scentwork NZ", "K9SW2502"],
+  ["K9Scentcraft", "K9SC2503"],
+  ["Kenson K9 Solutions", "KKS1902"],
+  ["More Than Dog Training", "ACA1905"],
+  ["My Dog And Me", "MDAM2604"],
+  ["Noseworx", "NWH1903"],
+  ["Scent Ways NZ", "SWNZ2603"],
+  ["Scentral Dog Training", "ScDT2602"],
+  ["Sniffing With K9's", "SWK92601"],
+  ["Tararua Allbreeds DTC", "TAD2301"],
+  ["Taupo Scent Work", "TSW2604"],
+  ["Tauranga Nosework Team", "TNT2401"],
+];
+
+/* Class codes → SSANZ results sheet. file = the start of the file name in the SSANZ zip. */
+const SPORTS = {
+  NW: { name: "Nosework", file: "Nosework" },
+  BH: { name: "Buried Hides", file: "BuriedHide" },
+};
+const LEVELS = { Nov: "Novice", Int: "Intermediate", Adv: "Advanced", Exc: "Excellent", Pre: "Premium" };
+const VARIANTS = { S: "Sand", W: "Water" };
+
+/* Labels on the SSANZ results sheet. The page finds each box by the label to its left, so it
+   still works if SSANZ moves things in a new version. */
+const SHEET_LABELS = {
+  org: "Org. Name:", date: "Date:", orgId: "Org. Ref. ID:", venue: "Venue:", trialNo: "Trial #:", type: "Type:", judge: "Judge:",
+  dogNo: "Dog No.", dogName: "Dog Name", handlerId: "Handler ID", handlerName: "Handler Name", level: "Level",
+};
+/* Search columns on the Nosework sheet, by the heading above the judge's box. */
+const SECTIONS = [
+  { key: "CS", re: /container/i, label: "Container search", element: "Containers" },
+  { key: "IS", re: /interior/i, label: "Interior search", element: "Interior" },
+  { key: "ES", re: /exterior/i, label: "Exterior search", element: "Exterior" },
+  { key: "VS", re: /vehicle/i, label: "Vehicle search", element: "Vehicle" },
+  { key: "OS1", re: /other\s*search\s*1/i, label: "Other search 1", element: "" },
+  { key: "OS2", re: /other\s*search\s*2/i, label: "Other search 2", element: "" },
+];
+/* ======================= end of settings ======================= */
+
+const SETTINGS_TAB = "Tool Settings", MASTER = "Master List";
+const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+const MAIN_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+const REL_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+const MONTHS_FULL = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const DAYS_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+const norm = v => String(v ?? "").trim().replace(/\s+/g, " ");
+const lower = v => norm(v).toLowerCase();
+const isBlank = v => norm(v) === "";
+
+/* ---------- Org Ref ID and Trial # ---------- */
+const ORG_ID_RE = /^[A-Za-z][A-Za-z0-9]*\d{4}$/;
+const cleanCode = v => String(v ?? "").replace(/\s+/g, "");
+const orgPrefix = id => ORG_ID_RE.test(cleanCode(id)) ? cleanCode(id).slice(0, -4) : "";
+function orgIdProblem(id) {
+  id = cleanCode(id);
+  if (!id) return "Type the Org Ref ID, e.g. DF2302.";
+  return ORG_ID_RE.test(id) ? "" : `Org Ref ID “${id}” should be your organisation's letters then 4 digits, e.g. DF2302.`;
+}
+function fixTrialNo(no, orgId) {
+  no = cleanCode(no);
+  const p = orgPrefix(orgId);
+  if (p && no.slice(0, p.length).toUpperCase() === p.toUpperCase()) no = p + no.slice(p.length);
+  return no;
+}
+function trialNoProblem(no, orgId) {
+  no = cleanCode(no);
+  if (!no) return "Type the Trial # from the SSANZ events page, e.g. DF10261.";
+  const p = orgPrefix(orgId);
+  if (p) {
+    if (no.slice(0, p.length).toUpperCase() !== p.toUpperCase()) return `Trial # ${no} doesn't start with ${p}, your organisation's letters.`;
+    if (!/^\d{5}$/.test(no.slice(p.length))) return `Trial # ${no} should be ${p} then 5 digits, e.g. ${p}10261.`;
+    return "";
+  }
+  return /^[A-Za-z][A-Za-z0-9]*\d{5}$/.test(no) ? "" : `Trial # ${no} should be your organisation's letters then 5 digits, e.g. DF10261.`;
+}
+/* SSANZ Trial # = the organisation's letters + month + year + the trial's number that month
+   (DF10261 = October 2026, trial 1; confirmed by SSANZ trial tools owner 17 Oct 2026). */
+function trialNoDateNote(no, orgId, iso) {
+  no = cleanCode(no);
+  const p = orgPrefix(orgId), d = parseISO(iso);
+  if (!p || !d || !/^\d{5}$/.test(no.slice(p.length))) return "";
+  const mmyy = String(d.getMonth() + 1).padStart(2, "0") + String(d.getFullYear()).slice(2);
+  return no.slice(p.length, p.length + 4) === mmyy ? "" :
+    `Trial # ${no} doesn't match the date: Trial #s for ${MONTHS_FULL[d.getMonth()]} ${d.getFullYear()} start ${p}${mmyy} (letters, month, year, then the trial's number). Check it against the SSANZ events page.`;
+}
+
+/* ---------- Dates ---------- */
+function parseISO(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
+  if (!m) return null;
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return d.getMonth() === Number(m[2]) - 1 ? d : null;
+}
+/* Excel's day number for a date (1 Jan 1900 system). */
+function excelSerial(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  return (Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])) - Date.UTC(1899, 11, 30)) / 86400000;
+}
+const longDate = iso => { const d = parseISO(iso); return d ? `${DAYS_FULL[d.getDay()]} ${d.getDate()} ${MONTHS_FULL[d.getMonth()]} ${d.getFullYear()}` : ""; };
+const dotDate = iso => { const d = parseISO(iso); return d ? `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}` : ""; };
+
+/* ---------- Classes ---------- */
+/* "NWAdv1" → { sport: "NW", level: "Advanced", variant: "", trial: 1 }; "BHNovS2" → Buried Hides Novice Sand. */
+function parseClass(code) {
+  const m = /^(NW|BH|LIR)(Nov|Int|Adv|Exc|Pre)([SW])?([1-9])$/i.exec(String(code || "").trim());
+  if (!m) return null;
+  const sport = m[1].toUpperCase(), lv = Object.keys(LEVELS).find(k => k.toLowerCase() === m[2].toLowerCase());
+  const variant = m[3] ? VARIANTS[m[3].toUpperCase()] : "";
+  const name = [sport === "NW" ? "Nosework" : sport === "BH" ? "Buried Hides" : "Lost Item Recovery", LEVELS[lv], variant].filter(Boolean).join(" ");
+  return { code: String(code).trim(), sport, level: LEVELS[lv], variant, trial: Number(m[4]), name };
+}
+
+/* ---------- Sorting: handler's first name, then surname, then dog ---------- */
+function sortDogs(dogs) {
+  const cmp = (a, b) => a.localeCompare(b, "en", { sensitivity: "base", numeric: true });
+  const parts = h => { const p = norm(h).split(" "); return [p[0] || "", p.slice(1).join(" ")]; };
+  return [...dogs].sort((a, b) => {
+    const [fa, sa] = parts(a.handler), [fb, sb] = parts(b.handler);
+    return cmp(fa, fb) || cmp(sa, sb) || cmp(norm(a.dog), norm(b.dog));
+  });
+}
+/* Numbers stay numbers (as on the sample sheets); codes like SD700 stay text. */
+const idValue = v => { const s = norm(v); return /^\d{1,15}$/.test(s) ? Number(s) : s; };
+
+/* ---------- Names with marks in them (e.g. "Liam Drummond**") ----------
+   Letters (any language), spaces, hyphens, apostrophes and full stops are normal; dog names may also have digits.
+   Anything else could be a note someone typed, so the page asks what should go on the results sheet. */
+const NAME_OK = { handler: /^[\p{L}\p{M}\s'’.\-]*$/u, dog: /^[\p{L}\p{M}\p{N}\s'’.\-]*$/u };
+const cleanName = (field, v) => norm(String(v).replace(field === "dog" ? /[^\p{L}\p{M}\p{N}\s'’.\-]/gu : /[^\p{L}\p{M}\s'’.\-]/gu, " "));
+function nameQuestions(dogs) {
+  const seen = new Map();
+  dogs.forEach(d => ["handler", "dog"].forEach(field => {
+    const v = norm(d[field]);
+    if (!v || NAME_OK[field].test(v)) return;
+    const key = field + "|" + v;
+    if (!seen.has(key)) seen.set(key, { key, field, value: v, clean: cleanName(field, v), who: field === "dog" ? `${d.handler}'s dog` : `handler of ${d.dog}` });
+  }));
+  return [...seen.values()];
+}
+const fixedName = (form, field, v) => { const k = field + "|" + norm(v); return form.fixes && form.fixes[k] != null ? form.fixes[k] : norm(v); };
+
+/* ---------- Judges: element of each search → column on the results sheet ---------- */
+function sectionOf(text) {
+  const w = (String(text || "").trim().split(/\s+/)[0] || "").toLowerCase().replace(/s$/, "");
+  return SECTIONS.slice(0, 4).find(s => s.element.toLowerCase().replace(/s$/, "") === w) || null;
+}
+/* copies: the class's searches from Trial Documents [{ text, judge }]. columns: the search keys the sheet has.
+   → { judges: { CS: "Name", … }, from: { CS: "Containers", … }, notes: [] } */
+function mapJudges(copies, columns, sport) {
+  const list = (copies || []).map((c, k) => ({ n: k + 1, text: norm(c.text), judge: norm(c.judge) }));
+  const judges = {}, from = {}, notes = [];
+  if (sport === "BH") {
+    const names = [...new Map(list.filter(x => x.judge).map(x => [x.judge.toLowerCase(), x.judge])).values()];
+    judges.BH = names.join(", "); from.BH = list.length ? "the class's search" + (list.length > 1 ? "es" : "") : "";
+    return { judges, from, notes };
+  }
+  const extra = [];
+  list.forEach(x => {
+    const s = sectionOf(x.text);
+    if (s && columns.includes(s.key) && !(s.key in judges)) { judges[s.key] = x.judge; from[s.key] = x.text || s.element; }
+    else extra.push(x);
+  });
+  ["OS1", "OS2"].filter(k => columns.includes(k)).forEach(k => {
+    const x = extra.shift();
+    if (x) { judges[k] = x.judge; from[k] = x.text || `search ${x.n}`; }
+  });
+  extra.forEach(x => notes.push(`Search ${x.n}${x.text ? ` (${x.text})` : ""} has no column on this results sheet, so its judge${x.judge ? ` (${x.judge})` : ""} isn't filled in.`));
+  return { judges, from, notes };
+}
+
+/* =========================================================================
+   Reading .xlsx files with JSZip (no other library)
+   ========================================================================= */
+const parseXml = text => new DOMParser().parseFromString(text, "application/xml");
+const kids = (node, name) => [...node.childNodes].filter(n => n.nodeType === 1 && n.localName === name);
+const kid = (node, name) => kids(node, name)[0] || null;
+const colNum = letters => [...letters.toUpperCase()].reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0);
+const colName = n => { let s = ""; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; };
+const splitRef = ref => { const m = /^([A-Z]+)(\d+)$/.exec(ref); return { col: colNum(m[1]), row: Number(m[2]) }; };
+const resolvePath = (base, target) => {
+  if (target.startsWith("/")) return target.slice(1);
+  const parts = base.split("/").slice(0, -1);
+  target.split("/").forEach(p => { if (p === "..") parts.pop(); else if (p !== ".") parts.push(p); });
+  return parts.join("/");
+};
+const textOf = node => [...node.getElementsByTagNameNS(MAIN_NS, "t")].map(t => t.textContent).join("");
+
+async function sharedStrings(zip) {
+  const f = zip.file("xl/sharedStrings.xml");
+  if (!f) return [];
+  const doc = parseXml(await f.async("string"));
+  return kids(doc.documentElement, "si").map(textOf);
+}
+/* [{ name, path }] in workbook order. */
+async function sheetList(zip) {
+  const wb = parseXml(await zip.file("xl/workbook.xml").async("string"));
+  const rels = parseXml(await zip.file("xl/_rels/workbook.xml.rels").async("string"));
+  const target = {};
+  [...rels.documentElement.childNodes].filter(n => n.nodeType === 1).forEach(r => { target[r.getAttribute("Id")] = r.getAttribute("Target"); });
+  const sheets = kid(wb.documentElement, "sheets");
+  return kids(sheets, "sheet").map(s => ({ name: s.getAttribute("name"), path: resolvePath("xl/workbook.xml", target[s.getAttributeNS(REL_NS, "id")] || "") }));
+}
+function cellValue(c, strings) {
+  const t = c.getAttribute("t") || "n";
+  if (t === "inlineStr") { const is = kid(c, "is"); return is ? textOf(is) : ""; }
+  const v = kid(c, "v");
+  if (!v) return null;
+  const s = v.textContent;
+  if (t === "s") return strings[Number(s)] ?? "";
+  if (t === "str" || t === "e") return s;
+  if (t === "b") return s === "1";
+  const n = Number(s);
+  return Number.isFinite(n) ? n : s;
+}
+/* Rows of a sheet as arrays (index 0 = column A). */
+function sheetRows(doc, strings) {
+  const rows = [];
+  const data = doc.getElementsByTagNameNS(MAIN_NS, "sheetData")[0];
+  if (!data) return rows;
+  kids(data, "row").forEach((r, i) => {
+    const rn = Number(r.getAttribute("r")) || i + 1, arr = [];
+    kids(r, "c").forEach((c, j) => { const ref = c.getAttribute("r"); const col = ref ? splitRef(ref).col : j + 1; arr[col - 1] = cellValue(c, strings); });
+    rows[rn - 1] = arr;
+  });
+  for (let i = 0; i < rows.length; i++) if (!rows[i]) rows[i] = [];
+  return rows;
+}
+async function readWorkbook(zip) {
+  const strings = await sharedStrings(zip);
+  const list = await sheetList(zip);
+  const out = [];
+  for (const s of list) {
+    const f = zip.file(s.path);
+    out.push({ name: s.name, path: s.path, rows: f ? sheetRows(parseXml(await f.async("string")), strings) : [] });
+  }
+  return { strings, sheets: out };
+}
+
+/* ---------- Unpacking what was dropped: .xlsx, .zip, .gz, .tar ---------- */
+async function gunzip(bytes) {
+  if (typeof DecompressionStream === "undefined") throw new Error("This browser can't open GZip files.|Use an up-to-date Chrome, Edge, Firefox or Safari, or unzip the file first and drop the results file for your level.");
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+function untar(bytes) {
+  const files = [];
+  const str = (a, b) => new TextDecoder().decode(bytes.subarray(a, b)).replace(/\0.*$/s, "");
+  for (let p = 0; p + 512 <= bytes.length;) {
+    const name = str(p, p + 100);
+    if (!name) break;
+    const size = parseInt(str(p + 124, p + 136).trim() || "0", 8), type = str(p + 156, p + 157);
+    const prefix = str(p + 345, p + 500);
+    if (type === "0" || type === "") files.push({ name: (prefix ? prefix + "/" : "") + name, bytes: bytes.slice(p + 512, p + 512 + size) });
+    p += 512 + Math.ceil(size / 512) * 512;
+  }
+  return files;
+}
+const isZip = b => b[0] === 0x50 && b[1] === 0x4b;
+const isGz = b => b[0] === 0x1f && b[1] === 0x8b;
+const isTar = b => b.length > 262 && new TextDecoder().decode(b.subarray(257, 262)) === "ustar";
+const baseName = p => String(p).split("/").pop();
+const junk = p => /(^|\/)__MACOSX\//.test(p) || baseName(p).startsWith("._") || baseName(p).startsWith("~$");
+
+/* One dropped file → [{ kind: "xlsx", name, bytes }] (an archive gives every .xlsx inside it). */
+async function unpack(name, bytes) {
+  if (isGz(bytes)) bytes = await gunzip(bytes);
+  if (isTar(bytes)) return untar(bytes).filter(f => !junk(f.name) && /\.xlsx$/i.test(f.name)).map(f => ({ name: baseName(f.name), bytes: f.bytes, from: name }));
+  if (!isZip(bytes)) throw new Error(`“${name}” isn't a spreadsheet or a zip file.|Drop the trial spreadsheet (.xlsx) and the SSANZ results zip. Old .xls files and Numbers files can't be used.`);
+  const zip = await JSZip.loadAsync(bytes);
+  if (zip.file("[Content_Types].xml") && zip.file("xl/workbook.xml")) return [{ name, bytes, zip }];
+  const out = [];
+  for (const f of Object.values(zip.files)) {
+    if (f.dir || junk(f.name)) continue;
+    if (/\.xlsx$/i.test(f.name)) out.push({ name: baseName(f.name), bytes: await f.async("uint8array"), from: name });
+    else if (/\.(zip|gz|gzip|tgz)$/i.test(f.name)) out.push(...await unpack(baseName(f.name), await f.async("uint8array")));
+  }
+  return out;
+}
+
+/* ---------- The trial spreadsheet ---------- */
+function fingerprint(str) {
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36).toUpperCase();
+}
+/* The same checks as Trial Lists and Trial Documents. */
+function readSettings(rows) {
+  const bad = `The ${SETTINGS_TAB} tab has been changed outside the tools, so the settings can't be trusted.|Go back to your most recent copy downloaded from Trial Documents (after Save progress).`;
+  const data = rows.filter(r => r && /^Data \d+$/.test(norm(r[0]))).sort((a, b) => Number(norm(a[0]).slice(5)) - Number(norm(b[0]).slice(5))).map(r => String(r[1] ?? ""));
+  const check = rows.find(r => r && norm(r[0]) === "Check value");
+  const json = data.join("");
+  if (!json || !check || fingerprint(json) !== norm(check[1])) throw new Error(bad);
+  try { return JSON.parse(json); } catch (e) { throw new Error(`The ${SETTINGS_TAB} tab couldn't be read.|Go back to your most recent downloaded copy.`); }
+}
+/* A trial tab's dogs: [{ handlerNo, handler, dogNo, dog }]. */
+function tabDogs(rows) {
+  const head = (rows[0] || []).map(lower), at = n => head.indexOf(n.toLowerCase());
+  const c = { hn: at("Handler Number"), h: at("Handler"), dn: at("Dog No"), d: at("Dog Pet Name") };
+  return rows.slice(1).map(r => r || []).filter(r => !isBlank(r[c.h]) || !isBlank(r[c.d]))
+    .map(r => ({ handlerNo: c.hn < 0 ? "" : norm(r[c.hn]), handler: norm(r[c.h]), dogNo: c.dn < 0 ? "" : norm(r[c.dn]), dog: norm(r[c.d]) }));
+}
+/* workbook → { settings, docs, classes: [{ tab, cls, pc, dogs, saved }] } or throws "message|fix". */
+function readTrial(wb) {
+  const tab = n => wb.sheets.find(s => s.name.toLowerCase() === n.toLowerCase());
+  const st = tab(SETTINGS_TAB);
+  if (!st) {
+    if (wb.sheets.some(s => /org\.\s*name/i.test(String((s.rows[5] || [])[5] ?? "")) || s.rows.some(r => (r || []).some(v => norm(v) === SHEET_LABELS.org))))
+      throw new Error("This is a results sheet, not a trial spreadsheet.|It's been added as the results sheet for its level. Now drop your trial spreadsheet too.");
+    throw new Error("This file hasn't been through Trial Lists and Trial Documents yet.|Drop the trial spreadsheet: the file ending “(in progress)” that downloads when you choose Save progress in Trial Documents.");
+  }
+  const settings = readSettings(st.rows);
+  const docs = settings.docs;
+  if (!docs) throw new Error("Trial Documents hasn't saved its settings into this file yet.|Open it in Trial Documents, choose your organisation, fill in each class's date, venue, Trial # and judges, then choose Save progress. Drop the file that downloads here.");
+  const skip = new Set([settings.sourceTab, MASTER, SETTINGS_TAB].map(s => String(s || "").toLowerCase()));
+  const classes = wb.sheets.filter(s => !skip.has(s.name.toLowerCase()) && (s.rows[0] || []).some(h => lower(h) === "entry id")).map(s => {
+    const cls = ((settings.tabs || {})[s.name] || {}).trial || s.name;
+    const own = (docs.tabs || {})[s.name] || {}, main = (docs.tabs || {})[cls] || {};
+    const pick = k => !isBlank(own[k]) ? own[k] : (main[k] ?? "");
+    const copies = (own.copies && own.copies.judging && own.copies.judging.length) ? own.copies.judging : ((main.copies || {}).judging || []);
+    return { tab: s.name, cls, pc: parseClass(cls), dogs: tabDogs(s.rows), saved: { date: pick("date"), venue: pick("venue"), trialNo: pick("trialNo"), level: pick("level"), copies } };
+  });
+  if (!classes.length) throw new Error("This file has no trial tabs.|Drop the trial spreadsheet made by Trial Lists and saved from Trial Documents.");
+  return { settings, docs, classes, org: docs.look && docs.look.org && (docs.look.org.id || docs.look.org.name) ? { ...docs.look.org } : null, host: (docs.look || {}).host || "" };
+}
+
+/* =========================================================================
+   The SSANZ results sheet: find the boxes, check it's blank, fill it in
+   ========================================================================= */
+/* xlsx (zip) → template { name, rev, sport, level, zip, sheetPath, cells, capacity, … } or throws. */
+async function readTemplate(file) {
+  const zip = file.zip || await JSZip.loadAsync(file.bytes);
+  const wb = await readWorkbook(zip);
+  const sheet = wb.sheets[0];
+  const rows = sheet.rows;
+  const find = (label, beforeRow = rows.length) => {
+    for (let r = 0; r < Math.min(rows.length, beforeRow); r++) {
+      const c = (rows[r] || []).findIndex(v => norm(v) === label);
+      if (c >= 0) return { row: r + 1, col: c + 1 };
+    }
+    return null;
+  };
+  const head = (() => { for (let r = 0; r < rows.length; r++) { const row = (rows[r] || []).map(norm); if (row.includes(SHEET_LABELS.dogNo) && row.includes(SHEET_LABELS.handlerName)) return r + 1; } return 0; })();
+  if (!head) throw new Error(`“${file.name}” doesn't look like an SSANZ results sheet.|Drop the results files zip from the SSANZ website.`);
+  const headRow = (rows[head - 1] || []).map(norm), colOf = l => headRow.indexOf(l) + 1;
+  const right = l => { const p = find(l, head); return p ? colName(p.col + 1) + p.row : null; };
+  const cells = { org: right(SHEET_LABELS.org), date: right(SHEET_LABELS.date), orgId: right(SHEET_LABELS.orgId), venue: right(SHEET_LABELS.venue), trialNo: right(SHEET_LABELS.trialNo), type: right(SHEET_LABELS.type) };
+  ["org", "date", "orgId", "venue", "trialNo"].forEach(k => { if (!cells[k]) throw new Error(`“${file.name}” is missing the “${SHEET_LABELS[k]}” box.|This version of the SSANZ results sheet isn't one this page knows. Please report it (Report a problem, below).`); });
+  const cols = { dogNo: colOf(SHEET_LABELS.dogNo), dogName: colOf(SHEET_LABELS.dogName), handlerId: colOf(SHEET_LABELS.handlerId), handlerName: colOf(SHEET_LABELS.handlerName), level: colOf(SHEET_LABELS.level) };
+  if (Object.values(cols).some(c => !c)) throw new Error(`“${file.name}” is missing a column heading (Dog No., Dog Name, Handler ID, Handler Name or Level).|Use the results sheet from the current SSANZ zip.`);
+  // Dog rows: every row under the headings that has the level filled in by SSANZ.
+  const dataRows = [];
+  for (let r = head + 1; r <= rows.length; r++) { if (isBlank((rows[r - 1] || [])[cols.level - 1])) break; dataRows.push(r); }
+  if (!dataRows.length) throw new Error(`“${file.name}” has no rows for dogs.|Use the results sheet from the current SSANZ zip.`);
+  const level = norm(rows[dataRows[0] - 1][cols.level - 1]);
+  const sport = headRow.includes("Type") || cells.type ? "BH" : "NW";
+  // Judges: the row with "Judge:", columns from the search headings in the row above.
+  const jl = find(SHEET_LABELS.judge, head), judgeCells = {};
+  if (jl) {
+    if (sport === "BH") judgeCells.BH = colName(jl.col + 1) + jl.row;
+    else (rows[jl.row - 2] || []).forEach((v, i) => {
+      if (i + 1 <= jl.col) return;
+      const s = SECTIONS.find(x => x.re.test(norm(v)));
+      if (s && !(s.key in judgeCells)) judgeCells[s.key] = colName(i + 1) + jl.row;
+    });
+  }
+  // Already filled in? Then it isn't a blank template.
+  const used = dataRows.filter(r => [cols.dogNo, cols.dogName, cols.handlerId, cols.handlerName].some(c => !isBlank((rows[r - 1] || [])[c - 1])));
+  if (used.length) throw new Error(`“${file.name}” already has ${used.length} ${used.length === 1 ? "dog" : "dogs"} on it, so it isn't a blank SSANZ results sheet.|Drop the results files zip from the SSANZ website: the page fills in a blank sheet from it.`);
+  const locked = /<sheetProtection\b[^>]*\bsheet="(1|true)"/.test(await zip.file(sheet.path).async("string"));
+  if (!locked) throw new Error(`“${file.name}” isn't locked like the current SSANZ results sheets, so it may be an old or changed copy.|Download the results files zip from the SSANZ website again and drop the whole zip here.`);
+  const revCell = rows.flat().find(v => /^Rev\s*\d+(\.\d+)*$/i.test(norm(v)));
+  return {
+    name: file.name, from: file.from || "", rev: revCell ? norm(revCell).replace(/^Rev\s*/i, "") : (/_Rev([\d.]+)\.xlsx$/i.exec(file.name) || [])[1] || "",
+    sport, level, zip, sheetPath: sheet.path, sheetName: sheet.name, cells, cols, dataRows, capacity: dataRows.length, judgeCells, used: used.length,
+    typeOptions: sport === "BH" ? ["Sand", "Water", "Sand & Water"] : [],
+  };
+}
+
+/* Write values into the sheet XML. values: { "G6": { s: "text" } | { n: 123 } }. Keeps each cell's style. */
+function writeCells(xmlText, values) {
+  const doc = parseXml(xmlText);
+  if (doc.getElementsByTagName("parsererror").length) throw new Error("The results sheet couldn't be read.|Download the SSANZ zip again and drop it here.");
+  const ns = doc.documentElement.namespaceURI || MAIN_NS;
+  const data = doc.getElementsByTagNameNS(ns, "sheetData")[0];
+  const rowEl = n => {
+    const rows = kids(data, "row");
+    let r = rows.find(x => Number(x.getAttribute("r")) === n);
+    if (r) return r;
+    r = doc.createElementNS(ns, "row"); r.setAttribute("r", String(n));
+    const after = rows.find(x => Number(x.getAttribute("r")) > n);
+    data.insertBefore(r, after || null);
+    return r;
+  };
+  Object.entries(values).forEach(([ref, val]) => {
+    const { col, row } = splitRef(ref);
+    const r = rowEl(row);
+    let c = kids(r, "c").find(x => x.getAttribute("r") === ref);
+    if (!c) {
+      c = doc.createElementNS(ns, "c"); c.setAttribute("r", ref);
+      const after = kids(r, "c").find(x => splitRef(x.getAttribute("r")).col > col);
+      r.insertBefore(c, after || null);
+    }
+    while (c.firstChild) c.removeChild(c.firstChild);
+    c.removeAttribute("t");
+    if (val.s != null) {
+      c.setAttribute("t", "inlineStr");
+      const is = doc.createElementNS(ns, "is"), t = doc.createElementNS(ns, "t");
+      if (/^\s|\s$/.test(val.s)) t.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space", "preserve");
+      t.textContent = val.s; is.appendChild(t); c.appendChild(is);
+    } else if (val.n != null) {
+      const v = doc.createElementNS(ns, "v"); v.textContent = String(val.n); c.appendChild(v);
+    }
+  });
+  let out = new XMLSerializer().serializeToString(doc);
+  if (!/^<\?xml/.test(out)) out = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' + out;
+  return out;
+}
+/* ---------- Adding rows for a big class ----------
+   The SSANZ sheet has room for 51 dogs. For more, the last dog row is copied as many times as needed (styles,
+   lock settings, formulas), and every range that ran to the last row (placings, colour rules) is stretched
+   to the new last row. The Printable Version gets the same extra rows. */
+const REF_RE = /(\$?)([A-Z]{1,3})(\$?)(\d+)(?![\d(A-Za-z_])/g;
+const RANGE_RE = /(\$?[A-Z]{1,3}\$?)(\d+):(\$?[A-Z]{1,3}\$?)(\d+)(?![\d(A-Za-z_])/g;
+/* Apply fn to the parts of a formula outside "quoted text". */
+function outsideQuotes(f, fn) { return f.split(/("(?:[^"]|"")*")/).map((part, i) => i % 2 ? part : fn(part)).join(""); }
+/* Move relative row numbers by d (K62 → K63; K$6 and $L$10 stay). */
+function shiftFormula(f, d) {
+  return outsideQuotes(f, part => part.replace(REF_RE, (m, cd, col, rd, row, off, str) => {
+    const before = str[off - 1] || "";
+    if (/[A-Za-z0-9_.]/.test(before)) return m;   // part of a name, not a cell
+    return rd ? m : `${cd}${col}${rd}${Number(row) + d}`;
+  }));
+}
+/* Ranges over several rows that end on lastRow end on newLast instead (AH$12:AH$62 → AH$12:AH$66). */
+function stretchRanges(text, lastRow, newLast) {
+  return text.replace(RANGE_RE, (m, a, r1, b, r2) => Number(r2) === lastRow && Number(r1) < lastRow ? `${a}${r1}:${b}${newLast}` : m);
+}
+/* Insert k copies of row src right after it, in one worksheet's XML. */
+function addRows(xmlText, src, k) {
+  const doc = parseXml(xmlText);
+  const ns = doc.documentElement.namespaceURI || MAIN_NS;
+  const data = doc.getElementsByTagNameNS(ns, "sheetData")[0];
+  const rows = kids(data, "row");
+  const moveRef = ref => { const { col, row } = splitRef(ref); return row > src ? colName(col) + (row + k) : ref; };
+  // Rows under the dogs (borders, notes) move down.
+  rows.filter(r => Number(r.getAttribute("r")) > src).forEach(r => {
+    r.setAttribute("r", String(Number(r.getAttribute("r")) + k));
+    kids(r, "c").forEach(c => c.setAttribute("r", moveRef(c.getAttribute("r"))));
+  });
+  const srcRow = rows.find(r => Number(r.getAttribute("r")) === src);
+  let after = srcRow;
+  for (let i = 1; i <= k; i++) {
+    const copy = srcRow.cloneNode(true);
+    copy.setAttribute("r", String(src + i));
+    kids(copy, "c").forEach(c => {
+      c.setAttribute("r", colName(splitRef(c.getAttribute("r")).col) + (src + i));
+      const f = kid(c, "f");
+      if (f) { f.textContent = shiftFormula(f.textContent, i); kids(c, "v").forEach(v => c.removeChild(v)); c.removeAttribute("t"); }
+    });
+    data.insertBefore(copy, after.nextSibling);
+    after = copy;
+  }
+  // Every formula: stretch ranges that ran to the last row.
+  [...doc.getElementsByTagNameNS(ns, "f")].forEach(f => { f.textContent = stretchRanges(f.textContent, src, src + k); });
+  // Colour rules, drop-downs and merged cells.
+  const sq = v => v.split(/\s+/).map(part => {
+    const m = /^([A-Z]+)(\d+)(?::([A-Z]+)(\d+))?$/.exec(part);
+    if (!m) return part;
+    let [, c1, r1, c2, r2] = m; r1 = Number(r1);
+    if (!c2) return r1 > src ? c1 + (r1 + k) : part;
+    r2 = Number(r2);
+    const n1 = r1 > src ? r1 + k : r1, n2 = r2 > src ? r2 + k : (r2 === src && r1 < src ? src + k : r2);
+    return `${c1}${n1}:${c2}${n2}`;
+  }).join(" ");
+  ["conditionalFormatting", "dataValidation"].forEach(n => [...doc.getElementsByTagNameNS(ns, n)].forEach(e => { if (e.getAttribute("sqref")) e.setAttribute("sqref", sq(e.getAttribute("sqref"))); }));
+  [...doc.getElementsByTagNameNS(ns, "mergeCell")].forEach(e => e.setAttribute("ref", sq(e.getAttribute("ref"))));
+  const dim = doc.getElementsByTagNameNS(ns, "dimension")[0];
+  if (dim) dim.setAttribute("ref", sq(dim.getAttribute("ref")));
+  let out = new XMLSerializer().serializeToString(doc);
+  if (!/^<\?xml/.test(out)) out = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' + out;
+  return out;
+}
+/* In another sheet (the Printable Version), the row that shows the results sheet's last dog row. */
+function mirrorRow(xmlText, sheetName, lastRow) {
+  const re = new RegExp(`(^|[^A-Za-z0-9_])'?${sheetName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}'?!\\$?[A-Z]{1,3}${lastRow}(?![0-9])`);
+  const doc = parseXml(xmlText);
+  const row = [...doc.getElementsByTagNameNS(doc.documentElement.namespaceURI || MAIN_NS, "row")]
+    .find(r => [...r.getElementsByTagNameNS(doc.documentElement.namespaceURI || MAIN_NS, "f")].some(f => re.test(f.textContent)));
+  return row ? Number(row.getAttribute("r")) : 0;
+}
+
+/* The SSANZ sheet holds the results its formulas had when it was saved blank (e.g. the date 1 Jan 2025).
+   Clearing those stored results (the formulas themselves are kept exactly) makes every program, not
+   only Excel, work them out again from the new details. */
+function clearFormulaResults(xmlText) {
+  const doc = parseXml(xmlText);
+  if (doc.getElementsByTagName("parsererror").length) return xmlText;
+  const ns = doc.documentElement.namespaceURI || MAIN_NS;
+  [...doc.getElementsByTagNameNS(ns, "c")].forEach(c => {
+    if (!kid(c, "f")) return;
+    kids(c, "v").forEach(v => c.removeChild(v));
+    c.removeAttribute("t");
+  });
+  let out = new XMLSerializer().serializeToString(doc);
+  if (!/^<\?xml/.test(out)) out = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' + out;
+  return out;
+}
+/* Ask Excel to work out every formula when the file is opened (the totals, Qualified and Placing). */
+function recalcOnOpen(xmlText) {
+  if (/<calcPr\b[^>]*fullCalcOnLoad=/.test(xmlText)) return xmlText.replace(/fullCalcOnLoad="[^"]*"/, 'fullCalcOnLoad="1"');
+  if (/<calcPr\b/.test(xmlText)) return xmlText.replace(/<calcPr\b/, '<calcPr fullCalcOnLoad="1"');
+  return xmlText;
+}
+
+/* Everything that will be written, and any problems. job = { tpl, cls, form, dogs } */
+function planSheet(job) {
+  const { tpl, cls, form } = job;
+  const stops = [], warns = [], values = {};
+  const dogs = sortDogs(job.dogs).map(d => ({ ...d, handler: fixedName(form, "handler", d.handler), dog: fixedName(form, "dog", d.dog) }));
+  if (!tpl) stops.push({ text: `There's no ${cls.pc ? cls.pc.name : cls.cls} results sheet yet.`, fix: `Drop the SSANZ ${cls.pc && cls.pc.sport === "BH" ? "Buried Hides" : "Nosework"} results files zip.` });
+  if (tpl && cls.pc && (tpl.sport !== cls.pc.sport || lower(tpl.level) !== lower(cls.pc.level)))
+    stops.push({ text: `The results sheet added is for ${tpl.sport === "BH" ? "Buried Hides" : "Nosework"} ${tpl.level}, but ${cls.tab} is ${cls.pc.name}.`, fix: "Drop the SSANZ zip so the page can pick the right level." });
+  if (tpl && tpl.used) stops.push({ text: `“${tpl.name}” already has dogs on it.`, fix: "Use a blank results sheet: drop the SSANZ zip again." });
+  const org = form.org;
+  if (!org || isBlank(org.name)) stops.push({ text: "Choose the organisation running the trial.", fix: "" });
+  else { const p = orgIdProblem(org.id); if (p) stops.push({ text: p, fix: "" }); }
+  if (!parseISO(form.date)) stops.push({ text: "Choose the date of this class.", fix: "" });
+  if (isBlank(form.venue)) stops.push({ text: "Type the venue.", fix: "" });
+  const tp = trialNoProblem(form.trialNo, org ? org.id : "");
+  if (tp) stops.push({ text: tp, fix: "Copy it from the left-hand column of the SSANZ events page." });
+  else { const dn = trialNoDateNote(form.trialNo, org ? org.id : "", form.date); if (dn && !form.trialNoOk) stops.push({ text: dn, fix: "If the Trial # is right (it's what the SSANZ events page shows), tick “This Trial # is right” in step 2." }); }
+  const open = nameQuestions(job.dogs).filter(q => form.fixes[q.key] == null);
+  if (open.length) stops.push({ text: `Answer the ${open.length === 1 ? "question" : `${open.length} questions`} about names in step 3.`, fix: "" });
+  if (!dogs.length) stops.push({ text: `${cls.tab} has no dogs.`, fix: "" });
+  const extra = tpl ? Math.max(0, dogs.length - tpl.capacity) : 0;
+  if (extra) warns.push({ type: "info", text: `${cls.tab} has ${dogs.length} dogs and the SSANZ results sheet has room for ${tpl.capacity}, so ${extra} more ${extra === 1 ? "row is" : "rows are"} added for you, with the same formulas.`, fix: "" });
+  if (cls.pc && cls.pc.sport === "LIR") stops.push({ text: "Lost Item Recovery results sheets aren't available yet.", fix: "" });
+  const judgeKeys = tpl ? Object.keys(tpl.judgeCells) : [];
+  const blankJudges = judgeKeys.filter(k => isBlank(form.judges[k]));
+  if (tpl && blankJudges.length) warns.push({ text: `No judge for ${blankJudges.map(k => (SECTIONS.find(s => s.key === k) || { label: "the class" }).label.toLowerCase()).join(", ")}.`, fix: "Type it in step 2, or leave it blank to fill in on the sheet." });
+  (form.judgeNotes || []).forEach(t => warns.push({ text: t, fix: "" }));
+  dogs.forEach(d => { if (isBlank(d.handlerNo)) warns.push({ text: `${d.handler} & ${d.dog} has no Handler Number.`, fix: "It's left blank on the results sheet." }); if (isBlank(d.dogNo)) warns.push({ text: `${d.handler} & ${d.dog} has no Dog No.`, fix: "It's left blank on the results sheet." }); });
+
+  if (tpl) {
+    const C = tpl.cells, put = (ref, v) => { if (ref) values[ref] = v; };
+    if (org) { put(C.org, { s: norm(org.name) }); put(C.orgId, { s: cleanCode(org.id) }); }
+    if (parseISO(form.date)) put(C.date, { n: excelSerial(form.date) });
+    if (!isBlank(form.venue)) put(C.venue, { s: norm(form.venue) });
+    if (!isBlank(form.trialNo)) put(C.trialNo, { s: cleanCode(form.trialNo) });
+    if (tpl.sport === "BH" && C.type && cls.pc && cls.pc.variant) put(C.type, { s: cls.pc.variant });
+    judgeKeys.forEach(k => { if (!isBlank(form.judges[k])) put(tpl.judgeCells[k], { s: norm(form.judges[k]) }); });
+    const last = tpl.dataRows[tpl.dataRows.length - 1];
+    dogs.forEach((d, i) => {
+      const r = i < tpl.capacity ? tpl.dataRows[i] : last + (i - tpl.capacity + 1), at = c => colName(c) + r;
+      const id = v => { const x = idValue(v); return typeof x === "number" ? { n: x } : { s: x }; };
+      if (!isBlank(d.dogNo)) values[at(tpl.cols.dogNo)] = id(d.dogNo);
+      values[at(tpl.cols.dogName)] = { s: d.dog };
+      if (!isBlank(d.handlerNo)) values[at(tpl.cols.handlerId)] = id(d.handlerNo);
+      values[at(tpl.cols.handlerName)] = { s: d.handler };
+    });
+  }
+  return { stops, warns, values, dogs, extra };
+}
+async function buildSheet(tpl, values, extra = 0) {
+  const zip = await JSZip.loadAsync(await tpl.zip.generateAsync({ type: "uint8array" }));   // a fresh copy each time
+  const opts = { createFolders: false };
+  for (const sh of await sheetList(zip)) {
+    const f = zip.file(sh.path); if (!f) continue;
+    let xml = await f.async("string");
+    const last = tpl.dataRows[tpl.dataRows.length - 1];
+    if (extra > 0) {
+      if (sh.path === tpl.sheetPath) xml = addRows(xml, last, extra);
+      else { const m = mirrorRow(xml, tpl.sheetName, last); if (m) xml = addRows(xml, m, extra); }
+    }
+    if (sh.path === tpl.sheetPath) xml = writeCells(xml, values);
+    zip.file(sh.path, clearFormulaResults(xml), opts);
+  }
+  zip.file("xl/workbook.xml", recalcOnOpen(await zip.file("xl/workbook.xml").async("string")), opts);
+  return zip.generateAsync({ type: "blob", mimeType: XLSX_MIME, compression: "DEFLATE" });
+}
+function outputName(tpl, cls, form) {
+  const safe = s => norm(s).replace(/[\\/:*?"<>|]+/g, "").replace(/\s+/g, "_");
+  const sport = (SPORTS[tpl.sport] || {}).file || tpl.sport;
+  return [sport, tpl.level, cls.pc && cls.pc.variant && tpl.sport === "BH" ? cls.pc.variant : "", safe(form.org ? form.org.name : ""), dotDate(form.date), cleanCode(form.trialNo)]
+    .filter(Boolean).join("_") + ".xlsx";
+}
+
+/* =========================================================================
+   The page
+   ========================================================================= */
+const $ = id => document.getElementById(id);
+function el(tag, attrs = {}, ...children) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") e.className = v; else if (k === "text") e.textContent = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else if (v != null && v !== false) e.setAttribute(k, v === true ? "" : v);
+  }
+  children.flat().forEach(c => c != null && e.append(c));
+  return e;
+}
+const ORG_OWN = "__own";
+const S = { trial: null, trialName: "", templates: new Map(), pick: "", forms: {}, example: true };
+const tplKey = (sport, level) => `${sport}|${String(level).toLowerCase()}`;
+
+function msgEl(m) {
+  const kind = { stop: "Needs fixing", warning: "Check", info: "Note" }[m.type] || "Note";
+  return el("li", { class: "msg " + m.type }, el("span", { class: "kind", text: kind }), el("p", { text: m.text }), m.fix ? el("p", { class: "fix", text: m.fix }) : null);
+}
+function showStop(title, msgs) {
+  $("stopTitle").textContent = title;
+  $("stopList").textContent = "";
+  msgs.forEach(m => $("stopList").append(msgEl({ type: "stop", ...m })));
+  $("stop").hidden = false;
+  $("stopBack").focus();
+}
+$("stopBack").addEventListener("click", () => { $("stop").hidden = true; $("drop").focus(); });
+function status(msg, err) { const s = $("status"); s.textContent = msg; s.className = "status" + (err ? " error" : ""); s.hidden = !msg; }
+const splitErr = e => { const [text, fix] = String(e && e.message || e).split("|"); return { text, fix: fix || "" }; };
+
+/* ---------- Example (made-up names only) ---------- */
+function exampleTrial() {
+  const dogs = [["20004", "Rua Demo", "SD604", "Pip"], ["20001", "Kiri Example", "SD601", "Moss"], ["20003", "Ana Placeholder", "SD603", "Juno"], ["20002", "Tom Sample", "SD602", "Biscuit"], ["20005", "Ana Mockup", "1205", "Tui"]]
+    .map(([handlerNo, handler, dogNo, dog]) => ({ handlerNo, handler, dogNo, dog }));
+  const s = (date, venue, trialNo) => ({ date, venue, trialNo, copies: [
+    { text: "Containers", judge: "Pat Judge" }, { text: "Interior", judge: "Lee Judge" }, { text: "Exterior", judge: "Pat Judge" }, { text: "Vehicle", judge: "Sam Judge" }] });
+  return {
+    org: { name: "Dogs First", id: "DF2302", own: false },
+    classes: [
+      { tab: "NWNov1", cls: "NWNov1", pc: parseClass("NWNov1"), dogs, saved: s("2026-10-17", "Example Hall, Lower Hutt", "DF10261") },
+      { tab: "NWAdv1", cls: "NWAdv1", pc: parseClass("NWAdv1"), dogs: dogs.slice(0, 3), saved: s("2026-10-18", "Example Park, Upper Hutt", "DF10262") },
+      { tab: "BHNovS1", cls: "BHNovS1", pc: parseClass("BHNovS1"), dogs: dogs.slice(1, 4), saved: { date: "2026-10-18", venue: "Example Park, Upper Hutt", trialNo: "DF10263", copies: [{ text: "Sand", judge: "Lee Judge" }] } },
+    ],
+  };
+}
+
+/* ---------- Files ---------- */
+async function addFiles(fileList) {
+  status("Reading…");
+  $("stop").hidden = true;
+  const problems = [];
+  let added = 0;
+  for (const f of fileList) {
+    try {
+      const parts = await unpack(f.name, new Uint8Array(await f.arrayBuffer()));
+      if (!parts.length) { problems.push({ text: `“${f.name}” has no results sheets in it.`, fix: "Drop the Nosework or Buried Hides results files zip from the SSANZ website." }); continue; }
+      for (const p of parts) {
+        const zip = p.zip || await JSZip.loadAsync(p.bytes);
+        p.zip = zip;
+        const wb = await readWorkbook(zip);
+        if (wb.sheets.some(s => s.name === SETTINGS_TAB) || wb.sheets.some(s => s.name === MASTER)) {
+          const t = readTrial(wb);
+          S.trial = t; S.trialName = f.name; S.forms = {}; S.example = false; S.pick = "";
+          added++;
+          continue;
+        }
+        if (!/_Results_/i.test(p.name) && !wb.sheets[0].rows.some(r => (r || []).some(v => norm(v) === SHEET_LABELS.org))) {
+          if (/uploader/i.test(p.name)) continue;   // the uploader in the SSANZ zip isn't needed here
+          if (parts.length === 1) {
+            if (wb.sheets.some(s => (s.rows[0] || []).some(h => lower(h) === "entry email"))) problems.push({ text: `“${f.name}” is the entries download.`, fix: "Use the trial spreadsheet instead: run it through Trial Lists and Trial Documents (Save progress), then drop the file that downloads." });
+            else problems.push({ text: `“${f.name}” isn't a trial spreadsheet or an SSANZ results sheet.`, fix: "" });
+          }
+          continue;
+        }
+        const tpl = await readTemplate(p);
+        const k = tplKey(tpl.sport, tpl.level), old = S.templates.get(k);
+        if (!old || Number(tpl.rev) >= Number(old.rev)) S.templates.set(k, tpl);
+        added++;
+      }
+    } catch (e) {
+      problems.push(splitErr(e));
+    }
+  }
+  status("");
+  if (problems.length) showStop(added ? "Some files couldn't be used" : "This file can't be used", problems);
+  render();
+}
+const drop = $("drop");
+$("file").addEventListener("change", e => { if (e.target.files.length) addFiles([...e.target.files]); e.target.value = ""; });
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => { if (e.dataTransfer.files.length) addFiles([...e.dataTransfer.files]); });
+drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("file").click(); } });
+
+/* ---------- State for the chosen class ---------- */
+const trial = () => S.trial || exampleTrial();
+const current = () => trial().classes.find(c => c.tab === S.pick) || null;
+function formFor(c) {
+  if (S.forms[c.tab]) return S.forms[c.tab];
+  const t = trial(), tpl = c.pc ? S.templates.get(tplKey(c.pc.sport, c.pc.level)) : null;
+  const org = t.org ? { ...t.org } : null;
+  if (org && !org.own && !ORGANISATIONS.some(([, id]) => id === org.id)) org.own = true;
+  const columns = tpl ? Object.keys(tpl.judgeCells) : (c.pc && c.pc.sport === "BH" ? ["BH"] : ["CS", "IS", "ES", "VS", ...(c.pc && /Excellent|Premium/.test(c.pc.level) ? ["OS1"] : []), ...(c.pc && c.pc.level === "Premium" ? ["OS2"] : [])]);
+  const mj = mapJudges(c.saved.copies, columns, c.pc ? c.pc.sport : "NW");
+  return S.forms[c.tab] = { org, date: c.saved.date || "", venue: c.saved.venue || "", trialNo: fixTrialNo(c.saved.trialNo || "", org ? org.id : ""), judges: mj.judges, from: mj.from, judgeNotes: mj.notes, columns, fixes: {}, trialNoOk: false };
+}
+
+/* ---------- Render ---------- */
+function render() {
+  const t = trial(), real = !!S.trial;
+  // File status
+  $("rowTrial").classList.toggle("ok", real);
+  $("trialState").textContent = real ? `${S.trialName} · ${t.classes.length} ${t.classes.length === 1 ? "class" : "classes"}` : "Not added yet. Showing made-up example classes below.";
+  $("rowZip").classList.toggle("ok", S.templates.size > 0);
+  const tlist = [...S.templates.values()].sort((a, b) => a.sport.localeCompare(b.sport) || a.level.localeCompare(b.level));
+  $("zipState").textContent = tlist.length
+    ? tlist.map(x => `${x.sport === "BH" ? "Buried Hides" : "Nosework"} ${x.level}${x.rev ? ` (Rev ${x.rev})` : ""}`).join(" · ")
+    : "Not added yet. Download the zip from the SSANZ website each time, so you always use the current version.";
+  $("resultTitle").textContent = real ? "Your results sheets" : "Example";
+  $("resultTag").textContent = real ? "Your file" : "Example data";
+  $("resultTag").hidden = false;
+
+  // Classes
+  if (!t.classes.some(c => c.tab === S.pick)) S.pick = (t.classes.find(c => c.pc && c.pc.sport !== "LIR") || t.classes[0] || {}).tab || "";
+  const ul = $("classes"); ul.textContent = "";
+  t.classes.forEach(c => {
+    const tpl = c.pc ? S.templates.get(tplKey(c.pc.sport, c.pc.level)) : null;
+    const f = c.saved, bits = [`${c.dogs.length} ${c.dogs.length === 1 ? "dog" : "dogs"}`];
+    if (f.date) bits.push(longDate(f.date));
+    if (f.trialNo) bits.push(`Trial # ${f.trialNo}`);
+    const need = !c.pc ? "Not a class tab" : c.pc.sport === "LIR" ? "No SSANZ results sheet yet" : tpl ? `${tpl.sport === "BH" ? "Buried Hides" : "Nosework"} ${tpl.level} sheet ready` : `Needs the SSANZ ${c.pc.sport === "BH" ? "Buried Hides" : "Nosework"} zip`;
+    ul.append(el("li", {}, el("label", {},
+      el("input", { type: "radio", name: "cls", value: c.tab, checked: c.tab === S.pick, onchange: () => { S.pick = c.tab; render(); } }),
+      el("span", { class: "ctext" },
+        el("span", { class: "cname" }, className(c, t), el("code", { text: c.tab })),
+        el("small", { text: bits.join(" · ") }),
+        el("small", { class: tpl || !c.pc ? "" : "bad", text: need })))));
+  });
+  renderForm();
+}
+
+/* "Nosework Novice", "Nosework Advanced – trial 2" when the level runs twice, "… (your copy of NWNov1)". */
+function className(c, t) {
+  if (!c.pc) return c.tab;
+  const twice = t.classes.some(o => o.cls !== c.cls && o.pc && o.pc.name === c.pc.name);
+  return c.pc.name + (twice ? ` – trial ${c.pc.trial}` : "") + (c.tab !== c.cls ? ` (your copy of ${c.cls})` : "");
+}
+function syncOrgSelect(form) {
+  const sel = $("org");
+  if (!sel.options.length) {
+    sel.append(new Option("Choose your organisation…", ""));
+    [...ORGANISATIONS].sort((a, b) => a[0].localeCompare(b[0], "en", { sensitivity: "base" })).forEach(([n, id]) => sel.append(new Option(`${n} · ${id}`, id)));
+    sel.append(new Option("Not in the list (type it)…", ORG_OWN));
+  }
+  const o = form.org;
+  sel.value = !o ? "" : o.own ? ORG_OWN : o.id;
+  $("orgOwn").hidden = !(o && o.own);
+  if (o && o.own) { $("orgName").value = o.name || ""; $("orgId").value = o.id || ""; }
+}
+
+function renderForm() {
+  const c = current();
+  $("detailsStep").hidden = !c;
+  if (!c) { $("dogs").textContent = ""; renderChecks(); return; }
+  const form = formFor(c), tpl = c.pc ? S.templates.get(tplKey(c.pc.sport, c.pc.level)) : null;
+  syncOrgSelect(form);
+  $("date").value = form.date; $("venue").value = form.venue; $("trialNo").value = form.trialNo;
+  $("typeField").hidden = !(c.pc && c.pc.sport === "BH");
+  $("typeOut").textContent = c.pc && c.pc.variant ? `${c.pc.variant} (from the class, ${c.tab})` : "Sand & Water (as on the SSANZ sheet)";
+  renderTrialOk();
+  // Judges
+  const box = $("judges"); box.textContent = "";
+  form.columns.forEach(k => {
+    const s = SECTIONS.find(x => x.key === k);
+    const label = k === "BH" ? "Judge" : s.label;
+    const id = "j" + k;
+    box.append(el("label", { class: "field", for: id },
+      el("span", {}, label, form.from[k] ? el("span", { class: "from", text: ` · from ${form.from[k]}` }) : null),
+      el("input", { type: "text", id, maxlength: 60, autocomplete: "off", value: form.judges[k] || "", oninput: e => { form.judges[k] = e.target.value; renderChecks(); } })));
+  });
+  // Dogs
+  renderQuestions(c, form);
+  const dogs = sortDogs(c.dogs).map(d => ({ ...d, handler: fixedName(form, "handler", d.handler), dog: fixedName(form, "dog", d.dog) })), cap = tpl ? tpl.capacity : 0;
+  $("dogsHelp").textContent = `${dogs.length} ${dogs.length === 1 ? "dog" : "dogs"} in alphabetical order of handler's first name, as they'll appear on the sheet${cap ? (dogs.length > cap ? ` (the sheet has room for ${cap}; ${dogs.length - cap} more ${dogs.length - cap === 1 ? "row is" : "rows are"} added)` : ` (room for ${cap})`) : ""}.`;
+  const table = $("dogs"); table.textContent = "";
+  table.append(el("thead", {}, el("tr", {}, ["", "Dog No.", "Dog Name", "Handler ID", "Handler Name"].map(h => el("th", { text: h })))));
+  table.append(el("tbody", {}, dogs.map((d, i) => el("tr", {},
+    el("td", { class: "num", text: String(i + 1) }), el("td", { text: d.dogNo }), el("td", { text: d.dog }), el("td", { text: d.handlerNo }), el("td", { text: d.handler })))));
+  renderChecks();
+}
+
+/* The tick box appears only when the Trial # doesn't match the date. */
+function renderTrialOk() {
+  const f = form(); if (!f) return;
+  const note = trialNoProblem(f.trialNo, f.org ? f.org.id : "") ? "" : trialNoDateNote(f.trialNo, f.org ? f.org.id : "", f.date);
+  $("trialOkField").hidden = !note;
+  $("trialOk").checked = !!f.trialOkFor && f.trialOkFor === `${cleanCode(f.trialNo)}|${f.date}`;
+  f.trialNoOk = !note || $("trialOk").checked;
+  $("trialOkText").textContent = note ? `${note} Tick here if it's right anyway.` : "";
+}
+function renderQuestions(c, f) {
+  const box = $("questions"), qs = nameQuestions(c.dogs);
+  box.textContent = ""; box.hidden = !qs.length;
+  qs.forEach((q, n) => {
+    const name = "q" + n, cur = f.fixes[q.key];
+    const mode = cur == null ? "" : cur === q.clean ? "clean" : cur === q.value ? "keep" : "other";
+    const other = el("input", { type: "text", maxlength: 60, value: mode === "other" ? cur : q.clean, "aria-label": "Name to use",
+      oninput: e => { if (radio3.checked) { f.fixes[q.key] = norm(e.target.value); refreshDogs(); } } });
+    const pick = (v) => { f.fixes[q.key] = v; refreshDogs(); };
+    const radio1 = el("input", { type: "radio", name, checked: mode === "clean", onchange: () => pick(q.clean) });
+    const radio2 = el("input", { type: "radio", name, checked: mode === "keep", onchange: () => pick(q.value) });
+    const radio3 = el("input", { type: "radio", name, checked: mode === "other", onchange: () => { pick(norm(other.value)); other.focus(); } });
+    box.append(el("div", { class: "question" },
+      el("p", {}, el("b", { text: `“${q.value}”` }), ` (${q.who}) has marks that aren't usually part of a name. Someone may have added them as a note. What should go on the results sheet?`),
+      el("div", { class: "opts" },
+        el("label", {}, radio1, el("span", { text: `${q.clean} (marks taken out)` })),
+        el("label", {}, radio2, el("span", { text: `${q.value} (as typed)` })),
+        el("label", {}, radio3, el("span", {}, "Something else: ", other)))));
+  });
+}
+/* Re-draw the dog list and checks without touching the question being answered. */
+function refreshDogs() {
+  const c = current(); if (!c) return;
+  const f = formFor(c), tpl = c.pc ? S.templates.get(tplKey(c.pc.sport, c.pc.level)) : null;
+  const dogs = sortDogs(c.dogs).map(d => ({ ...d, handler: fixedName(f, "handler", d.handler), dog: fixedName(f, "dog", d.dog) }));
+  const rows = $("dogs").tBodies[0];
+  if (rows) [...rows.rows].forEach((tr, i) => { if (dogs[i]) { tr.cells[2].textContent = dogs[i].dog; tr.cells[4].textContent = dogs[i].handler; } });
+  renderChecks();
+}
+
+function job() {
+  const c = current();
+  if (!c) return null;
+  return { cls: c, form: formFor(c), tpl: c.pc ? S.templates.get(tplKey(c.pc.sport, c.pc.level)) || null : null, dogs: c.dogs };
+}
+function renderChecks() {
+  const j = job(), ul = $("checks");
+  ul.textContent = "";
+  if (!j) { $("download").disabled = true; return; }
+  const note = trialNoProblem(j.form.trialNo, j.form.org ? j.form.org.id : "") ? "" : trialNoDateNote(j.form.trialNo, j.form.org ? j.form.org.id : "", j.form.date);
+  j.form.trialNoOk = !note || j.form.trialOkFor === `${cleanCode(j.form.trialNo)}|${j.form.date}`;
+  const plan = planSheet(j);
+  plan.stops.forEach(m => ul.append(msgEl({ type: "stop", ...m })));
+  plan.warns.forEach(m => ul.append(msgEl({ type: m.type || "warning", ...m })));
+  if (!plan.stops.length) ul.append(msgEl({ type: "info", text: `Ready: ${outputName(j.tpl, j.cls, j.form)}`, fix: S.trial ? "" : "This is the made-up example. Drop your trial spreadsheet to make your own." }));
+  $("download").disabled = plan.stops.length > 0;
+  $("downloadNote").textContent = plan.stops.length ? "Fix the items marked “Needs fixing” to download." : "Open it in Excel. The totals, Qualified and Placing work out as the admin team types the points and times.";
+}
+
+/* ---------- Form events ---------- */
+const form = () => { const c = current(); return c ? formFor(c) : null; };
+$("org").addEventListener("change", e => {
+  const f = form(); if (!f) return;
+  const v = e.target.value;
+  if (!v) f.org = null;
+  else if (v === ORG_OWN) f.org = { name: f.org && f.org.own ? f.org.name : "", id: f.org && f.org.own ? f.org.id : "", own: true };
+  else { const [name, id] = ORGANISATIONS.find(([, x]) => x === v); f.org = { name, id, own: false }; }
+  f.trialNo = fixTrialNo(f.trialNo, f.org ? f.org.id : "");
+  renderForm();
+  if (f.org && f.org.own) $("orgName").focus();
+});
+$("orgName").addEventListener("input", e => { const f = form(); if (f && f.org) { f.org.name = e.target.value; renderChecks(); } });
+$("orgId").addEventListener("input", e => { const f = form(); if (f && f.org) { f.org.id = cleanCode(e.target.value); renderChecks(); } });
+$("date").addEventListener("input", e => { const f = form(); if (f) { f.date = e.target.value; renderTrialOk(); renderChecks(); } });
+$("trialOk").addEventListener("change", e => { const f = form(); if (!f) return; f.trialOkFor = e.target.checked ? `${cleanCode(f.trialNo)}|${f.date}` : ""; renderTrialOk(); renderChecks(); });
+$("venue").addEventListener("input", e => { const f = form(); if (f) { f.venue = e.target.value; renderChecks(); } });
+$("trialNo").addEventListener("input", e => { const f = form(); if (f) { f.trialNo = e.target.value; renderChecks(); } });
+$("trialNo").addEventListener("change", e => { const f = form(); if (f) { f.trialNo = fixTrialNo(e.target.value, f.org ? f.org.id : ""); e.target.value = f.trialNo; renderTrialOk(); renderChecks(); } });
+
+$("download").addEventListener("click", async () => {
+  const j = job(); if (!j || !j.tpl) return;
+  const plan = planSheet(j);
+  if (plan.stops.length) return renderChecks();
+  try {
+    $("download").disabled = true; status("Making the results sheet…");
+    const blob = await buildSheet(j.tpl, plan.values, plan.extra);
+    const a = el("a", { href: URL.createObjectURL(blob), download: outputName(j.tpl, j.cls, j.form) });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+    status(`Downloaded ${a.download}. Choose the next class above for its sheet.`);
+  } catch (e) {
+    status(""); showStop("The results sheet couldn't be made", [splitErr(e)]);
+  } finally { renderChecks(); }
+});
+
+if (typeof JSZip === "undefined") {
+  status("The page couldn't load one of its parts (JSZip). Check your internet connection and reload the page.", true);
+  $("drop").setAttribute("aria-disabled", "true");
+}
+render();
+</script>
+
+</body>
+</html>

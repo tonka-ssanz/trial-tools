@@ -84,6 +84,14 @@ h1 { font-family: var(--font-display); font-size: clamp(30px, 6vw, 42px); line-h
 .title-out { grid-column: 1 / -1; font-size: 14px; color: var(--muted); margin: 0; }
 .title-out b { color: var(--ink); }
 .card-note { grid-column: 1 / -1; font-size: 13px; color: var(--warn); margin: 0; }
+.card-note:empty { display: none; }
+.fields .venue { grid-column: span 2; }
+.orgbox { display: grid; gap: 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 12px 14px; }
+.orgbox .orgown { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 8px 10px; }
+.orgbox .note { margin: 0; font-size: 13px; color: var(--muted); }
+.orgbox .note.bad { color: var(--warn); }
+.orgbox a { color: var(--accent); }
+@media (max-width: 640px) { .orgbox .orgown { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 640px) { .fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .fields .field:first-child { grid-column: 1 / -1; } }
 
 input[type=text], input[type=date], select { font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; width: 100%; min-width: 0; }
@@ -248,11 +256,11 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 <body>
 
 <div class="wrap">
-  <nav class="crumbs" aria-label="Trial tools"><a href="index.html">← All trial tools</a><span>Step 4 of 4</span></nav>
+  <nav class="crumbs" aria-label="Trial tools"><a href="index.html">← All trial tools</a><span>Step 4 of 5</span></nav>
   <header>
     <p class="eyebrow">SSANZ trial tools</p>
     <h1>Trial Documents</h1>
-    <p class="lede">Drop in your trial spreadsheet from Trial Lists (the file ending “(in progress)”). Give each class its level, date and session once, then download the catalogue running orders, callboards, timekeepers' and judges' sheets as Word documents (A4), the judging sheets as a PDF ready to print, and certificates for the pre-printed SSANZ cards.</p>
+    <p class="lede">Drop in your trial spreadsheet from Trial Lists (the file ending “(in progress)”). Choose your organisation, give each class its level, date, session, venue and SSANZ trial # once, then download the catalogue running orders, callboards, timekeepers' and judges' sheets as Word documents (A4), the judging sheets as a PDF ready to print, and certificates for the pre-printed SSANZ cards.</p>
   </header>
 
   <label class="drop" id="drop" for="file" tabindex="0">
@@ -297,6 +305,17 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 
     <div class="step">
       <h3><span class="n">1</span>Classes</h3>
+      <div class="orgbox" id="orgBox">
+        <label class="field" for="org">
+          <span>Organisation running the trial · fills in the host club, and the Org Ref ID on the SSANZ results sheets</span>
+          <select id="org"></select>
+        </label>
+        <div class="orgown" id="orgOwn" hidden>
+          <label class="field" for="orgName"><span>Organisation name</span><input type="text" id="orgName" maxlength="60" autocomplete="off"></label>
+          <label class="field" for="orgId"><span>Org Ref ID · e.g. DF2302</span><input type="text" id="orgId" maxlength="12" autocomplete="off"></label>
+        </div>
+        <p class="note" id="orgOut"></p>
+      </div>
       <p id="tablesHelp"></p>
       <div class="toolbar">
         <button class="small" type="button" id="resetOrder">Reset order</button>
@@ -406,8 +425,8 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
   </section>
 
   <aside class="nextstep">
-    <p><b>That's the last step.</b> Open the Word documents to check them before they go into your catalogue, and print the judging sheets PDF at actual size.</p>
-    <a href="index.html">Back to all trial tools</a>
+    <p><b>Next step: Results Sheets.</b> After Save progress, drop the file that downloads into it, with the SSANZ results files zip.</p>
+    <a href="results-sheets.html">Open Results Sheets →</a>
   </aside>
 
   <section class="help">
@@ -417,7 +436,8 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
       <li><b>Numbers</b> are added for you: each table is numbered 1, 2, 3… in the order the dogs appear on the tab.</li>
       <li><b>Reactive dogs:</b> the Reactive column shows D (dogs), H (humans) or D + H, and the whole row is printed in bold red.</li>
       <li><b>Level names</b> are filled in from the tab name (NWAdv1 → Advanced, BHNovS1 → BH Novice Sand). The trial number is kept when a level appears more than once. You can type over any of them.</li>
-      <li><b>One setup, several documents:</b> level, date and session are entered once and used by every document. Which classes are ticked, the order and the copies are kept separately for each document, so you can print just one or two callboards without changing the catalogue.</li>
+      <li><b>Organisation, venue and Trial #</b> aren't printed on these documents. They're saved with your trial for the <b>Results Sheets</b> step, which fills them in on the SSANZ results spreadsheets so they don't have to be typed there. Choose your organisation from the list once (it comes from the <a href="https://www.scentsports.nz/organisations.php" target="_blank" rel="noopener">SSANZ organisations page</a>; if yours isn't there, choose “Not in the list” and type it). Give each class its venue (trials on different days are often at different venues) and its Trial #, copied from the left-hand column of the <a href="https://www.scentsports.nz/eventspage.php" target="_blank" rel="noopener">SSANZ events page</a>, e.g. NWAdvCS1: DF10262 → DF10262. Each class has its own Trial #.</li>
+      <li><b>One setup, several documents:</b> level, date, session, venue and Trial # are entered once and used by every document. Which classes are ticked, the order and the copies are kept separately for each document, so you can print just one or two callboards without changing the catalogue.</li>
       <li><b>Catalogue running orders:</b> each table is kept in one piece, and tables share a page when they fit. A table too long for one page starts on a new page and carries on over the next, with the heading row repeated. The preview's page numbers are a close estimate; Word makes the final fit.</li>
       <li><b>Callboards:</b> each class starts on its own page, with larger text and a Started ✓ column to tick. Set <b>Copies</b> to print more than one. Each copy can have an element line under the title: pick elements from the list in the order they run (each one is added to the end), then edit the text to add numbers such as “Exterior 2”. Or choose <b>Other</b> and type exactly what should be printed (up to one line). If nothing is chosen or typed, a line to write on is printed instead.</li>
       <li><b>Timekeepers and Judges:</b> one sheet per search, up to 8 per class. Choose each search's element from the list, or choose <b>Other</b> and type it. An element used twice in a class is numbered for you (Exterior 1, Exterior 2). The judge's name prints on the right of the element line; leave it blank to write it in. Every search needs an element before the sheets download. Timekeepers, Judges and the judging sheets share the same searches, so you only fill them in once.</li>
@@ -445,7 +465,7 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
         <p>These tools are being tested. If something goes wrong, looks odd or is confusing, tell us here. Your report opens in your email app, ready to send. Nothing is sent until you press Send there.</p>
         <p class="rprivacy"><b>Please don't attach your entries file</b> or type anyone's name, email or other details. Describe the problem instead, for example “row 14 of NWAdv1” or “the third dog on the Judges sheet”.</p>
         <div class="rgrid">
-          <label>Which tool?<select id="rTool"><option>Not sure</option><option>Payment Split</option><option>Email List</option><option>Trial Lists</option><option selected>Trial Documents</option><option>Front page</option></select></label>
+          <label>Which tool?<select id="rTool"><option>Not sure</option><option>Payment Split</option><option>Email List</option><option>Trial Lists</option><option selected>Trial Documents</option><option>Results Sheets</option><option>Front page</option></select></label>
           <label>Your name (optional, so we can ask you more)<input type="text" id="rName" autocomplete="name" maxlength="60"></label>
           <label class="wide"><span><b>What went wrong?</b> What you saw, any message on the screen, and which step you were on</span><textarea id="rWhat" maxlength="1200"></textarea></label>
           <label class="wide">What did you expect to happen? (optional)<textarea id="rExpect" maxlength="600"></textarea></label>
@@ -524,6 +544,79 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
    adds a button for it automatically.
    The judging sheets have their own settings further down (SCORE_SETTINGS).
    ========================================================================= */
+/* ---------- SSANZ organisations ----------
+   Name and Org Ref ID exactly as on https://www.scentsports.nz/organisations.php ("Org. Name / Ref.ID").
+   When an organisation joins or changes, edit this list: one ["Name", "RefID"] per line, in any order (the page sorts it).
+   List checked 17 Oct 2026 (22 organisations). */
+const ORGANISATIONS = [
+  ["A.C.E Dog Training Ltd", "ACE1901"],
+  ["CANINE.NZ Dog Training", "CDT2206"],
+  ["Confident Canines", "CC2503"],
+  ["Dogs First", "DF2302"],
+  ["Hastings Scentwork", "HBD2001"],
+  ["Hide And Scent", "HAS2301"],
+  ["Horowhenua Dog Training Club", "HWH2004"],
+  ["Hybrid Dog Training", "HDT1906"],
+  ["K9 Kitea Scent", "KKW1907"],
+  ["K9 Scent Seekers", "K9SS2204"],
+  ["K9 Scentwork NZ", "K9SW2502"],
+  ["K9Scentcraft", "K9SC2503"],
+  ["Kenson K9 Solutions", "KKS1902"],
+  ["More Than Dog Training", "ACA1905"],
+  ["My Dog And Me", "MDAM2604"],
+  ["Noseworx", "NWH1903"],
+  ["Scent Ways NZ", "SWNZ2603"],
+  ["Scentral Dog Training", "ScDT2602"],
+  ["Sniffing With K9's", "SWK92601"],
+  ["Tararua Allbreeds DTC", "TAD2301"],
+  ["Taupo Scent Work", "TSW2604"],
+  ["Tauranga Nosework Team", "TNT2401"],
+];
+const ORG_PAGE = "https://www.scentsports.nz/organisations.php", EVENTS_PAGE = "https://www.scentsports.nz/eventspage.php";
+/* Org Ref ID = the organisation's letters (may include digits, e.g. K9SS) then 4 digits.
+   Trial # = the same letters then 5 digits (Dogs First DF2302 → DF10261). */
+const ORG_ID_RE = /^[A-Za-z][A-Za-z0-9]*\d{4}$/;
+const cleanCode = v => String(v ?? "").replace(/\s+/g, "");
+const orgPrefix = id => ORG_ID_RE.test(cleanCode(id)) ? cleanCode(id).slice(0, -4) : "";
+function orgIdProblem(id) {
+  id = cleanCode(id);
+  if (!id) return "Type the Org Ref ID, e.g. DF2302.";
+  return ORG_ID_RE.test(id) ? "" : `Org Ref ID “${id}” should be your organisation's letters then 4 digits, e.g. DF2302.`;
+}
+/* Tidy a typed Trial #: no spaces, and the organisation's letters written as in its Org Ref ID. */
+function fixTrialNo(no, orgId) {
+  no = cleanCode(no);
+  const p = orgPrefix(orgId);
+  if (p && no.slice(0, p.length).toUpperCase() === p.toUpperCase()) no = p + no.slice(p.length);
+  return no;
+}
+/* Problem with one class's Trial #, or "" if it looks right. others = [{name, trialNo}] of the other classes. */
+function trialNoProblem(no, orgId, others = []) {
+  no = cleanCode(no);
+  if (!no) return "";
+  const p = orgPrefix(orgId);
+  if (p) {
+    if (no.slice(0, p.length).toUpperCase() !== p.toUpperCase())
+      return `Trial # ${no} doesn't start with ${p}, your organisation's letters. Check it on the SSANZ events page.`;
+    if (!/^\d{5}$/.test(no.slice(p.length))) return `Trial # ${no} should be ${p} then 5 digits, e.g. ${p}10261.`;
+  } else if (!/^[A-Za-z][A-Za-z0-9]*\d{5}$/.test(no)) return `Trial # ${no} should be your organisation's letters then 5 digits, e.g. DF10261.`;
+  const dup = others.find(o => cleanCode(o.trialNo).toUpperCase() === no.toUpperCase());
+  if (dup) return `${dup.name} has the same Trial #. Each class has its own number on the SSANZ events page.`;
+  return "";
+}
+
+/* Trial # = letters + month + year + the trial's number that month (DF10261 = October 2026, trial 1).
+   A warning here; the Results Sheets page asks the user to confirm before it goes on the results sheet. */
+function trialNoDateNote(no, orgId, iso) {
+  no = cleanCode(no);
+  const p = orgPrefix(orgId), m = /^(\d{4})-(\d{2})-\d{2}$/.exec(String(iso || ""));
+  if (!p || !m || no.slice(0, p.length).toUpperCase() !== p.toUpperCase() || !/^\d{5}$/.test(no.slice(p.length))) return "";
+  const mmyy = m[2] + m[1].slice(2);
+  if (no.slice(p.length, p.length + 4) === mmyy) return "";
+  const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][Number(m[2]) - 1];
+  return `Trial # ${no} doesn't match the date: Trial #s for ${month} ${m[1]} start ${p}${mmyy} (letters, month, year, then the trial's number). Check it on the SSANZ events page.`;
+}
+
 const LAYOUT = {
   font: "Arial",
   titleSizePt: 20,                     // table titles
@@ -2271,13 +2364,14 @@ return { TOOL, MASTER, SETTINGS_TAB, TRIAL_HEADERS, fingerprint, rowsFingerprint
 if (typeof module !== "undefined") {
   module.exports = { LAYOUT, DOCUMENTS, CLASS_NAMES, layoutFor, parseClass, defaultLevels, defaultOrder, titleParts, titleText, reactiveCode, extractTable, buildDocx, ordinal, planPages, elementLine, judgeText, elementChoices,
     TL, SCORE_SETTINGS, SCORE_SHEETS, scoreClass, elementOf, numberRepeats, scoreSets, cutAndStack, buildScorePdf, longDate, pdfCodes, textWidth, standardSearches,
-    CERT_SETTINGS, certDate, certCard, certJudgeNames, certComment, certSets, buildCertPdf };
+    CERT_SETTINGS, certDate, certCard, certJudgeNames, certComment, certSets, buildCertPdf,
+    ORGANISATIONS, ORG_ID_RE, orgPrefix, orgIdProblem, fixTrialNo, trialNoProblem, trialNoDateNote };
 } else {
 const $ = id => document.getElementById(id);
 let state = null;    // { baseName, tabs: [...], isExample }
 const look = { doc: DOCUMENTS[0].id, logo: null, logoUrl: null, eventName: "", eachOnNewPage: false, titleColour: LAYOUT.colours.title, headerColour: LAYOUT.colours.header,
   host: "", paper: "A4", paperColours: { ...SCORE_SETTINGS.paperColours },
-  certNameChoice: "pet", certJudges: true, certNudge: { x: 0, y: 0 }, certNames: {} };
+  certNameChoice: "pet", certJudges: true, certNudge: { x: 0, y: 0 }, certNames: {}, org: null };
 const MAX_COPIES = 10;
 const newCopy = doc => ({ mode: doc.judgeField ? "choose" : "none", text: "", judge: "", hides: "" });
 /* Copies are kept per document, or per copyGroup when documents share them (Judges + Timekeepers + Score sheets). */
@@ -2330,7 +2424,7 @@ function loadSheets(sheets, baseName, isExample, classOf = n => n) {
         && (!isCert(d) || (!!certCard(classes[i]) && names[i] === classes[i]));   // certificates: the trial's own tab, not users' copies
     });
     const p = parseClass(classes[i]);
-    return { name, cls: classes[i], level: levels[i], date: "", session: "", spares: "", include, tables, type: p ? p.typeCode : "", copies: {}, defaultPos: 0 };
+    return { name, cls: classes[i], level: levels[i], date: "", session: "", venue: "", trialNo: "", spares: "", include, tables, type: p ? p.typeCode : "", copies: {}, defaultPos: 0 };
   });
   defaultOrder(classes).forEach((idx, pos) => { tabs[idx].defaultPos = pos; });
   tabs.sort((a, b) => a.defaultPos - b.defaultPos);
@@ -2380,8 +2474,8 @@ function renderDocSwitch() {
     : doc.singleElement
     ? "Tick the classes to print. Set the number of searches, then choose the element for each one (Other lets you type it) and the judge. Searches, elements and judges are shared with the other judging documents."
     : doc.copies
-    ? "Tick the classes to print. Each one starts on its own page, in the order shown. Use ▲ ▼ to move a class. Level, date and session are shared with the other documents."
-    : "Tick the tabs to include. Each ticked tab becomes one table, in the order shown. Use ▲ ▼ to move a table. Level, date and session are shared with the other documents.";
+    ? "Tick the classes to print. Each one starts on its own page, in the order shown. Use ▲ ▼ to move a class. Level, date, session, venue and Trial # are shared with the other documents."
+    : "Tick the tabs to include. Each ticked tab becomes one table, in the order shown. Use ▲ ▼ to move a table. Level, date, session, venue and Trial # are shared with the other documents.";
 }
 
 /* ---------- Cards ---------- */
@@ -2400,13 +2494,24 @@ function renderCards() {
     const refresh = () => { titleOut.lastChild.textContent = titleText(titleParts(tab.level, tab.date, tab.session)); dayOut.textContent = fullDay(tab.date); renderPreview(); };
 
     const level = el("input", { type: "text", value: tab.level, id: id + "l", autocomplete: "off", oninput: e => { tab.level = e.target.value; refresh(); } });
-    const date = el("input", { type: "date", value: tab.date, id: id + "d", oninput: e => { tab.date = e.target.value; refresh(); } });
+    const date = el("input", { type: "date", value: tab.date, id: id + "d", oninput: e => { tab.date = e.target.value; venueFromDay(tab); refresh(); if (typeof trialWarn !== "undefined") trialWarn.textContent = trialText(); } });
     const session = el("select", { id: id + "s", onchange: e => { tab.session = e.target.value; refresh(); } },
       el("option", { value: "", text: "—" }), LAYOUT.sessions.map(s => el("option", { value: s, text: s })));
     session.value = tab.session;
     const prev = state.tabs.slice(0, i).reverse().find(x => x.include[doc.id]);
-    const same = el("button", { class: "small", type: "button", disabled: !prev, title: "Use the date and session of the table above",
-      onclick: () => { if (!prev) return; tab.date = prev.date; tab.session = prev.session; renderCards(); renderPreview(); } }, "Same as above");
+    const same = el("button", { class: "small", type: "button", disabled: !prev, title: "Use the date, session and venue of the table above",
+      onclick: () => { if (!prev) return; tab.date = prev.date; tab.session = prev.session; tab.venue = prev.venue; renderCards(); renderPreview(); } }, "Same as above");
+    let venueBefore = tab.venue || "";
+    const venue = el("input", { type: "text", value: tab.venue || "", id: id + "v", maxlength: 80, autocomplete: "off",
+      onfocus: () => { venueBefore = tab.venue || ""; },
+      oninput: e => { tab.venue = e.target.value; markDirty(); },
+      onchange: e => { shareVenue(tab, venueBefore); venueBefore = tab.venue; } });
+    const others = () => state.tabs.filter(x => x.cls !== tab.cls && cleanCode(x.trialNo)).map(x => ({ name: x.name, trialNo: x.trialNo }));
+    const trialText = () => trialNoProblem(tab.trialNo, orgIdNow(), others()) || trialNoDateNote(tab.trialNo, orgIdNow(), tab.date);
+    const trialWarn = el("p", { class: "card-note", text: trialText() });
+    const trialNo = el("input", { type: "text", value: tab.trialNo || "", id: id + "t", maxlength: 16, autocomplete: "off", placeholder: "e.g. DF10261",
+      oninput: e => { tab.trialNo = e.target.value; trialWarn.textContent = ""; markDirty(); },
+      onchange: e => { tab.trialNo = fixTrialNo(e.target.value, orgIdNow()); e.target.value = tab.trialNo; trialWarn.textContent = trialText(); markDirty(); } });
 
     const notes = [];
     if (!t.usable) notes.push("This tab doesn't have the columns needed (Handler, Dog Pet Name…).");
@@ -2430,12 +2535,30 @@ function renderCards() {
         el("label", { class: "field", for: id + "d" }, el("span", {}, "Date ", dayOut), date),
         el("label", { class: "field", for: id + "s" }, el("span", { text: "Session" }), session),
         same,
+        el("label", { class: "field venue", for: id + "v" }, el("span", { text: "Venue" }), venue),
+        el("label", { class: "field", for: id + "t" }, el("span", { text: "Trial #" }), trialNo),
+        trialWarn,
         titleOut),
       doc.copies && on && !disabled ? copiesBlock(tab, id, doc) : null,
       isCert(doc) && on && !disabled && look.certJudges ? el("p", { class: "title-out" }, "Judges: ", el("b", { text: certJudgeNames(tab.copies.judging).join(", ") || "none typed yet" })) : null,
       notes.length ? el("p", { class: "card-note", text: notes.join(" ") }) : null);
     ol.append(li);
   });
+}
+
+/* Venue: classes on the same day usually share one, so it's filled in for them; any can be typed over. */
+function setVenueBox(t) { const box = $("c" + state.tabs.indexOf(t) + "v"); if (box && document.activeElement !== box) box.value = t.venue || ""; }
+function shareVenue(tab, before) {
+  if (!tab.date || !tab.venue) return;
+  state.tabs.forEach(t => {
+    if (t === tab || t.date !== tab.date) return;
+    if (!t.venue || t.venue === before) { t.venue = tab.venue; setVenueBox(t); }
+  });
+}
+function venueFromDay(tab) {
+  if (tab.venue || !tab.date) return;
+  const other = state.tabs.find(t => t !== tab && t.date === tab.date && t.venue);
+  if (other) { tab.venue = other.venue; setVenueBox(tab); }
 }
 
 /* Copies and element lines (callboards, judges, timekeepers, score sheets). */
@@ -2916,6 +3039,55 @@ $("redNote").textContent = LAYOUT.reactive.footerNote
   ? `Reactive dogs and the footer note “${LAYOUT.reactive.footerNote}” are always printed in red. Logo, event name and colours are shared by all the documents.`
   : "Reactive dogs are always printed in red. Logo, event name and colours are shared by all the documents.";
 
+/* ---------- Organisation (saved for the results sheets) ---------- */
+const ORG_OWN = "__own";
+function orgIdNow() { return look.org ? look.org.id : ""; }
+function setHostFromOrg(oldName) {
+  // The host club follows the organisation unless the user has typed something different.
+  const name = look.org ? look.org.name : "";
+  if (!look.host || look.host === oldName || look.host === EXAMPLE_HOST) { look.host = name; $("host").value = name; $("certHost").value = name; }
+}
+function syncOrg() {
+  const sel = $("org");
+  if (!sel.options.length) {
+    sel.append(new Option("Choose your organisation…", ""));
+    [...ORGANISATIONS].sort((a, b) => a[0].localeCompare(b[0], "en", { sensitivity: "base" }))
+      .forEach(([name, id]) => sel.append(new Option(`${name} · ${id}`, id)));
+    sel.append(new Option("Not in the list (type it)…", ORG_OWN));
+  }
+  const o = look.org;
+  sel.value = !o ? "" : o.own ? ORG_OWN : o.id;
+  $("orgOwn").hidden = !(o && o.own);
+  if (o && o.own) { $("orgName").value = o.name; $("orgId").value = o.id; }
+  const out = $("orgOut");
+  out.textContent = ""; out.className = "note";
+  if (!o) {
+    out.append("Not printed on the documents; saved for the results sheets. The list comes from the ", el("a", { href: ORG_PAGE, target: "_blank", rel: "noopener", text: "SSANZ organisations page" }), ".");
+  } else if (o.own) {
+    const bad = orgIdProblem(o.id) || (o.name.trim() ? "" : "Type the organisation's name.");
+    out.className = bad ? "note bad" : "note";
+    out.append(bad || "Check the name and Org Ref ID against the ", bad ? "" : el("a", { href: ORG_PAGE, target: "_blank", rel: "noopener", text: "SSANZ organisations page" }), bad ? "" : ".");
+  } else {
+    out.append(`Org Ref ID ${o.id}. Each class's Trial # starts with ${orgPrefix(o.id)}.`);
+  }
+}
+$("org").addEventListener("change", e => {
+  const old = look.org ? look.org.name : "", v = e.target.value;
+  if (!v) look.org = null;
+  else if (v === ORG_OWN) look.org = { name: look.org && look.org.own ? look.org.name : "", id: look.org && look.org.own ? look.org.id : "", own: true };
+  else { const [name, id] = ORGANISATIONS.find(([, x]) => x === v); look.org = { name, id, own: false }; }
+  setHostFromOrg(old);
+  // Tidy the Trial #s to the organisation's letters.
+  if (state) state.tabs.forEach(t => { t.trialNo = fixTrialNo(t.trialNo, orgIdNow()); });
+  syncOrg(); markDirty(); if (state) { renderCards(); renderPreview(); }
+  if (look.org && look.org.own) $("orgName").focus();
+});
+$("orgName").addEventListener("input", e => { if (!look.org) return; const old = look.org.name; look.org.name = e.target.value; setHostFromOrg(old); markDirty(); });
+$("orgName").addEventListener("change", () => syncOrg());
+$("orgId").addEventListener("input", () => { if (look.org) { look.org.id = cleanCode($("orgId").value); markDirty(); } });
+$("orgId").addEventListener("change", () => { if (!look.org) return; $("orgId").value = look.org.id; syncOrg(); if (state) renderCards(); });
+syncOrg();
+
 /* Score sheet options */
 $("host").addEventListener("input", e => { look.host = e.target.value; $("certHost").value = look.host; renderPreview(); });
 document.querySelectorAll("input[name=paper]").forEach(r => r.addEventListener("change", e => { if (e.target.checked) { look.paper = e.target.value; renderPreview(); } }));
@@ -2925,7 +3097,7 @@ $("fillDown").addEventListener("click", () => {
   if (!state) return;
   const first = state.tabs.find(t => t.include[look.doc] && t.date);
   if (!first) { showStatus("Pick a date for the first table, then use this to copy it to the rest.", true); return; }
-  state.tabs.forEach(t => { if (t.include[look.doc] && !t.date) t.date = first.date; });
+  state.tabs.forEach(t => { if (t.include[look.doc] && !t.date) { t.date = first.date; if (!t.venue) t.venue = first.venue || ""; } });
   showStatus(""); renderCards(); renderPreview();
 });
 
@@ -2936,7 +3108,7 @@ function showStatus(msg, isError) {
 }
 
 /* ---------- The working file: open, resume, save progress ---------- */
-const DOCS_TOOL = { name: "Trial Documents", version: "2.0" };
+const DOCS_TOOL = { name: "Trial Documents", version: "2.1" };
 const DAMAGE_NOTE = "This file may have been changed by a program other than Excel. Some trial information could be missing or altered. Apple Numbers or Google Sheets are the most common causes.";
 const DOC_WORDS = { catalogue: "running order", callboard: "callboard", timekeeper: "timekeepers' sheets", judge: "judges' sheets", scoresheet: "judging sheets", certificate: "certificates" };
 let dirty = false, quiet = false;
@@ -3090,13 +3262,14 @@ function syncLookInputs() {
   $("certX").value = look.certNudge.x || 0; $("certY").value = look.certNudge.y || 0;
   certNamesKey = "";
   document.querySelectorAll("input[name=paper]").forEach(r => r.checked = r.value === look.paper);
+  syncOrg();
   if (look.logoUrl) { $("logoThumb").src = look.logoUrl; $("logoThumb").hidden = false; $("logoClear").hidden = false; $("logoPick").textContent = "Change logo…"; }
   else { $("logoThumb").hidden = true; $("logoClear").hidden = true; $("logoPick").textContent = "Choose logo…"; }
 }
 function bytesToB64(bytes) { let s = ""; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); }
 function b64ToBytes(b64) { const bin = atob(b64), b = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i); return b; }
 function assignTab(t, s) {
-  ["level", "date", "session", "spares"].forEach(k => { if (s[k] != null) t[k] = s[k]; });
+  ["level", "date", "session", "venue", "trialNo", "spares"].forEach(k => { if (s[k] != null) t[k] = s[k]; });
   if (s.include) Object.keys(t.include).forEach(k => {
     if (k in s.include) t.include[k] = !!s.include[k] && t.tables[k].usable && t.tables[k].rows.length > 0 && (!isPdf(docOf(k)) || !!scoreClass(t.cls));
   });
@@ -3112,6 +3285,8 @@ function applySaved(d) {
   look.certJudges = L.certJudges !== false;
   look.certNudge = { x: Number((L.certNudge || {}).x) || 0, y: Number((L.certNudge || {}).y) || 0 };
   look.certNames = JSON.parse(JSON.stringify(L.certNames || {}));
+  look.org = L.org && (L.org.id || L.org.name) ? { name: String(L.org.name || ""), id: String(L.org.id || ""), own: !!L.org.own } : null;
+  if (look.org && !look.org.own && !ORGANISATIONS.some(([, id]) => id === look.org.id)) look.org.own = true;   // no longer on the list: keep it as typed
   if (L.doc && DOCUMENTS.some(x => x.id === L.doc)) look.doc = L.doc;
   if (look.logoUrl) URL.revokeObjectURL(look.logoUrl);
   look.logo = null; look.logoUrl = null;
@@ -3138,9 +3313,10 @@ function collectSettings() {
     look: { doc: look.doc, eventName: look.eventName, titleColour: look.titleColour, headerColour: look.headerColour, eachOnNewPage: look.eachOnNewPage,
       host: look.host, paper: look.paper, paperColours: look.paperColours,
       certNameChoice: look.certNameChoice, certJudges: look.certJudges, certNudge: look.certNudge, certNames: look.certNames,
+      org: look.org,
       logo: look.logo ? { b64: bytesToB64(look.logo.bytes), type: look.logo.type, width: look.logo.width, height: look.logo.height } : null },
     order: state.tabs.map(t => t.name),
-    tabs: Object.fromEntries(state.tabs.map(t => [t.name, { level: t.level, date: t.date, session: t.session, spares: t.spares, include: t.include, copies: t.copies }])),
+    tabs: Object.fromEntries(state.tabs.map(t => [t.name, { level: t.level, date: t.date, session: t.session, venue: t.venue, trialNo: t.trialNo, spares: t.spares, include: t.include, copies: t.copies }])),
     made: state.made || {},
   };
 }
@@ -3196,7 +3372,7 @@ $("restartSettings").addEventListener("click", () => {
   quiet = true;
   ["eventName", "host"].forEach(k => look[k] = "");
   Object.assign(look, { titleColour: LAYOUT.colours.title, headerColour: LAYOUT.colours.header, eachOnNewPage: false, paper: "A4", paperColours: { ...SCORE_SETTINGS.paperColours },
-    certNameChoice: "pet", certJudges: true, certNudge: { x: 0, y: 0 }, certNames: {} });
+    certNameChoice: "pet", certJudges: true, certNudge: { x: 0, y: 0 }, certNames: {}, org: null });
   colourKey = "";
   if (look.logoUrl) URL.revokeObjectURL(look.logoUrl);
   look.logo = null; look.logoUrl = null;
@@ -3353,6 +3529,7 @@ look.host = EXAMPLE_HOST; $("host").value = EXAMPLE_HOST; $("certHost").value = 
 state.tabs.forEach(t => {
   if (!scoreClass(t.cls)) return;
   t.date = t.name === "NWAdv2" ? "2026-05-10" : "2026-05-09";
+  t.venue = t.name === "NWAdv2" ? "Example Park, Upper Hutt" : "Example Hall, Lower Hutt";
   t.spares = "2";
   const judges = ["Pat Judge", "Lee Judge", "Pat Judge", "Lee Judge", "Pat Judge"], hides = ["3", "2", "3", "1", "3"];
   t.copies.judging = standardSearches(t.cls, []).map((c, k) => ({ ...c, judge: judges[k], hides: t.name === "NWExc1" ? hides[k] : "" }));
