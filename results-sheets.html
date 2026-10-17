@@ -152,6 +152,7 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .nextstep p b { color: var(--ink); }
 .nextstep a { font-weight: 700; color: var(--accent-ink); background: var(--accent); border-radius: 10px; padding: 10px 16px; text-decoration: none; white-space: nowrap; }
 .nextstep a:focus-visible, .crumbs a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
 .report details { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
 .report summary { cursor: pointer; padding: 14px 18px; font-family: var(--font-display); font-size: 17px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; gap: 12px; align-items: center; }
 .report summary::-webkit-details-marker { display: none; }
@@ -281,6 +282,7 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
       <li><b>Privacy:</b> everything happens in your browser. Nothing is uploaded or stored.</li>
     </ul>
   </section>
+
   <section class="report" aria-label="Report a problem">
     <details id="report">
       <summary>Found a problem? Report it</summary>
@@ -294,79 +296,6 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
           <label class="wide">What did you expect to happen? (optional)<textarea id="rExpect" maxlength="600"></textarea></label>
           <label>Your computer<select id="rDevice"><option value="">Choose…</option><option>Windows</option><option>Mac</option><option>iPad or tablet</option><option>Phone</option><option>Other</option></select></label>
           <label>Spreadsheet program you used<select id="rSheet"><option value="">Choose…</option><option>Excel (installed)</option><option>Excel for the web</option><option>Google Sheets</option><option>Numbers</option><option>Other</option><option>None yet</option></select></label>
-/* ---------- SSANZ organisations ----------
-   Name and Org Ref ID exactly as on https://www.scentsports.nz/organisations.php ("Org. Name / Ref.ID").
-   When an organisation joins or changes, edit this list: one ["Name", "RefID"] per line, in any order (the page sorts it).
-   List checked 17 Oct 2026 (22 organisations). */
-const ORGANISATIONS = [
-  ["A.C.E Dog Training Ltd", "ACE1901"],
-  ["CANINE.NZ Dog Training", "CDT2206"],
-  ["Confident Canines", "CC2503"],
-  ["Dogs First", "DF2302"],
-  ["Hastings Scentwork", "HBD2001"],
-  ["Hide And Scent", "HAS2301"],
-  ["Horowhenua Dog Training Club", "HWH2004"],
-  ["Hybrid Dog Training", "HDT1906"],
-  ["K9 Kitea Scent", "KKW1907"],
-  ["K9 Scent Seekers", "K9SS2204"],
-  ["K9 Scentwork NZ", "K9SW2502"],
-  ["K9Scentcraft", "K9SC2503"],
-  ["Kenson K9 Solutions", "KKS1902"],
-  ["More Than Dog Training", "ACA1905"],
-  ["My Dog And Me", "MDAM2604"],
-  ["Noseworx", "NWH1903"],
-  ["Scent Ways NZ", "SWNZ2603"],
-  ["Scentral Dog Training", "ScDT2602"],
-  ["Sniffing With K9's", "SWK92601"],
-  ["Tararua Allbreeds DTC", "TAD2301"],
-  ["Taupo Scent Work", "TSW2604"],
-  ["Tauranga Nosework Team", "TNT2401"],
-];
-const ORG_PAGE = "https://www.scentsports.nz/organisations.php", EVENTS_PAGE = "https://www.scentsports.nz/eventspage.php";
-/* Org Ref ID = the organisation's letters (may include digits, e.g. K9SS) then 4 digits.
-   Trial # = the same letters then 5 digits (Dogs First DF2302 → DF10261). */
-const ORG_ID_RE = /^[A-Za-z][A-Za-z0-9]*\d{4}$/;
-const cleanCode = v => String(v ?? "").replace(/\s+/g, "");
-const orgPrefix = id => ORG_ID_RE.test(cleanCode(id)) ? cleanCode(id).slice(0, -4) : "";
-function orgIdProblem(id) {
-  id = cleanCode(id);
-  if (!id) return "Type the Org Ref ID, e.g. DF2302.";
-  return ORG_ID_RE.test(id) ? "" : `Org Ref ID “${id}” should be your organisation's letters then 4 digits, e.g. DF2302.`;
-}
-/* Tidy a typed Trial #: no spaces, and the organisation's letters written as in its Org Ref ID. */
-function fixTrialNo(no, orgId) {
-  no = cleanCode(no);
-  const p = orgPrefix(orgId);
-  if (p && no.slice(0, p.length).toUpperCase() === p.toUpperCase()) no = p + no.slice(p.length);
-  return no;
-}
-/* Problem with one class's Trial #, or "" if it looks right. others = [{name, trialNo}] of the other classes. */
-function trialNoProblem(no, orgId, others = []) {
-  no = cleanCode(no);
-  if (!no) return "";
-  const p = orgPrefix(orgId);
-  if (p) {
-    if (no.slice(0, p.length).toUpperCase() !== p.toUpperCase())
-      return `Trial # ${no} doesn't start with ${p}, your organisation's letters. Check it on the SSANZ events page.`;
-    if (!/^\d{5}$/.test(no.slice(p.length))) return `Trial # ${no} should be ${p} then 5 digits, e.g. ${p}10261.`;
-  } else if (!/^[A-Za-z][A-Za-z0-9]*\d{5}$/.test(no)) return `Trial # ${no} should be your organisation's letters then 5 digits, e.g. DF10261.`;
-  const dup = others.find(o => cleanCode(o.trialNo).toUpperCase() === no.toUpperCase());
-  if (dup) return `${dup.name} has the same Trial #. Each class has its own number on the SSANZ events page.`;
-  return "";
-}
-
-/* Trial # = letters + month + year + the trial's number that month (DF10261 = October 2026, trial 1).
-   A warning here; the Results Sheets page asks the user to confirm before it goes on the results sheet. */
-function trialNoDateNote(no, orgId, iso) {
-  no = cleanCode(no);
-  const p = orgPrefix(orgId), m = /^(\d{4})-(\d{2})-\d{2}$/.exec(String(iso || ""));
-  if (!p || !m || no.slice(0, p.length).toUpperCase() !== p.toUpperCase() || !/^\d{5}$/.test(no.slice(p.length))) return "";
-  const mmyy = m[2] + m[1].slice(2);
-  if (no.slice(p.length, p.length + 4) === mmyy) return "";
-  const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][Number(m[2]) - 1];
-  return `Trial # ${no} doesn't match the date: Trial #s for ${month} ${m[1]} start ${p}${mmyy} (letters, month, year, then the trial's number). Check it on the SSANZ events page.`;
-}
-
           <label class="wide">Web browser (filled in for you)<input type="text" id="rBrowser" maxlength="80"></label>
         </div>
         <div class="ractions">

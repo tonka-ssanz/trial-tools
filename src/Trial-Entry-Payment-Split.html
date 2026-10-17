@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trial Entry Payment Split</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #f5f6f2;
+  --surface: #ffffff;
+  --ink: #1d2420;
+  --muted: #5d6a62;
+  --line: #d9ded7;
+  --accent: #2f6b4f;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3efe8;
+  --warn: #8a5a12;
+  --warn-soft: #f6ecd9;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141916; --surface: #1c2320; --ink: #e6ebe7; --muted: #9aa8a0; --line: #2f3933;
+    --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; --warn: #e0b060; --warn-soft: #2e2618;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141916; --surface: #1c2320; --ink: #e6ebe7; --muted: #9aa8a0; --line: #2f3933;
+  --accent: #6fbf95; --accent-ink: #0f1a14; --accent-soft: #213229; --warn: #e0b060; --warn-soft: #2e2618;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 760px; margin: 0 auto; padding-inline: 16px; padding-block: 40px 64px; display: grid; gap: 28px; }
+header { display: grid; gap: 8px; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0; }
+h1 { font-family: var(--font-display); font-size: clamp(30px, 6vw, 42px); line-height: 1.1; margin: 0; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); max-width: 62ch; }
+.lede code, .help code { font-family: var(--font-mono); font-size: .9em; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
+
+.drop { border: 2px dashed var(--line); border-radius: 14px; background: var(--surface); padding: 32px 20px; text-align: center; cursor: pointer; display: grid; gap: 6px; justify-items: center; transition: border-color .15s, background .15s; }
+.drop:hover, .drop.over { border-color: var(--accent); background: var(--accent-soft); }
+.drop:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.drop strong { font-family: var(--font-display); font-size: 20px; }
+.drop span { color: var(--muted); font-size: 14px; }
+
+.status { margin: 0; padding: 12px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 15px; }
+.status.error { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
+
+.picker { display: grid; gap: 10px; padding: 18px; border: 1px solid var(--accent); border-radius: 14px; background: var(--surface); }
+.picker h2 { font-family: var(--font-display); font-size: 20px; margin: 0; }
+.picker-list { display: grid; gap: 8px; }
+.pick { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; width: 100%; text-align: left; background: transparent; color: var(--ink); border: 1px solid var(--line); font-weight: 400; }
+.pick:hover { border-color: var(--accent); background: var(--accent-soft); }
+.pick b { font-weight: 700; overflow-wrap: anywhere; min-width: 0; }
+.pick span { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+.result { display: grid; gap: 18px; }
+.result-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.result-head h2 { font-family: var(--font-display); font-size: 22px; margin: 0; }
+.tag { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+.file { color: var(--muted); font-size: 14px; margin: 0; overflow-wrap: anywhere; }
+
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.stat { background: var(--surface); padding: 14px 16px; display: grid; gap: 2px; }
+.stat b { font-family: var(--font-display); font-size: 28px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat span { font-size: 13px; color: var(--muted); }
+.stat.key b { color: var(--accent); }
+.stat.owe b { color: var(--warn); }
+@media (max-width: 560px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.owing { margin: 0; font-size: 15px; }
+.owing b { font-variant-numeric: tabular-nums; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+button { font: inherit; font-weight: 700; border-radius: 10px; padding: 11px 18px; cursor: pointer; border: 1px solid var(--accent); }
+button.primary { background: var(--accent); color: var(--accent-ink); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.note { font-size: 14px; color: var(--muted); margin: 0; }
+
+.sub { font-family: var(--font-display); font-size: 17px; margin: 0; }
+.table-box { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); max-height: 420px; overflow-y: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 8px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { position: sticky; top: 0; background: var(--surface); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+td.n { color: var(--muted); font-variant-numeric: tabular-nums; width: 1%; }
+td.m, th.m { text-align: right; font-variant-numeric: tabular-nums; }
+.pill { font-size: 12px; font-weight: 700; border-radius: 999px; padding: 1px 9px; }
+.pill.part { background: var(--accent-soft); color: var(--accent); }
+.pill.none { background: var(--warn-soft); color: var(--warn); }
+tr:last-child td { border-bottom: 0; }
+.empty { padding: 14px; color: var(--muted); margin: 0; }
+
+.help { border-top: 1px solid var(--line); padding-top: 20px; display: grid; gap: 10px; font-size: 15px; }
+.help h3 { font-family: var(--font-display); font-size: 17px; margin: 0; }
+.help ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--muted); max-width: 66ch; }
+.help li b { color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">SSANZ trial tools</p>
+    <h1>Trial Entry Payment Split</h1>
+    <p class="lede">Drop in a trial entries download. You get the same spreadsheet back with three new tabs, <code>Paid</code>, <code>Part Paid</code> and <code>Not Paid</code>, each holding the full entry rows for that group.</p>
+  </header>
+
+  <label class="drop" id="drop" for="file" tabindex="0">
+    <strong>Drop your entries file here</strong>
+    <span>or click to choose · Excel (.xlsx) or CSV</span>
+    <input type="file" id="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+  </label>
+
+  <p class="status" id="status" hidden></p>
+
+  <section class="picker" id="picker" hidden aria-live="polite">
+    <h2>Which tab should I use?</h2>
+    <p class="note" id="pickerNote">More than one tab has an “Amount Due” column.</p>
+    <div class="picker-list" id="pickerList"></div>
+  </section>
+
+  <section class="result" id="result" aria-live="polite">
+    <div class="result-head">
+      <h2 id="resultTitle">Example result</h2>
+      <span class="tag" id="resultTag">Example data</span>
+    </div>
+    <p class="file" id="fileName"></p>
+
+    <div class="stats">
+      <div class="stat"><b id="sRows">0</b><span>entries read</span></div>
+      <div class="stat key"><b id="sPaid">0</b><span>paid</span></div>
+      <div class="stat"><b id="sPart">0</b><span>part paid</span></div>
+      <div class="stat owe"><b id="sNone">0</b><span>not paid</span></div>
+    </div>
+    <p class="owing" id="owing"></p>
+
+    <div class="actions">
+      <button class="primary" id="download" type="button" disabled>Download spreadsheet with payment tabs</button>
+    </div>
+    <p class="note" id="actionNote">Drop a file to enable the download.</p>
+
+    <h3 class="sub">Still owing</h3>
+    <div class="table-box">
+      <table>
+        <thead><tr><th>#</th><th>Name</th><th>Dog</th><th class="m">Paid</th><th class="m">Due</th><th>Status</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p class="empty" id="noneOwing" hidden>Everyone has paid in full.</p>
+    </div>
+  </section>
+
+  <section class="help">
+    <h3>Good to know</h3>
+    <ul>
+      <li><b>How “paid” is decided:</b> an entry with nothing in <code>Amount Due</code> (zero or less) is Paid. If it still owes money and something has been paid, it's Part Paid. If nothing has been paid, it's Not Paid.</li>
+      <li><b>Blank Amount Due?</b> The tool works it out as Total Cost minus Paid. If it can't, the entry goes in Not Paid so it gets checked, and you'll see a note above.</li>
+      <li><b>Run this before the Email List tool</b> if you want to email just the people who owe. Drop the downloaded file into the Email List tool and pick the <code>Not Paid</code> or <code>Part Paid</code> tab when it asks.</li>
+      <li><b>Using Google Sheets?</b> In your sheet choose File → Download → Microsoft Excel (.xlsx), drop that file here, then open the result in Google Sheets with File → Import.</li>
+      <li><b>Several tabs?</b> The tool finds the tab with the “Amount Due” column. If more than one tab has it, you'll be asked which to use. All your tabs come back in the download.</li>
+      <li><b>Running it again</b> on a file that already has these tabs replaces them rather than adding more.</li>
+      <li>The file never leaves your computer. All the work happens in this page.</li>
+    </ul>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+const DUE_HEADER = "amount due";
+const PAID_HEADER = "paid";
+const TOTAL_HEADER = "total cost";
+const TABS = { paid: "Paid", part: "Part Paid", none: "Not Paid" };
+const SKIP_TABS = new Set([TABS.paid, TABS.part, TABS.none, "Emails"].map(s => s.toLowerCase()));
+
+/* Money text → number. null = blank, NaN = not a number. */
+function money(v) {
+  let s = String(v ?? "").trim();
+  if (s === "") return null;
+  let neg = false;
+  if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1); }
+  s = s.replace(/^nz/i, "").replace(/[$,\s]/g, "");
+  if (s === "" || s === "-") return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? (neg ? -n : n) : NaN;
+}
+
+/* Has anything been paid? Handles amounts and text like "yes" / "no". */
+function paidSomething(v) {
+  const n = money(v);
+  if (n === null) return false;
+  if (!Number.isNaN(n)) return n > 0;
+  return !["no", "n", "false", "unpaid", "nil", "none"].includes(String(v).trim().toLowerCase());
+}
+
+/* Pure logic: rows are arrays of strings; header row first. Returns row indices per group. */
+function splitPayments(rows) {
+  const header = (rows[0] || []).map(h => String(h ?? "").trim().toLowerCase());
+  const di = header.indexOf(DUE_HEADER);
+  const pi = header.indexOf(PAID_HEADER);
+  const ti = header.indexOf(TOTAL_HEADER);
+  const col = name => header.indexOf(name);
+  const nameI = col("entry full name"), dogI = col("dog pet name") !== -1 ? col("dog pet name") : col("dog full name");
+  if (di === -1) throw new Error("Couldn't find an 'Amount Due' column in the first row. Check this is a trial entries download.");
+  const out = { paid: [], part: [], none: [], unclear: 0, entries: 0, owing: 0, owingList: [] };
+  rows.forEach((r, i) => {
+    if (i === 0 || !r || r.every(v => String(v ?? "").trim() === "")) return;
+    out.entries++;
+    const paidRaw = pi === -1 ? "" : r[pi];
+    let due = money(r[di]);
+    let unclear = false;
+    if (due === null || Number.isNaN(due)) {
+      const total = ti === -1 ? NaN : money(r[ti]);
+      let paidN = money(paidRaw);
+      if (paidN === null) paidN = 0;
+      if (total !== null && !Number.isNaN(total) && !Number.isNaN(paidN)) due = total - paidN;
+      else if (due === null && total === null) due = 0; // no cost recorded at all
+      else unclear = true;
+    }
+    let group;
+    if (unclear) { group = "none"; out.unclear++; }
+    else if (due <= 0.005) group = "paid";
+    else group = paidSomething(paidRaw) ? "part" : "none";
+    out[group].push(i);
+    if (group !== "paid") {
+      if (!unclear) out.owing += due;
+      out.owingList.push({
+        name: nameI === -1 ? "" : String(r[nameI] ?? "").trim(),
+        dog: dogI === -1 ? "" : String(r[dogI] ?? "").trim(),
+        paid: String(paidRaw ?? "").trim(),
+        due: unclear ? null : due,
+        group,
+      });
+    }
+  });
+  return out;
+}
+
+if (typeof module !== "undefined") { module.exports = { splitPayments, money, paidSomething }; }
+else {
+const $ = id => document.getElementById(id);
+let current = null; // { wb, baseName }
+
+function cellText(cell) {
+  const v = cell.value;
+  if (v == null) return "";
+  if (typeof v === "object") {
+    if (v.text != null) return typeof v.text === "string" ? v.text : (v.text.richText || []).map(t => t.text).join("");
+    if (v.richText) return v.richText.map(t => t.text).join("");
+    if ("result" in v || "formula" in v || "sharedFormula" in v) return v.result == null ? "" : String(v.result);
+    if (v instanceof Date) return v.toISOString();
+  }
+  return String(v);
+}
+
+function sheetRows(ws) {
+  const rows = [];
+  ws.eachRow({ includeEmpty: true }, (row, n) => {
+    const arr = [];
+    row.eachCell({ includeEmpty: true }, (cell, c) => { arr[c - 1] = cellText(cell); });
+    rows[n - 1] = arr;
+  });
+  for (let i = 0; i < rows.length; i++) if (!rows[i]) rows[i] = [];
+  return rows;
+}
+
+/* Formulas would point at the wrong rows once copied, so copy their results instead. */
+function plainValue(v) {
+  if (v && typeof v === "object" && !(v instanceof Date) && ("formula" in v || "sharedFormula" in v)) return v.result ?? null;
+  return v;
+}
+
+function copyRow(src, dst) {
+  src.eachCell({ includeEmpty: true }, (cell, c) => {
+    const d = dst.getCell(c);
+    d.value = plainValue(cell.value);
+    if (cell.style && Object.keys(cell.style).length) d.style = JSON.parse(JSON.stringify(cell.style));
+  });
+  if (src.height) dst.height = src.height;
+}
+
+function writeTabs(wb, src, split) {
+  for (const name of Object.values(TABS)) {
+    const old = wb.worksheets.find(w => w.name.toLowerCase() === name.toLowerCase());
+    if (old) wb.removeWorksheet(old.id);
+  }
+  const colCount = src.columnCount;
+  for (const key of ["paid", "part", "none"]) {
+    const ws = wb.addWorksheet(TABS[key]);
+    for (let c = 1; c <= colCount; c++) {
+      const w = src.getColumn(c).width;
+      if (w) ws.getColumn(c).width = w;
+    }
+    copyRow(src.getRow(1), ws.getRow(1));
+    split[key].forEach((idx, k) => copyRow(src.getRow(idx + 1), ws.getRow(k + 2)));
+    ws.views = [{ state: "frozen", ySplit: 1 }];
+  }
+}
+
+function fmt(n) { return "$" + n.toLocaleString("en-NZ", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+function render(split, label, isExample) {
+  $("resultTitle").textContent = isExample ? "Example result" : "Ready";
+  $("resultTag").textContent = isExample ? "Example data" : "Your file";
+  $("fileName").textContent = label;
+  $("sRows").textContent = split.entries;
+  $("sPaid").textContent = split.paid.length;
+  $("sPart").textContent = split.part.length;
+  $("sNone").textContent = split.none.length;
+  const owingCount = split.part.length + split.none.length;
+  $("owing").innerHTML = "";
+  if (owingCount) {
+    const b = document.createElement("b"); b.textContent = fmt(split.owing);
+    $("owing").append(b, ` still owing across ${owingCount} entr${owingCount === 1 ? "y" : "ies"}.`);
+    if (split.unclear) $("owing").append(` ${split.unclear} more couldn't be worked out and are in Not Paid to check.`);
+  }
+  const tb = $("rows");
+  tb.textContent = "";
+  split.owingList.forEach((p, i) => {
+    const tr = document.createElement("tr");
+    const cells = [[String(i + 1), "n"], [p.name, ""], [p.dog, ""], [p.paid || "–", "m"], [p.due == null ? "?" : fmt(p.due), "m"]];
+    cells.forEach(([t, c]) => { const td = document.createElement("td"); td.textContent = t; if (c) td.className = c; tr.appendChild(td); });
+    const td = document.createElement("td");
+    const pill = document.createElement("span");
+    pill.className = "pill " + (p.group === "part" ? "part" : "none");
+    pill.textContent = p.group === "part" ? "Part paid" : "Not paid";
+    td.appendChild(pill); tr.appendChild(td);
+    tb.appendChild(tr);
+  });
+  $("noneOwing").hidden = owingCount > 0;
+}
+
+function showStatus(msg, isError) {
+  const s = $("status");
+  s.textContent = msg; s.className = "status" + (isError ? " error" : ""); s.hidden = !msg;
+}
+
+function chooseTab(matches) {
+  return new Promise(resolve => {
+    const list = $("pickerList");
+    list.textContent = "";
+    matches.forEach(m => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "pick";
+      const name = document.createElement("b"); name.textContent = m.ws.name;
+      const info = document.createElement("span");
+      const n = splitPayments(m.rows).entries;
+      info.textContent = n + (n === 1 ? " entry" : " entries");
+      b.append(name, info);
+      b.addEventListener("click", () => { $("picker").hidden = true; resolve(m); });
+      list.appendChild(b);
+    });
+    $("pickerNote").textContent = `${matches.length} tabs have an “Amount Due” column. Pick the one to split. Your other tabs stay as they are.`;
+    $("picker").hidden = false;
+    showStatus("");
+    list.querySelector("button").focus();
+  });
+}
+
+/* CSV cells arrive as text; turn plain numbers back into numbers so Excel can add them up. */
+function csvValue(s) {
+  const t = String(s ?? "");
+  return /^-?(0|[1-9]\d*)(\.\d+)?$/.test(t.trim()) ? Number(t.trim()) : t;
+}
+
+let busy = 0;
+async function handleFile(file) {
+  const run = ++busy;
+  $("picker").hidden = true;
+  showStatus("Reading " + file.name + "…");
+  const ext = file.name.split(".").pop().toLowerCase();
+  const baseName = file.name.replace(/\.[^.]+$/, "").replace(/ \(with (Payments|Emails)\)$/, "");
+  let label = file.name;
+  try {
+    if (typeof ExcelJS === "undefined") throw new Error("The spreadsheet library didn't load. Check your internet connection and reload the page.");
+    let wb, rows, src;
+    if (ext === "xlsx") {
+      wb = new ExcelJS.Workbook();
+      await wb.xlsx.load(await file.arrayBuffer());
+      const matches = [];
+      for (const w of wb.worksheets.filter(w => !SKIP_TABS.has(w.name.toLowerCase()))) {
+        const r = sheetRows(w);
+        if ((r[0] || []).some(h => String(h).trim().toLowerCase() === DUE_HEADER)) matches.push({ ws: w, rows: r });
+      }
+      if (!matches.length) throw new Error("Couldn't find an 'Amount Due' column in the first row of any tab. Check this is a trial entries download.");
+      const pick = matches.length === 1 ? matches[0] : await chooseTab(matches);
+      if (run !== busy) return; // a newer file was dropped while choosing
+      rows = pick.rows; src = pick.ws;
+      if (matches.length > 1) label += " · tab “" + pick.ws.name + "”";
+    } else if (ext === "csv") {
+      const text = await file.text();
+      rows = Papa.parse(text.replace(/^﻿/, ""), { skipEmptyLines: false }).data;
+      while (rows.length && rows[rows.length - 1].every(v => String(v ?? "").trim() === "")) rows.pop();
+      wb = new ExcelJS.Workbook();
+      src = wb.addWorksheet("Entries");
+      rows.forEach((r, i) => src.addRow(i === 0 ? r : r.map(csvValue)));
+      src.getRow(1).font = { bold: true };
+    } else if (ext === "xls") {
+      throw new Error("This is an old-style .xls file. Open it in Excel and use Save As → Excel Workbook (.xlsx), then drop that file here.");
+    } else {
+      throw new Error("Please drop an Excel (.xlsx) or CSV file.");
+    }
+    const split = splitPayments(rows);
+    if (!split.entries) throw new Error("The 'Amount Due' column is there, but there are no entry rows under it.");
+    writeTabs(wb, src, split);
+    current = { wb, baseName };
+    if (split.unclear) label += ` · ${split.unclear} entr${split.unclear === 1 ? "y" : "ies"} with an unreadable Amount Due put in Not Paid`;
+    render(split, label, false);
+    $("download").disabled = false;
+    $("actionNote").textContent = "The download is your original file plus the Paid, Part Paid and Not Paid tabs.";
+    showStatus("");
+  } catch (err) {
+    showStatus(err.message || String(err), true);
+  }
+}
+
+$("file").addEventListener("change", e => { const f = e.target.files[0]; if (f) handleFile(f); e.target.value = ""; });
+const drop = $("drop");
+["dragenter", "dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
+drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("file").click(); } });
+
+$("download").addEventListener("click", async () => {
+  if (!current) return;
+  const btn = $("download");
+  btn.disabled = true;
+  try {
+    const buf = await current.wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const filename = current.baseName + " (with Payments).xlsx";
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    $("actionNote").textContent = "Saved as “" + filename + "”.";
+  } catch (err) {
+    $("actionNote").textContent = "The download didn't work: " + (err.message || err);
+  } finally { btn.disabled = false; }
+});
+
+render(splitPayments([
+  ["Entry Full Name", "Dog Pet Name", "Total Cost", "Paid", "Amount Due"],
+  ["Kiri Example", "Moss", "60", "60", "0"],
+  ["Kiri Example", "Fern", "60", "60", "0"],
+  ["Tom Sample", "Biscuit", "90", "40", "50"],
+  ["Ana Placeholder", "Juno", "45", "", "45"],
+  ["Rua Demo", "Pip", "30", "30", "0"],
+  ["Sam Test", "Rocket", "75", "", "75"],
+]), "This preview uses made-up entries so you can see what you'll get. Drop a real file above to replace it.", true);
+}
+</script>
+
+</body>
+</html>
