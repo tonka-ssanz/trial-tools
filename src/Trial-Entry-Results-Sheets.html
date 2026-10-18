@@ -323,20 +323,26 @@ function orgIdProblem(id) {
   if (!id) return "Type the Org Ref ID, e.g. DF2302.";
   return ORG_ID_RE.test(id) ? "" : `Org Ref ID “${id}” should be your organisation's letters then 4 digits, e.g. DF2302.`;
 }
+/* Trial #s may use the Org Ref ID letters, or those letters without any digits on the end:
+   SWK92601 (Sniffing With K9's) has Trial #s SWK10261, not SWK910261. Longest first. */
+const trialPrefixes = id => { const p = orgPrefix(id), s = p.replace(/\d+$/, ""); return !p ? [] : (s && s !== p ? [p, s] : [p]); };
+const shownPrefix = id => trialPrefixes(id).slice(-1)[0] || "";
+/* The prefix this Trial # uses (as written in the Org Ref ID), or "" if none fits. */
+const trialPrefixOf = (no, id) => trialPrefixes(id).find(p => cleanCode(no).slice(0, p.length).toUpperCase() === p.toUpperCase() && /^\d{5}$/.test(cleanCode(no).slice(p.length))) || "";
 function fixTrialNo(no, orgId) {
   no = cleanCode(no);
-  const p = orgPrefix(orgId);
-  if (p && no.slice(0, p.length).toUpperCase() === p.toUpperCase()) no = p + no.slice(p.length);
+  const p = trialPrefixOf(no, orgId);
+  if (p) no = p + no.slice(p.length);
   return no;
 }
 function trialNoProblem(no, orgId) {
   no = cleanCode(no);
   if (!no) return "Type the Trial # from the SSANZ events page, e.g. DF10261.";
-  const p = orgPrefix(orgId);
+  const p = shownPrefix(orgId);
   if (p) {
-    if (no.slice(0, p.length).toUpperCase() !== p.toUpperCase()) return `Trial # ${no} doesn't start with ${p}, your organisation's letters.`;
-    if (!/^\d{5}$/.test(no.slice(p.length))) return `Trial # ${no} should be ${p} then 5 digits, e.g. ${p}10261.`;
-    return "";
+    if (trialPrefixOf(no, orgId)) return "";
+    if (!trialPrefixes(orgId).some(q => no.slice(0, q.length).toUpperCase() === q.toUpperCase())) return `Trial # ${no} doesn't start with ${p}, your organisation's letters.`;
+    return `Trial # ${no} should be ${p} then 5 digits, e.g. ${p}10261.`;
   }
   return /^[A-Za-z][A-Za-z0-9]*\d{5}$/.test(no) ? "" : `Trial # ${no} should be your organisation's letters then 5 digits, e.g. DF10261.`;
 }
@@ -344,8 +350,8 @@ function trialNoProblem(no, orgId) {
    (DF10261 = October 2026, trial 1; confirmed by SSANZ trial tools owner 17 Oct 2026). */
 function trialNoDateNote(no, orgId, iso) {
   no = cleanCode(no);
-  const p = orgPrefix(orgId), d = parseISO(iso);
-  if (!p || !d || !/^\d{5}$/.test(no.slice(p.length))) return "";
+  const p = trialPrefixOf(no, orgId), d = parseISO(iso);
+  if (!p || !d) return "";
   const mmyy = String(d.getMonth() + 1).padStart(2, "0") + String(d.getFullYear()).slice(2);
   return no.slice(p.length, p.length + 4) === mmyy ? "" :
     `Trial # ${no} doesn't match the date: Trial #s for ${MONTHS_FULL[d.getMonth()]} ${d.getFullYear()} start ${p}${mmyy} (letters, month, year, then the trial's number). Check it against the SSANZ events page.`;

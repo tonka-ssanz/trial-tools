@@ -584,21 +584,29 @@ function orgIdProblem(id) {
   return ORG_ID_RE.test(id) ? "" : `Org Ref ID “${id}” should be your organisation's letters then 4 digits, e.g. DF2302.`;
 }
 /* Tidy a typed Trial #: no spaces, and the organisation's letters written as in its Org Ref ID. */
+/* Trial #s may use the Org Ref ID letters, or those letters without any digits on the end:
+   SWK92601 (Sniffing With K9's) has Trial #s SWK10261, not SWK910261. Longest first. */
+const trialPrefixes = id => { const p = orgPrefix(id), s = p.replace(/\d+$/, ""); return !p ? [] : (s && s !== p ? [p, s] : [p]); };
+const shownPrefix = id => trialPrefixes(id).slice(-1)[0] || "";
+/* The prefix this Trial # uses (as written in the Org Ref ID), or "" if none fits. */
+const trialPrefixOf = (no, id) => trialPrefixes(id).find(p => cleanCode(no).slice(0, p.length).toUpperCase() === p.toUpperCase() && /^\d{5}$/.test(cleanCode(no).slice(p.length))) || "";
 function fixTrialNo(no, orgId) {
   no = cleanCode(no);
-  const p = orgPrefix(orgId);
-  if (p && no.slice(0, p.length).toUpperCase() === p.toUpperCase()) no = p + no.slice(p.length);
+  const p = trialPrefixOf(no, orgId);
+  if (p) no = p + no.slice(p.length);
   return no;
 }
 /* Problem with one class's Trial #, or "" if it looks right. others = [{name, trialNo}] of the other classes. */
 function trialNoProblem(no, orgId, others = []) {
   no = cleanCode(no);
   if (!no) return "";
-  const p = orgPrefix(orgId);
+  const p = shownPrefix(orgId);
   if (p) {
-    if (no.slice(0, p.length).toUpperCase() !== p.toUpperCase())
-      return `Trial # ${no} doesn't start with ${p}, your organisation's letters. Check it on the SSANZ events page.`;
-    if (!/^\d{5}$/.test(no.slice(p.length))) return `Trial # ${no} should be ${p} then 5 digits, e.g. ${p}10261.`;
+    if (!trialPrefixOf(no, orgId)) {
+      if (!trialPrefixes(orgId).some(q => no.slice(0, q.length).toUpperCase() === q.toUpperCase()))
+        return `Trial # ${no} doesn't start with ${p}, your organisation's letters. Check it on the SSANZ events page.`;
+      return `Trial # ${no} should be ${p} then 5 digits, e.g. ${p}10261.`;
+    }
   } else if (!/^[A-Za-z][A-Za-z0-9]*\d{5}$/.test(no)) return `Trial # ${no} should be your organisation's letters then 5 digits, e.g. DF10261.`;
   const dup = others.find(o => cleanCode(o.trialNo).toUpperCase() === no.toUpperCase());
   if (dup) return `${dup.name} has the same Trial #. Each class has its own number on the SSANZ events page.`;
@@ -609,8 +617,8 @@ function trialNoProblem(no, orgId, others = []) {
    A warning here; the Results Sheets page asks the user to confirm before it goes on the results sheet. */
 function trialNoDateNote(no, orgId, iso) {
   no = cleanCode(no);
-  const p = orgPrefix(orgId), m = /^(\d{4})-(\d{2})-\d{2}$/.exec(String(iso || ""));
-  if (!p || !m || no.slice(0, p.length).toUpperCase() !== p.toUpperCase() || !/^\d{5}$/.test(no.slice(p.length))) return "";
+  const p = trialPrefixOf(no, orgId), m = /^(\d{4})-(\d{2})-\d{2}$/.exec(String(iso || ""));
+  if (!p || !m) return "";
   const mmyy = m[2] + m[1].slice(2);
   if (no.slice(p.length, p.length + 4) === mmyy) return "";
   const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][Number(m[2]) - 1];
@@ -2365,7 +2373,7 @@ if (typeof module !== "undefined") {
   module.exports = { LAYOUT, DOCUMENTS, CLASS_NAMES, layoutFor, parseClass, defaultLevels, defaultOrder, titleParts, titleText, reactiveCode, extractTable, buildDocx, ordinal, planPages, elementLine, judgeText, elementChoices,
     TL, SCORE_SETTINGS, SCORE_SHEETS, scoreClass, elementOf, numberRepeats, scoreSets, cutAndStack, buildScorePdf, longDate, pdfCodes, textWidth, standardSearches,
     CERT_SETTINGS, certDate, certCard, certJudgeNames, certComment, certSets, buildCertPdf,
-    ORGANISATIONS, ORG_ID_RE, orgPrefix, orgIdProblem, fixTrialNo, trialNoProblem, trialNoDateNote };
+    ORGANISATIONS, ORG_ID_RE, orgPrefix, trialPrefixes, trialPrefixOf, orgIdProblem, fixTrialNo, trialNoProblem, trialNoDateNote };
 } else {
 const $ = id => document.getElementById(id);
 let state = null;    // { baseName, tabs: [...], isExample }
@@ -3068,7 +3076,7 @@ function syncOrg() {
     out.className = bad ? "note bad" : "note";
     out.append(bad || "Check the name and Org Ref ID against the ", bad ? "" : el("a", { href: ORG_PAGE, target: "_blank", rel: "noopener", text: "SSANZ organisations page" }), bad ? "" : ".");
   } else {
-    out.append(`Org Ref ID ${o.id}. Each class's Trial # starts with ${orgPrefix(o.id)}.`);
+    out.append(`Org Ref ID ${o.id}. Each class's Trial # starts with ${shownPrefix(o.id)}.`);
   }
 }
 $("org").addEventListener("change", e => {
