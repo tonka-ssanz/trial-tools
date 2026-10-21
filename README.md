@@ -14,7 +14,7 @@ Last updated: October 2026.
 | 1 | `payment-split.html` | Splits entries into Paid, Part Paid and Not Paid, and shows who still owes | Same spreadsheet + 3 tabs |
 | 2 | `email-list.html` | One email per person (all entries, or only chosen trials), ready for BCC | Same spreadsheet + Emails tab |
 | 3 | `trial-lists.html` | Starts the trial spreadsheet: locked copy of the download, a Master List for late entries and withdrawals, and one randomly ordered tab per trial. Dropped in again later, it applies changes to the trial tabs | The trial spreadsheet (.xlsx) |
-| 4 | `trial-documents.html` | Running orders, callboards, timekeepers' and judges' sheets (Word), judging sheets and certificates (PDF) | .docx and .pdf files, plus the trial spreadsheet with its settings saved |
+| 4 | `trial-documents.html` | Running orders, callboards, time stewards' and judges' sheets (Word), judging sheets and certificates (PDF) | .docx and .pdf files, plus the trial spreadsheet with its settings saved |
 | 5 | `results-sheets.html` | Fills in the official SSANZ results spreadsheet for each class (organisation, date, venue, Trial #, judges, dogs) | One .xlsx per class |
 
 Steps 1 and 2 can be used at any time on an entries download. Steps 3 to 5 work on one growing trial spreadsheet, which the user keeps and drops back into the next tool.

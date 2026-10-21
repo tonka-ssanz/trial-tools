@@ -228,13 +228,14 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
   <section class="help">
     <h3>Good to know</h3>
     <ul>
-      <li><b>Before you start:</b> in Trial Documents, choose your organisation, give every class its date, venue, Trial # and judges (the searches on the Judges, Timekeepers or Judging sheets page), then <b>Save progress</b>. Drop the file that downloads here.</li>
+      <li><b>Before you start:</b> in Trial Documents, choose your organisation, give every class its date, venue, Trial # and judges (the searches on the Judges, Time stewards or Judging sheets page), then <b>Save progress</b>. Drop the file that downloads here.</li>
       <li><b>The SSANZ zip:</b> download it fresh from the SSANZ Organisation Resources page for each trial (one zip for Nosework, one for Buried Hides) and drop the whole zip here; the page picks the right level. A results sheet for a single level works too. Some browsers save the zip as a GZip file (.gz); that's fine, drop it as it is. Don't reuse an old copy: SSANZ updates the sheets.</li>
       <li><b>What's filled in:</b> organisation name, Org Ref ID, date, venue, Trial #, the judge for each search (and, for Buried Hides Novice and Intermediate, Sand or Water), and for every dog its Dog No., pet name, Handler ID and handler's name. Points and times are left for the admin team.</li>
       <li><b>Big classes:</b> the SSANZ sheet has room for 51 dogs. If a class has more, the extra rows are added for you, with the same formulas, placings and colours, and on the Printable Version too.</li>
       <li><b>Trial #:</b> made of your organisation's letters, the month and year, then the trial's number that month (Dogs First, October 2026, first trial: DF10261). If it doesn't match the class's date the page stops you; if it really is right, tick the box to say so.</li>
       <li><b>Names with marks in them</b> (e.g. “Sam Smith**”): the page asks what should go on the results sheet, because the marks may be a note someone typed.</li>
       <li><b>Order:</b> dogs are listed in alphabetical order of the handler's first name, then surname. Dogs already withdrawn (taken off the trial tab in Trial Lists) aren't included.</li>
+      <li><b>Balloted trials:</b> only the dogs with a place (on the trial tab) go on the results sheet. The Waitlist and Ballot tabs made by Trial Lists are ignored.</li>
       <li><b>On the day:</b> if a dog withdraws, type SCRATCHED after the handler's name. Times go in as seconds only, with the hundredths: 2:23.12 on the stopwatch is 143.12.</li>
       <li><b>Judges:</b> each search's judge goes in the column for its element (Container, Interior, Exterior, Vehicle). At Excellent and Premium, a second search of the same element (e.g. Exterior 2) goes under Other Search 1, then Other Search 2. Check them in step 2.</li>
       <li><b>The SSANZ sheet is not changed:</b> only the boxes a person is allowed to type in are filled. Its password lock, formulas, colours and Printable Version stay exactly as SSANZ made them, and Excel works out the totals when you open the file.</li>
@@ -590,7 +591,8 @@ function readTrial(wb) {
   const docs = settings.docs;
   if (!docs) throw new Error("Trial Documents hasn't saved its settings into this file yet.|Open it in Trial Documents, choose your organisation, fill in each class's date, venue, Trial # and judges, then choose Save progress. Drop the file that downloads here.");
   const skip = new Set([settings.sourceTab, MASTER, SETTINGS_TAB].map(s => String(s || "").toLowerCase()));
-  const classes = wb.sheets.filter(s => !skip.has(s.name.toLowerCase()) && (s.rows[0] || []).some(h => lower(h) === "entry id")).map(s => {
+  // "<trial> Waitlist" and "<trial> Ballot" tabs (from a ballot in Trial Lists) are never classes: waitlisted dogs aren't in the trial.
+  const classes = wb.sheets.filter(s => !skip.has(s.name.toLowerCase()) && !/\s(Waitlist|Ballot)$/i.test(s.name.trim()) && (s.rows[0] || []).some(h => lower(h) === "entry id")).map(s => {
     const cls = ((settings.tabs || {})[s.name] || {}).trial || s.name;
     const own = (docs.tabs || {})[s.name] || {}, main = (docs.tabs || {})[cls] || {};
     const pick = k => !isBlank(own[k]) ? own[k] : (main[k] ?? "");

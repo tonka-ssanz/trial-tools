@@ -84,6 +84,10 @@ h1 { font-family: var(--font-display); font-size: clamp(30px, 6vw, 42px); line-h
 .trow .tname { min-width: 0; overflow-wrap: anywhere; }
 .trow code { font-family: var(--font-mono); font-size: 13px; color: var(--muted); margin-left: 6px; }
 .trow .tcount { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bpick { display: grid; gap: 4px; max-width: 360px; min-width: 0; }
+.bpick span { font-size: 13px; color: var(--muted); font-weight: 700; }
+.bpick select { width: 100%; min-width: 0; font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; }
+.bpick select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .example-flag { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
 
 .result { display: grid; gap: 18px; }
@@ -116,7 +120,7 @@ textarea { width: 100%; min-height: 84px; resize: vertical; font-family: var(--f
 table { border-collapse: collapse; width: 100%; font-size: 14px; }
 th, td { text-align: left; padding: 8px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
 th { position: sticky; top: 0; background: var(--surface); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-td.email, td.codes { font-family: var(--font-mono); font-size: 13px; }
+td.email, td.codes, td.phone { font-family: var(--font-mono); font-size: 13px; }
 td.codes { color: var(--muted); }
 td.n { color: var(--muted); font-variant-numeric: tabular-nums; width: 1%; }
 tr:last-child td { border-bottom: 0; }
@@ -161,11 +165,16 @@ tr:last-child td { border-bottom: 0; }
     <div class="modes" role="radiogroup" aria-labelledby="whoTitle">
       <label class="mode"><input type="radio" name="mode" id="modeAll" value="all"><b>All entries</b><span>Everyone in the file</span></label>
       <label class="mode"><input type="radio" name="mode" id="modeSome" value="some"><b>Only certain trials</b><span>Tick one or more trials below</span></label>
+      <label class="mode" id="modeBallotWrap" hidden><input type="radio" name="mode" id="modeBallot" value="ballot"><b>A balloted trial</b><span>The entrants with a place, or the waitlist in order</span></label>
     </div>
     <div class="trials" id="trials" hidden>
       <div class="quick" id="quick" aria-label="Quick select"></div>
       <div class="tlist" id="tlist"></div>
       <p class="note">People entered in <b>any</b> of the ticked trials are included, once each.</p>
+    </div>
+    <div class="trials" id="ballotBox" hidden>
+      <label class="bpick" for="ballotPick"><span>Which list?</span><select id="ballotPick"></select></label>
+      <p class="note" id="ballotNote">From the Master List after the ballot. <b>Accepted</b> is everyone with a place in that trial. <b>Waitlisted</b> is one row per dog, in waitlist order, with their place on the list, so you can tell each person where they stand (one email to everyone would show all the names).</p>
     </div>
   </section>
 
@@ -196,7 +205,7 @@ tr:last-child td { border-bottom: 0; }
 
     <div class="table-box">
       <table>
-        <thead><tr><th>#</th><th>Email</th><th>Full name</th><th>Entered in</th></tr></thead>
+        <thead><tr><th>#</th><th>Email</th><th>Full name</th><th>Phone</th><th id="rowsHead">Entered in</th></tr></thead>
         <tbody id="rows"></tbody>
       </table>
     </div>
@@ -206,11 +215,13 @@ tr:last-child td { border-bottom: 0; }
     <h3>Good to know</h3>
     <ul>
       <li><b>Only certain trials</b> lists every trial column with at least one entry, e.g. <code>NWAdv1</code> (Nosework Advanced, trial 1). Tick one or several, or use the quick buttons to tick a whole trial. Anyone entered in any ticked trial is included.</li>
+      <li><b>Phone</b> comes from the download's “Entry Phone” column, written in international form with no spaces, e.g. 021 792 551 becomes +6421792551, whatever way it was typed. If one email has two different numbers, both are shown.</li>
       <li><b>Entered in</b> shows which trials each person is in (only the ticked ones, if you picked trials). Someone with two dogs gets one row listing both dogs' trials.</li>
       <li><b>Tab names</b> follow your choice: <code>Emails</code> for all entries, or e.g. <code>Emails NWAdv1</code> or <code>Emails Trial 1</code>. The top of the tab says exactly who is included. Drop the downloaded file in again to add a list for other trials alongside it.</li>
       <li><b>Running the same choice again</b> replaces that tab rather than adding a copy.</li>
       <li><b>Email just one payment group:</b> run Payment Split first, then pick the Paid, Part Paid or Not Paid tab here. You can still narrow it to certain trials.</li>
       <li><b>Using Google Sheets?</b> In your sheet choose File → Download → Microsoft Excel (.xlsx), drop that file here, then open the result in Google Sheets with File → Import.</li>
+      <li><b>Balloted trials:</b> drop your trial spreadsheet (after Trial Lists) and choose <b>A balloted trial</b>. Pick the accepted entrants or the waitlist for each trial that was balloted. The waitlist tab lists every dog with its waitlist number, in order. For other lists from a trial spreadsheet, pick the Master List tab: dogs on a waitlist are never counted as entered in that trial.</li>
       <li><b>Duplicates</b> are matched ignoring capitals and stray spaces, so <code>Jo@Mail.com</code> and <code>jo@mail.com </code> count as one person. A couple sharing an address get one row with both names, like “Sam Lee / Alex Lee”.</li>
       <li>The file never leaves your computer. All the work happens in this page.</li>
     </ul>
@@ -222,6 +233,7 @@ tr:last-child td { border-bottom: 0; }
 <script>
 const EMAIL_HEADER = "entry email";
 const NAME_HEADER = "entry full name";
+const PHONE_HEADERS = ["entry phone", "phone"];
 const OUT_SHEET = "Emails";
 const TRIAL_RE = /^[A-Za-z]+[1-9]$/;               // e.g. NWAdv1, BHNovS2 (same rule as Trial Lists)
 const TYPE_NAMES = { NW: "Nosework", BH: "Buried Hides", LIR: "Lost Item Recovery" };
@@ -229,6 +241,21 @@ const LEVEL_NAMES = { Nov: "Novice", Int: "Intermediate", Adv: "Advanced", Exc: 
 const SURFACE_NAMES = { S: "Sand", W: "Water" };
 
 const filled = v => String(v ?? "").trim() !== "";
+/* Entered in a trial: anything in its cell, except "Waitlist 3" or "Declined" (after a ballot in Trial Lists). */
+const entered = v => filled(v) && !/^(waitlist|declined)\b/i.test(String(v).trim());
+
+/* Phone numbers in international form with no spaces: 021 792 551 → +6421792551.
+   Works whatever the entrant typed (spaces, hyphens, brackets, +64, or a 0 lost when Excel saved it as a number).
+   Keep the same as phoneNumber() in Trial Lists. */
+function phoneNumber(v) {
+  const s = String(v ?? "").trim();
+  const d = s.replace(/\D/g, "");
+  if (!d) return s;                                    // no digits (e.g. "n/a"): left as typed
+  if (s.startsWith("+")) return "+" + d;               // already international: "+64 21 792 551" → "+6421792551"
+  if (d.startsWith("00")) return "+" + d.slice(2);     // 0064… → +64…
+  if (d.startsWith("64") && d.length >= 10) return "+" + d;   // 6421792551 → +6421792551
+  return "+64" + d.replace(/^0/, "");                  // 021 792 551, 021-792551, or 21792551 (zero lost) → +6421792551
+}
 
 /* "NWAdv1" → "Nosework Advanced – Trial 1"; unknown codes → null. */
 function trialLabel(code) {
@@ -246,7 +273,7 @@ function findTrialColumns(rows) {
   header.forEach((h, i) => {
     if (!TRIAL_RE.test(h)) return;
     let count = 0;
-    for (const r of rows.slice(1)) if (r && filled(r[i])) count++;
+    for (const r of rows.slice(1)) if (r && entered(r[i])) count++;
     if (count) cols.push({ index: i, code: h, count, trial: Number(h.slice(-1)), name: trialLabel(h) });
   });
   return cols;
@@ -258,6 +285,7 @@ function extractEmails(rows, selected = null, trialCols = []) {
   const header = (rows[0] || []).map(h => String(h ?? "").trim().toLowerCase());
   const ei = header.indexOf(EMAIL_HEADER);
   const ni = header.indexOf(NAME_HEADER);
+  const pi = PHONE_HEADERS.map(h => header.indexOf(h)).find(i => i >= 0) ?? -1;
   if (ei === -1) throw new Error("Couldn't find an 'Entry Email' column in the first row. Check this is a trial entries download.");
   const shown = selected || trialCols;
   const byKey = new Map();
@@ -265,7 +293,7 @@ function extractEmails(rows, selected = null, trialCols = []) {
   for (const r of rows.slice(1)) {
     if (!r || !r.some(filled)) continue;
     total++;
-    if (selected && !selected.some(c => filled(r[c.index]))) continue;
+    if (selected && !selected.some(c => entered(r[c.index]))) continue;
     entries++;
     const raw = String(r[ei] ?? "").trim();
     if (!raw) continue;
@@ -273,13 +301,15 @@ function extractEmails(rows, selected = null, trialCols = []) {
     found++;
     const key = raw.toLowerCase();
     const name = ni === -1 ? "" : String(r[ni] ?? "").trim();
-    if (!byKey.has(key)) byKey.set(key, { email: raw, names: [], trials: new Set() });
+    if (!byKey.has(key)) byKey.set(key, { email: raw, names: [], phones: [], trials: new Set() });
     const rec = byKey.get(key);
     if (name && !rec.names.some(n => n.toLowerCase() === name.toLowerCase())) rec.names.push(name);
-    shown.forEach(c => { if (filled(r[c.index])) rec.trials.add(c.code); });
+    const phone = pi === -1 ? "" : phoneNumber(r[pi]);
+    if (phone && !rec.phones.some(x => x.replace(/\s/g, "") === phone.replace(/\s/g, ""))) rec.phones.push(phone);
+    shown.forEach(c => { if (entered(r[c.index])) rec.trials.add(c.code); });
   }
   const people = [...byKey.values()].map(p => ({
-    email: p.email, name: p.names.join(" / "),
+    email: p.email, name: p.names.join(" / "), phone: p.phones.join(" / "),
     entered: shown.filter(c => p.trials.has(c.code)).map(c => c.code).join(", "),
   }));
   people.sort((a, b) => (a.name || a.email).localeCompare(b.name || b.email, undefined, { sensitivity: "base" }));
@@ -306,10 +336,41 @@ function selectionTitle(selected) {
   return (selected.length === 1 ? "Emails for: anyone entered in " : "Emails for: anyone entered in any of ") + names.join(", ");
 }
 
-if (typeof module !== "undefined") { module.exports = { extractEmails, findTrialColumns, trialLabel, tabNameFor, selectionTitle }; }
+/* ---------- Balloted trials (made by Trial Lists) ----------
+   A balloted trial has a "<trial> Ballot" tab. On the Master List, a dog with a place has x in that trial's column;
+   a waitlisted dog has "Waitlist 3"; a dog that declined has "Declined". */
+const BALLOT_TAB = /^(.+?) Ballot$/i;
+const ballotTrials = names => names.map(n => (BALLOT_TAB.exec(String(n).trim()) || [])[1]).filter(Boolean);
+/* rows: the Master List (heading first). which: "accepted" | "waitlisted".
+   Accepted: one row per email, like extractEmails. Waitlisted: one row per dog, in waitlist order. */
+function extractBallot(rows, trial, which) {
+  const head = (rows[0] || []).map(h => String(h ?? "").trim().toLowerCase());
+  const at = n => head.indexOf(n.toLowerCase());
+  const ti = (rows[0] || []).findIndex(h => String(h ?? "").trim().toLowerCase() === trial.toLowerCase());
+  if (ti < 0) throw new Error(`The Master List has no ${trial} column.`);
+  const si = at("status"), ei = at(EMAIL_HEADER), hi = at("handler"), di = at("dog pet name"), ni = at(NAME_HEADER);
+  const pi = PHONE_HEADERS.map(at).find(i => i >= 0) ?? -1;
+  const live = rows.slice(1).filter(r => r && r.some(filled) && !(si >= 0 && /^withdrawn$/i.test(String(r[si] ?? "").trim())));
+  if (which === "accepted") {
+    const picked = live.filter(r => entered(r[ti]));
+    const res = extractEmails([rows[0], ...picked], null, [{ index: ti, code: trial }]);
+    return { ...res, total: live.length };
+  }
+  const list = live.map(r => ({ r, n: Number((/^waitlist\s*(\d+)/i.exec(String(r[ti] ?? "").trim()) || [])[1]) }))
+    .filter(x => x.n > 0).sort((a, b) => a.n - b.n);
+  const people = list.map(({ r, n }) => ({ n, email: String(r[ei] ?? "").trim(), name: String(r[hi] ?? r[ni] ?? "").trim(), dog: di < 0 ? "" : String(r[di] ?? "").trim(),
+    phone: pi < 0 ? "" : phoneNumber(r[pi]), entered: `Waitlist ${n}` }));
+  const withEmail = people.filter(p => p.email.includes("@"));
+  const unique = [...new Map(withEmail.map(p => [p.email.toLowerCase(), p.email])).values()];
+  return { people, waitlist: true, total: live.length, entries: people.length, found: withEmail.length, skipped: people.length - withEmail.length, dupes: withEmail.length - unique.length, bcc: unique.join("; ") };
+}
+const ballotTabName = (trial, which) => `Emails ${trial} ${which === "accepted" ? "accepted" : "waitlist"}`.slice(0, 31);
+const ballotTitle = (trial, which) => which === "accepted" ? `Emails for: everyone with a place in ${trial} after the ballot` : `Emails for: the ${trial} waitlist, in waitlist order`;
+
+if (typeof module !== "undefined") { module.exports = { extractEmails, phoneNumber, findTrialColumns, trialLabel, tabNameFor, selectionTitle, ballotTrials, extractBallot, ballotTabName, ballotTitle }; }
 else {
 const $ = id => document.getElementById(id);
-let state = null; // { example, rows, trialCols, mode, ticked:Set, source, baseName, label }
+let state = null; // { example, rows, trialCols, mode, ticked:Set, source, baseName, label, ballots:[trials], ballotPick:"accepted|NWAdv1" }
 let lastResult = null;
 
 function cellText(cell) {
@@ -350,22 +411,53 @@ function placeTab(wb, base, title) {
   return { name: base, replace: ex };
 }
 
-function writeEmailsSheet(wb, result, selected, trialCols) {
-  const title = selectionTitle(selected);
-  const spot = placeTab(wb, tabNameFor(selected, trialCols), title);
+function writeEmailsSheet(wb, result, selected, trialCols, fixed = null) {
+  const title = fixed ? fixed.title : selectionTitle(selected);
+  const spot = fixed || placeTab(wb, tabNameFor(selected, trialCols), title);
   if (spot.replace) wb.removeWorksheet(spot.replace.id);
   const ws = wb.addWorksheet(spot.name);
-  [36, 30, 24, 3, 60].forEach((w, i) => { ws.getColumn(i + 1).width = w; });
+  [36, 30, 16, 24, 3, 60].forEach((w, i) => { ws.getColumn(i + 1).width = w; });
   ws.getCell("A1").value = title;
   ws.getCell("A1").font = { bold: true, size: 12 };
   const made = new Date().toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" });
   ws.getCell("A2").value = `${result.people.length} unique emails from ${result.entries} entries (${result.dupes} duplicates removed) · made ${made}`;
   ws.getCell("A2").font = { italic: true, color: { argb: "FF5D6A62" } };
-  ws.getRow(4).values = ["Email", "Full Name", "Entered in", "", "Paste-ready list (copy cell E5 into BCC)"];
+  ws.getRow(4).values = ["Email", "Full Name", "Phone", "Entered in", "", "Paste-ready list (copy cell F5 into BCC)"];
   ws.getRow(4).font = { bold: true };
-  result.people.forEach((p, i) => { ws.getRow(5 + i).values = [p.email, p.name, p.entered]; });
-  ws.getCell("E5").value = result.bcc;
-  ws.getCell("E5").alignment = { wrapText: true, vertical: "top" };
+  result.people.forEach((p, i) => {
+    ws.getRow(5 + i).values = [p.email, p.name, p.phone, p.entered];
+    ws.getCell(5 + i, 3).numFmt = "@";   // phone numbers stay text, so the leading 0 is kept
+  });
+  ws.getCell("F5").value = result.bcc;
+  ws.getCell("F5").alignment = { wrapText: true, vertical: "top" };
+  ws.views = [{ state: "frozen", ySplit: 4 }];
+  return spot.name;
+}
+
+function writeBallotSheet(wb, result, trial, which) {
+  if (which === "accepted") {
+    const title = ballotTitle(trial, which), spot = placeTab(wb, ballotTabName(trial, which), title);
+    if (spot.replace) wb.removeWorksheet(spot.replace.id);
+    const name = writeEmailsSheet(wb, result, null, [], { name: spot.name, title });
+    return name;
+  }
+  const title = ballotTitle(trial, which), spot = placeTab(wb, ballotTabName(trial, which), title);
+  if (spot.replace) wb.removeWorksheet(spot.replace.id);
+  const ws = wb.addWorksheet(spot.name);
+  [11, 34, 26, 18, 16, 3, 60].forEach((w, i) => { ws.getColumn(i + 1).width = w; });
+  ws.getCell("A1").value = title;
+  ws.getCell("A1").font = { bold: true, size: 12 };
+  const made = new Date().toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" });
+  ws.getCell("A2").value = `${result.people.length} dogs on the waitlist · made ${made} · offer places in this order`;
+  ws.getCell("A2").font = { italic: true, color: { argb: "FF5D6A62" } };
+  ws.getRow(4).values = ["Waitlist #", "Email", "Handler", "Dog Pet Name", "Phone", "", "Paste-ready list (copy cell G5 into BCC)"];
+  ws.getRow(4).font = { bold: true };
+  result.people.forEach((p, i) => {
+    ws.getRow(5 + i).values = [p.n, p.email, p.name, p.dog, p.phone];
+    ws.getCell(5 + i, 5).numFmt = "@";
+  });
+  ws.getCell("G5").value = result.bcc;
+  ws.getCell("G5").alignment = { wrapText: true, vertical: "top" };
   ws.views = [{ state: "frozen", ySplit: 4 }];
   return spot.name;
 }
@@ -376,12 +468,24 @@ function currentSelection() {
 }
 
 function renderWho() {
-  const has = state.trialCols.length > 0;
+  const ballots = state.ballots || [];
+  const has = state.trialCols.length > 0 || ballots.length > 0;
   $("who").hidden = !has;
   $("whoFlag").hidden = !state.example;
   $("modeAll").checked = state.mode === "all";
   $("modeSome").checked = state.mode === "some";
+  $("modeBallot").checked = state.mode === "ballot";
+  $("modeBallotWrap").hidden = !ballots.length;
   $("trials").hidden = state.mode !== "some";
+  $("ballotBox").hidden = state.mode !== "ballot";
+  const pick = $("ballotPick");
+  pick.textContent = "";
+  ballots.forEach(t => ["accepted", "waitlisted"].forEach(w => {
+    const o = document.createElement("option"); o.value = w + "|" + t;
+    o.textContent = (w === "accepted" ? "Accepted – " : "Waitlisted – ") + t + (trialLabel(t) ? ` (${trialLabel(t)})` : "");
+    pick.appendChild(o);
+  }));
+  if (state.ballotPick) pick.value = state.ballotPick;
   const quick = $("quick");
   quick.textContent = "";
   const nums = [...new Set(state.trialCols.map(c => c.trial))].sort((a, b) => a - b);
@@ -411,12 +515,14 @@ function renderWho() {
 }
 
 function update() {
-  const chosen = state.mode === "all" || state.mode === "some";
+  const chosen = state.mode === "all" || state.mode === "some" || state.mode === "ballot";
   $("result").hidden = !chosen;
   if (!chosen) return;
+  if (state.mode === "ballot") return updateBallot();
   const sel = currentSelection();
   const result = extractEmails(state.rows, sel, state.trialCols);
   lastResult = { result, sel };
+  $("rowsHead").textContent = "Entered in";
   $("resultTitle").textContent = state.example ? "Example result" : "Ready";
   $("resultTag").textContent = state.example ? "Example data" : "Your file";
   let label = state.label;
@@ -433,13 +539,13 @@ function update() {
   tb.textContent = "";
   if (!result.people.length) {
     const tr = document.createElement("tr"); tr.className = "empty";
-    const td = document.createElement("td"); td.colSpan = 4;
+    const td = document.createElement("td"); td.colSpan = 5;
     td.textContent = sel && !sel.length ? "Tick at least one trial above." : "No email addresses for this choice.";
     tr.appendChild(td); tb.appendChild(tr);
   }
   result.people.forEach((p, i) => {
     const tr = document.createElement("tr");
-    [[String(i + 1), "n"], [p.email, "email"], [p.name, ""], [p.entered, "codes"]].forEach(([t, c]) => {
+    [[String(i + 1), "n"], [p.email, "email"], [p.name, ""], [p.phone, "phone"], [p.entered, "codes"]].forEach(([t, c]) => {
       const td = document.createElement("td"); td.textContent = t; if (c) td.className = c; tr.appendChild(td);
     });
     tb.appendChild(tr);
@@ -456,6 +562,54 @@ function update() {
     note.append("The download is your original file plus a tab called ");
     const code = document.createElement("code"); code.textContent = tabNameFor(sel, state.trialCols);
     note.append(code, ".");
+  }
+}
+
+function updateBallot() {
+  const [which, trial] = (state.ballotPick || $("ballotPick").value).split("|");
+  state.ballotPick = which + "|" + trial;
+  let result;
+  try { result = extractBallot(state.rows, trial, which); }
+  catch (err) { $("result").hidden = true; showStatus(err.message || String(err), true); return; }
+  lastResult = { result, ballot: { trial, which } };
+  const wl = which !== "accepted";
+  $("resultTitle").textContent = "Ready";
+  $("resultTag").textContent = "Your file";
+  let label = state.label + (wl ? ` · ${result.entries} dog${result.entries === 1 ? "" : "s"} on the ${trial} waitlist` : ` · ${result.entries} dog${result.entries === 1 ? " has" : "s have"} a place in ${trial}`);
+  if (result.skipped) label += ` · ${result.skipped} with no @ in the email`;
+  $("fileName").textContent = label;
+  $("sRows").textContent = result.entries;
+  $("sRowsLabel").textContent = wl ? "on the waitlist" : "with a place";
+  $("sEmails").textContent = result.found;
+  $("sDupes").textContent = result.dupes;
+  $("sUnique").textContent = wl ? result.found - result.dupes : result.people.length;
+  $("bccText").value = result.bcc;
+  $("rowsHead").textContent = wl ? "Waitlist" : "Entered in";
+  const tb = $("rows");
+  tb.textContent = "";
+  if (!result.people.length) {
+    const tr = document.createElement("tr"); tr.className = "empty";
+    const td = document.createElement("td"); td.colSpan = 5;
+    td.textContent = wl ? `Nobody is on the ${trial} waitlist.` : "No email addresses for this choice.";
+    tr.appendChild(td); tb.appendChild(tr);
+  }
+  result.people.forEach((p, i) => {
+    const tr = document.createElement("tr");
+    [[String(i + 1), "n"], [p.email, "email"], [wl && p.dog ? `${p.name} (${p.dog})` : p.name, ""], [p.phone, "phone"], [p.entered, "codes"]].forEach(([t, c]) => {
+      const td = document.createElement("td"); td.textContent = t; if (c) td.className = c; tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+  const ok = result.people.length > 0;
+  $("download").disabled = !ok;
+  $("copy").disabled = !result.bcc;
+  const note = $("actionNote");
+  note.textContent = "";
+  if (!ok) note.textContent = "Nobody to email for this choice.";
+  else {
+    note.append("The download is your original file plus a tab called ");
+    const code = document.createElement("code"); code.textContent = ballotTabName(trial, which);
+    note.append(code, wl ? ", one row per dog in waitlist order." : ".");
   }
 }
 
@@ -479,7 +633,8 @@ function chooseTab(matches) {
       b.addEventListener("click", () => { $("picker").hidden = true; resolve(m); });
       list.appendChild(b);
     });
-    $("pickerNote").textContent = `${matches.length} tabs have an “Entry Email” column. Pick the one to take emails from. Your other tabs stay as they are.`;
+    $("pickerNote").textContent = `${matches.length} tabs have an “Entry Email” column. Pick the one to take emails from. Your other tabs stay as they are.`
+      + (matches.some(m => /^master list$/i.test(m.ws.name)) ? " Pick the Master List for lists of who's in each trial, and for the accepted and waitlisted lists of a balloted trial." : "");
     $("picker").hidden = false;
     showStatus("");
     list.querySelector("button").focus();
@@ -495,7 +650,7 @@ async function handleFile(file) {
   const baseName = file.name.replace(/\.[^.]+$/, "").replace(/ \(with Emails\)$/, "");
   try {
     if (typeof ExcelJS === "undefined") throw new Error("The spreadsheet library didn't load. Check your internet connection and reload the page.");
-    let rows, source, label = file.name;
+    let rows, source, label = file.name, ballots = [];
     if (ext === "xlsx") {
       const buffer = await file.arrayBuffer();
       const wb = new ExcelJS.Workbook();
@@ -511,6 +666,10 @@ async function handleFile(file) {
       if (run !== busy) return; // a newer file was dropped while choosing
       rows = pick.rows;
       if (matches.length > 1) label += " · tab “" + pick.ws.name + "”";
+      if (/^master list$/i.test(pick.ws.name)) {
+        const head = (rows[0] || []).map(h => String(h ?? "").trim().toLowerCase());
+        ballots = ballotTrials(wb.worksheets.map(w => w.name)).filter(t => head.includes(t.toLowerCase()));
+      }
       source = { type: "xlsx", buffer };
     } else if (ext === "csv") {
       const text = await file.text();
@@ -524,22 +683,23 @@ async function handleFile(file) {
     const all = extractEmails(rows);
     if (!all.people.length) throw new Error("The 'Entry Email' column is there, but it's empty.");
     const trialCols = findTrialColumns(rows);
-    state = { example: false, rows, trialCols, mode: trialCols.length ? null : "all", ticked: new Set(), source, baseName, label };
+    state = { example: false, rows, trialCols, mode: trialCols.length || ballots.length ? null : "all", ticked: new Set(), source, baseName, label, ballots, ballotPick: null };
     renderWho();
     update();
-    showStatus(trialCols.length ? "Choose who should be on the list." : "");
+    showStatus(trialCols.length || ballots.length ? "Choose who should be on the list." : "");
     if (trialCols.length) $("modeAll").focus();
   } catch (err) {
     showStatus(err.message || String(err), true);
   }
 }
 
-["modeAll", "modeSome"].forEach(id => $(id).addEventListener("change", e => {
+["modeAll", "modeSome", "modeBallot"].forEach(id => $(id).addEventListener("change", e => {
   if (!state) return;
   state.mode = e.target.value;
   if (!state.example) showStatus("");
   renderWho(); update();
 }));
+$("ballotPick").addEventListener("change", e => { if (!state) return; state.ballotPick = e.target.value; showStatus(""); update(); });
 
 $("file").addEventListener("change", e => { const f = e.target.files[0]; if (f) handleFile(f); e.target.value = ""; });
 const drop = $("drop");
@@ -565,7 +725,8 @@ $("download").addEventListener("click", async () => {
     const wb = new ExcelJS.Workbook();
     if (state.source.type === "xlsx") await wb.xlsx.load(state.source.buffer.slice(0));
     else { const ws = wb.addWorksheet("Entries"); state.source.rows.forEach(r => ws.addRow(r)); }
-    const tab = writeEmailsSheet(wb, lastResult.result, lastResult.sel, state.trialCols);
+    const tab = lastResult.ballot ? writeBallotSheet(wb, lastResult.result, lastResult.ballot.trial, lastResult.ballot.which)
+      : writeEmailsSheet(wb, lastResult.result, lastResult.sel, state.trialCols);
     const buf = await wb.xlsx.writeBuffer();
     const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     const filename = state.baseName + " (with Emails).xlsx";
@@ -580,13 +741,13 @@ $("download").addEventListener("click", async () => {
 
 /* Opening view: made-up entries, showing a trial choice. */
 const exampleRows = [
-  ["Entry Full Name", "Entry Email", "Dog Pet Name", "NWAdv1", "NWExc1", "NWAdv2"],
-  ["Kiri Example", "kiri@example.com", "Tui", "x", "", "x"],
-  ["Kiri Example", "Kiri@Example.com ", "Moss", "", "x", ""],
-  ["Tom Sample", "tom.sample@example.co.nz", "Ruru", "x", "", ""],
-  ["Ana Placeholder", "ana@example.org", "Pip", "", "", "x"],
-  ["Rua Demo", "rua.demo@example.net", "Kea", "x", "", "x"],
-  ["Hemi Test", "hemi@example.com", "Nova", "", "x", ""],
+  ["Entry Full Name", "Entry Email", "Entry Phone", "Dog Pet Name", "NWAdv1", "NWExc1", "NWAdv2"],
+  ["Kiri Example", "kiri@example.com", "021 000 0101", "Tui", "x", "", "x"],
+  ["Kiri Example", "Kiri@Example.com ", "021 000 0101", "Moss", "", "x", ""],
+  ["Tom Sample", "tom.sample@example.co.nz", "0270000202", "Ruru", "x", "", ""],
+  ["Ana Placeholder", "ana@example.org", "022-000-0303", "Pip", "", "", "x"],
+  ["Rua Demo", "rua.demo@example.net", "270000404", "Kea", "x", "", "x"],
+  ["Hemi Test", "hemi@example.com", "", "Nova", "", "x", ""],
 ];
 state = { example: true, rows: exampleRows, trialCols: findTrialColumns(exampleRows), mode: "some", ticked: new Set(["NWAdv1"]),
   label: "This preview uses made-up entries so you can see what you'll get. Drop a real file above to replace it." };
