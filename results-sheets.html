@@ -59,6 +59,10 @@ a { color: var(--accent); }
 .filerow.ok .dot { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .filerow b { display: block; }
 .filerow small { display: block; color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+.getzip { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
+.getzip a { font-size: 14px; font-weight: 700; color: var(--accent); border: 1px solid var(--accent); border-radius: 8px; padding: 5px 10px; text-decoration: none; }
+.getzip a:hover { background: var(--accent-soft); }
+.getzip a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 
 .status { margin: 0; padding: 12px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 15px; }
 .status.error { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
@@ -190,13 +194,15 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 
   <label class="drop" id="drop" for="file" tabindex="0">
     <strong>Drop your files here</strong>
-    <span>or click to choose. You need two: your trial spreadsheet (the file ending “(in progress)”, after Save progress in Trial Documents) and the SSANZ results files zip for the sport (Nosework or Buried Hides) from the SSANZ Organisation Resources page. Drop them together or one at a time.</span>
+    <span>or click to choose. You need two: your trial spreadsheet (the file ending “(in progress)”, after Save progress in Trial Documents) and the SSANZ results files zip for the sport (Nosework or Buried Hides), downloaded with the links below. Drop them together or one at a time.</span>
     <input type="file" id="file" multiple accept=".xlsx,.zip,.gz,.gzip,.tgz,.tar,application/zip,application/gzip,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
   </label>
 
   <div class="files" id="files">
     <div class="filerow" id="rowTrial"><span class="dot">1</span><div><b>Trial spreadsheet</b><small id="trialState">Not added yet. Showing made-up example classes below.</small></div></div>
-    <div class="filerow" id="rowZip"><span class="dot">2</span><div><b>SSANZ results files</b><small id="zipState">Not added yet. Download the zip from the SSANZ website each time, so you always use the current version.</small></div></div>
+    <div class="filerow" id="rowZip"><span class="dot">2</span><div><b>SSANZ results files</b><small id="zipState">Not added yet. Download the zip from the SSANZ website each time, so you always use the current version.</small>
+      <div class="getzip"><a href="https://www.scentsports.nz/orgresourcefiles/noseworkresultsfiles.zip" download>Download Nosework results files (.zip)</a><a href="https://www.scentsports.nz/orgresourcefiles/buriedhideresultsfiles.zip" download>Download Buried Hides results files (.zip)</a></div>
+      <small>These links always give the current version from the SSANZ website. If one doesn't download, log in to the SSANZ website first and try again.</small></div></div>
   </div>
 
   <p class="status" id="status" hidden></p>
@@ -269,7 +275,7 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
     <h3>Good to know</h3>
     <ul>
       <li><b>Before you start:</b> in Trial Documents, choose your organisation, give every class its date, venue, Trial # and judges (the searches on the Judges, Time stewards or Judging sheets page), then <b>Save progress</b>. Drop the file that downloads here.</li>
-      <li><b>The SSANZ zip:</b> download it fresh from the SSANZ Organisation Resources page for each trial (one zip for Nosework, one for Buried Hides) and drop the whole zip here; the page picks the right level. A results sheet for a single level works too. Some browsers save the zip as a GZip file (.gz); that's fine, drop it as it is. Don't reuse an old copy: SSANZ updates the sheets.</li>
+      <li><b>The SSANZ zip:</b> download it fresh for each trial with the links above (<a href="https://www.scentsports.nz/orgresourcefiles/noseworkresultsfiles.zip">Nosework</a>, <a href="https://www.scentsports.nz/orgresourcefiles/buriedhideresultsfiles.zip">Buried Hides</a>), which always give the current version (or get it from the SSANZ Organisation Resources page), and drop the whole zip here; the page picks the right level. A results sheet for a single level works too. Some browsers save the zip as a GZip file (.gz); that's fine, drop it as it is. Don't reuse an old copy: SSANZ updates the sheets.</li>
       <li><b>What's filled in:</b> organisation name, Org Ref ID, date, venue, Trial #, the judge for each search (and, for Buried Hides Novice and Intermediate, Sand or Water), and for every dog its Dog No., pet name, Handler ID and handler's name. Points and times are left for the admin team.</li>
       <li><b>Big classes:</b> the SSANZ sheet has room for 51 dogs. If a class has more, the extra rows are added for you, with the same formulas, placings and colours, and on the Printable Version too.</li>
       <li><b>Trial #:</b> made of your organisation's letters, the month and year, then the trial's number that month (Dogs First, October 2026, first trial: DF10261). If it doesn't match the class's date the page stops you; if it really is right, tick the box to say so.</li>

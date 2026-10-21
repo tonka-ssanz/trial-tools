@@ -153,6 +153,13 @@ button.icon { font-size: 14px; padding: 4px 9px; border-radius: 8px; line-height
 button:disabled { opacity: .45; cursor: not-allowed; }
 button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .note { font-size: 14px; color: var(--muted); margin: 0; }
+.batchnote { flex: 1 1 260px; max-width: 52ch; padding: 8px 12px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 8px 8px 0; color: var(--ink); }
+dialog.missing { max-width: min(560px, calc(100vw - 32px)); width: 100%; border: 1px solid var(--line); border-radius: 14px; padding: 20px; background: var(--surface); color: var(--ink); }
+dialog.missing::backdrop { background: rgba(0, 0, 0, .45); }
+dialog.missing h3 { font-family: var(--font-display); font-size: 20px; margin: 0 0 8px; color: var(--warn); }
+dialog.missing p { margin: 0 0 10px; font-size: 15px; }
+dialog.missing ul { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 4px; font-size: 15px; max-height: 40vh; overflow-y: auto; }
+dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--muted); margin-bottom: 14px; }
 .warnbox { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--warn-soft); color: var(--warn); font-size: 14px; }
 .warnbox ul { margin: 4px 0 0; padding-left: 20px; }
 
@@ -171,7 +178,7 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .page th, .page td { border: 1px solid #808080; padding: 3px 5px; text-align: center; overflow-wrap: anywhere; }
 .page th { font-weight: 700; }
 .page th small { display: block; font-size: 9px; font-weight: 400; }
-.page tr.react td { color: #C00000; font-weight: 700; }
+.page tr.react td { color: #C00000; font-weight: 700; background: #FFFF00; }
 .page .pfoot { margin-top: 6px; text-align: center; font-size: 12px; display: grid; gap: 2px; }
 .page .pfoot .warnnote { color: #C00000; font-weight: 700; }
 
@@ -378,6 +385,7 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
       <div class="warnbox" id="checks" hidden></div>
       <div class="actions">
         <button class="primary" id="download" type="button" disabled>Download Word document</button>
+        <p class="note batchnote" id="batchNote" hidden></p>
       </div>
       <p class="note" id="actionNote">Drop a file to enable the download.</p>
       <div class="byelement" id="byElement" hidden>
@@ -397,9 +405,10 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
   <section class="help">
     <h3>Good to know</h3>
     <ul>
+      <li><b>Before any download</b> the page checks that every ticked class has its date, venue (location) and a judge for every search. If any are blank it lists them, so you can fill them in first or download anyway.</li>
       <li><b>Row order</b> is never changed. Each table lists the dogs exactly as they appear on the tab.</li>
       <li><b>Numbers</b> are added for you: each table is numbered 1, 2, 3… in the order the dogs appear on the tab.</li>
-      <li><b>Reactive dogs:</b> the Reactive column shows D (dogs), H (humans) or D + H, and the whole row is printed in bold red.</li>
+      <li><b>Reactive dogs:</b> the Reactive column shows D (dogs), H (humans) or D + H, and the whole row is printed in bold red and highlighted yellow on the running orders, callboards, time stewards' and judges' sheets.</li>
       <li><b>Level names</b> are filled in from the tab name (NWAdv1 → Advanced, BHNovS1 → BH Novice Sand). The trial number is kept when a level appears more than once. You can type over any of them.</li>
       <li><b>Organisation, venue and Trial #</b> aren't printed on these documents. They're saved with your trial for the <b>Results Sheets</b> step, which fills them in on the SSANZ results spreadsheets so they don't have to be typed there. Choose your organisation from the list once (it comes from the <a href="https://www.scentsports.nz/organisations.php" target="_blank" rel="noopener">SSANZ organisations page</a>; if yours isn't there, choose “Not in the list” and type it). Give each class its venue (trials on different days are often at different venues) and its Trial #, copied from the left-hand column of the <a href="https://www.scentsports.nz/eventspage.php" target="_blank" rel="noopener">SSANZ events page</a>, e.g. NWAdvCS1: DF10262 → DF10262. Each class has its own Trial #.</li>
       <li><b>One setup, several documents:</b> level, date, session, venue and Trial # are entered once and used by every document. Which classes are ticked, the order and the copies are kept separately for each document, so you can print just one or two callboards without changing the catalogue.</li>
@@ -425,6 +434,17 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
     </ul>
   </section>
 </div>
+
+<dialog class="missing" id="missingBox" aria-labelledby="missingTitle">
+  <h3 id="missingTitle">Some trial details haven't been entered</h3>
+  <p>The judge, date and venue (location) for each class go on the documents and are carried through to the results sheets. These are still blank:</p>
+  <ul id="missingList"></ul>
+  <label><input type="checkbox" id="missingSkip"> Don't ask again until I reload the page</label>
+  <div class="actions">
+    <button class="primary" type="button" id="missingBack">Go back and fill them in</button>
+    <button type="button" id="missingGo">Download anyway</button>
+  </div>
+</dialog>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -530,7 +550,8 @@ const LAYOUT = {
 
   reactive: {
     colour: "#C00000",                 // always used for reactive rows and the footer note (not changeable on the page)
-    footerNote: "Red font indicates a dog that needs space",   // printed at the bottom of every page; "" for none
+    fill: "#FFFF00",                   // the whole row of a reactive dog is highlighted in this colour; "" for none
+    footerNote: "Yellow highlight and red font indicate a dog that needs space",   // printed at the bottom of every page; "" for none
   },
   colours: {                           // starting colours; the operator can change title and heading on the page
     title: "#000000",
@@ -567,7 +588,7 @@ const LAYOUT = {
        width      share of the page width (relative: 8 and 30 means one column is 30/8 times wider)
        align      "left", "center" or "right"
        kind       "number"   → No. column, always numbered 1, 2, 3… in row order
-                  "reactive" → shows D, H or D + H and turns the whole row red
+                  "reactive" → shows D, H or D + H and turns the whole row red, highlighted yellow
                   leave out for ordinary text (long text wraps in the cell) */
 const DOCUMENTS = [
   {
@@ -916,14 +937,14 @@ function tableXml(t, opts, layout, widths) {
   const headRow = `<w:tr><w:trPr><w:cantSplit/><w:tblHeader/></w:trPr>${headCells}</w:tr>`;
 
   const height = layout.rowHeightMm > 0 ? `<w:trHeight w:val="${Math.round(layout.rowHeightMm * 56.7)}" w:hRule="atLeast"/>` : "";
-  const red = layout.reactive.colour;
+  const red = layout.reactive.colour, rowFill = layout.reactive.fill ? hex(layout.reactive.fill) : "";
   const bodyRows = t.rows.map((r, ri) => {
     // "Keep with next" on every row but the last keeps the whole table on one page in Word.
     const keep = t.keepTogether && ri < t.rows.length - 1;
     const cells = layout.columns.map((c, k) => {
       const v = r.cells[k];
       const style = r.reactive ? { bold: true, colour: red, sizePt: c.sizePt } : { sizePt: c.sizePt };
-      return cell(k, para(v ? run(v, style) : "", { keepNext: keep, before: 30, after: 30, align: align(c) }));
+      return cell(k, para(v ? run(v, style) : "", { keepNext: keep, before: 30, after: 30, align: align(c) }), r.reactive ? rowFill : "");
     }).join("");
     return `<w:tr><w:trPr><w:cantSplit/>${height}</w:trPr>${cells}</w:tr>`;
   }).join("");
@@ -1785,7 +1806,7 @@ const TL = (() => {
 /* =========================================================================
    Trial Lists: the logic (no spreadsheet library needed, so it can be tested on its own)
    ========================================================================= */
-const TOOL = { name: "Trial Lists", version: "5.4" };
+const TOOL = { name: "Trial Lists", version: "5.5" };
 const MASTER = "Master List";
 const SETTINGS_TAB = "Tool Settings";
 const ID_HEAD = "Entry ID", STATUS_HEAD = "Status";
@@ -2016,6 +2037,68 @@ function doubles(tabs) {
     for (const g of by.values()) if (g.length > 1) out.push({ tab: t.name, handler: g[0].values[1], handlerNo: g[0].values[0], dogs: g.map(r => r.values[3] + (r.values[2] ? ` (${r.values[2]})` : "")) });
   });
   return out;
+}
+
+/* ---------- A new handler needs a new Handler Number ----------
+   A different person must have their own SSANZ Handler Number, so a Handler name change has to come
+   with a Handler Number change. Flags each entry where:
+     "changed"  the Handler on the Master List differs from Sheet 1 (the original download) but the Handler Number doesn't
+     "website"  the website's notes in Comments say the Handler was edited, but not the Handler SSANZ Number
+   ok: { entryId: handlerKey } for entries already answered "same person", so they aren't asked again.
+   Late entries (L…) have no Sheet 1 row to compare with, so only the website notes are checked for them. */
+const EDIT_NAME_RE = /edited\s+handler\b(?!\s+(?:ssanz\s+)?(?:number|no\b|id\b))/i;
+const EDIT_NO_RE = /edited\s+handler\s+(?:ssanz\s+)?(?:number|no\b|id\b)/i;
+const handlerKey = values => lower(values[1]) + "|" + lower(values[0]);
+function handlerChecks(entries, c, sheet1Rows, ok = {}) {
+  if (!c || c.handlerNo < 0 || c.handler < 0) return [];
+  const s1 = columns((sheet1Rows || [])[0] || []);
+  const out = [];
+  entries.forEach(e => {
+    if (e.withdrawn || e.newId) return;
+    const m = /^E(\d+)$/.exec(e.id);
+    const base = m ? (sheet1Rows || [])[Number(m[1]) - 1] : null;
+    const wasName = base && s1.handler >= 0 ? norm(base[s1.handler]) : "";
+    const wasNo = base && s1.handlerNo >= 0 ? norm(base[s1.handlerNo]) : "";
+    const [no, name] = e.values;
+    const comment = c && c.comments >= 0 ? String((e.cells || [])[c.comments] ?? "") : "";
+    const sameNo = lower(no) === lower(wasNo);
+    let why = "";
+    if (base && wasName && lower(name) !== lower(wasName) && sameNo) why = "changed";
+    else if (EDIT_NAME_RE.test(comment) && !EDIT_NO_RE.test(comment) && (!base || sameNo)) why = "website";
+    if (!why || ok[e.id] === handlerKey(e.values)) return;
+    out.push({ id: e.id, row: e.row, name, was: wasName, no, why, values: e.values });
+  });
+  return out;
+}
+/* What's wrong with a typed new Handler Number, or "". */
+function handlerNoProblem(check, no) {
+  no = norm(no);
+  if (!no) return `Type ${check.name || "the new handler"}'s SSANZ Handler Number.`;
+  if (!/^\d+$/.test(no)) return "Numbers only, e.g. 21234.";
+  if (no === norm(check.no)) return `That's the number already there. Type ${check.name || "the new handler"}'s own number.`;
+  return "";
+}
+/* How many still need an answer. answers: { entryId: { mode: "new" | "same", no } } */
+const handlerOpen = (checks, answers) => checks.filter(ch => { const a = answers[ch.id]; return !a || (a.mode === "new" && handlerNoProblem(ch, a.no)); }).length;
+/* Put the answers into the entries (new numbers) and settings.handlerOk (same person). Returns
+   [{ id, row, no }] numbers to write on the Master List, and summary lines. */
+function applyHandlerAnswers(entries, checks, answers, settings) {
+  const byId = new Map(entries.map(e => [e.id, e]));
+  const cells = [], lines = [];
+  checks.forEach(ch => {
+    const a = answers[ch.id], e = byId.get(ch.id);
+    if (!a || !e) return;
+    if (a.mode === "new" && !handlerNoProblem(ch, a.no)) {
+      const no = norm(a.no);
+      lines.push(`${who(e.id, e.values)}: Handler Number changed from ${ch.no || "blank"} to ${no} on the ${MASTER}.`);
+      e.values = [no, ...e.values.slice(1)];
+      cells.push({ id: e.id, row: e.row, no });
+    } else if (a.mode === "same") {
+      settings.handlerOk = { ...(settings.handlerOk || {}), [e.id]: handlerKey(e.values) };
+      lines.push(`${who(e.id, e.values)}: same handler confirmed, Handler Number ${ch.no || "blank"} kept.`);
+    }
+  });
+  return { cells, lines };
 }
 
 /* ---------- Update: apply the Master List to the existing trial tabs ----------
@@ -2627,6 +2710,14 @@ function renderDocSwitch() {
   if (!pdf) $("byElement").hidden = true;
   if (!cert) $("byCard").hidden = true;
   $("download").textContent = `Download ${doc.label} (${pdf || cert ? "PDF" : "Word"})`;
+  $("batchNote").textContent = pdf
+    ? "Think about how you'll print before you download. Using coloured paper for each element? Download in batches with the element buttons below, e.g. all the Containers searches together, so each batch goes on its own colour."
+    : cert
+    ? "Think about how you'll print before you download. Download in batches with the card buttons below, so each level (and Sand or Water) is printed together on its own pre-printed cards."
+    : doc.id === "judge"
+    ? "Think about how you'll print before you download. Each sheet is one search, with its element at the top. Using coloured paper for each element? Tick only the classes you're printing together, and print each element's pages in a batch on its own colour."
+    : "";
+  $("batchNote").hidden = !$("batchNote").textContent;
   $("tablesHelp").textContent = cert
     ? "Tick the classes to print certificates for. Every dog entered gets one, in alphabetical order of handler; withdrawn dogs are already off the trial tabs. Give each class its date. Use ▲ ▼ to change the order the classes print in."
     : pdf
@@ -2988,7 +3079,7 @@ function renderByElement(sets, problems) {
   groups.forEach(g => {
     const part = sets.filter(s => s.group === g), colour = String(look.paperColours[g] || "").trim();
     const n = part.reduce((a, s) => a + s.dogs.length, 0), pages = pagesFor(part);
-    list.append(el("button", { type: "button", disabled: state.isExample || problems.length > 0, onclick: () => downloadGroup(g) },
+    list.append(el("button", { type: "button", disabled: state.isExample || problems.length > 0, onclick: () => checkDetails(() => downloadGroup(g)) },
       el("span", {}, colour ? el("span", { class: "swatch", style: `background:${colour.replace(/[^a-zA-Z]/g, "").toLowerCase()}` }) : null, `${g}${colour ? ` – ${colour} paper` : ""}`),
       el("small", { text: `${n} ${n === 1 ? "sheet" : "sheets"} · ${pages} ${look.paper} ${pages === 1 ? "page" : "pages"}` })));
   });
@@ -3006,6 +3097,40 @@ function downloadGroup(g) {
   const names = new Set(part.map(s => s.className));
   recordMade(doc.id, chosen().filter(t => names.has(t.name)));
 }
+/* ---------- Judge, date and venue: checked before every download ----------
+   One line per ticked class with something blank. Judges come from the searches shared by the
+   Judges, Time stewards and Judging sheets pages. */
+let skipMissing = false;
+function missingDetails() {
+  if (!state || state.isExample) return [];
+  return chosen().map(tab => {
+    const gaps = [];
+    if (!tab.date) gaps.push("date");
+    if (!String(tab.venue || "").trim()) gaps.push("venue");
+    const searches = (tab.copies || {}).judging || [];   // read directly, so no empty search is added
+    const noJudge = searches.map((c, k) => String(c.judge || "").trim() ? 0 : k + 1).filter(Boolean);
+    if (noJudge.length === searches.length) gaps.push("judges");
+    else if (noJudge.length) gaps.push(`judge for search ${noJudge.length === 1 ? noJudge[0] : noJudge.slice(0, -1).join(", ") + " and " + noJudge[noJudge.length - 1]}`);
+    if (!gaps.length) return "";
+    const last = gaps.pop();
+    return `${tab.level || tab.name} (${tab.name}): no ${gaps.length ? gaps.join(", ") + " or " : ""}${last}`;
+  }).filter(Boolean);
+}
+/* Runs go() straight away when nothing is missing; otherwise asks first. */
+function checkDetails(go) {
+  const gaps = missingDetails();
+  const box = $("missingBox");
+  if (!gaps.length || skipMissing || typeof box.showModal !== "function") return go();
+  const ul = $("missingList");
+  ul.textContent = "";
+  gaps.forEach(g => ul.append(el("li", { text: g })));
+  $("missingSkip").checked = false;
+  $("missingGo").onclick = () => { skipMissing = $("missingSkip").checked; box.close(); go(); };
+  $("missingBack").onclick = () => { skipMissing = $("missingSkip").checked; box.close(); const t = $("cards"); if (t) t.scrollIntoView({ block: "start" }); };
+  box.showModal();
+  $("missingBack").focus();
+}
+
 /* ---------- Certificates on the page ---------- */
 function currentCert() {
   const doc = curDoc();
@@ -3057,7 +3182,7 @@ function renderCertPreview() {
   $("download").disabled = state.isExample || !total || problems.length > 0;
   const list = $("byCardList");
   list.textContent = "";
-  groups.forEach(g => list.append(el("button", { type: "button", disabled: state.isExample || problems.length > 0, onclick: () => downloadCertGroup(g.key) },
+  groups.forEach(g => list.append(el("button", { type: "button", disabled: state.isExample || problems.length > 0, onclick: () => checkDetails(() => downloadCertGroup(g.key)) },
     el("span", { text: `${g.label} cards` }), el("small", { text: `${g.certs.length} ${g.certs.length === 1 ? "certificate" : "certificates"} · ${g.classes.join(", ")}` }))));
   $("byCard").hidden = groups.length < 2;
   clearTimeout(pdfTimer);
@@ -3214,8 +3339,8 @@ document.querySelectorAll("[data-reset]").forEach(b => b.addEventListener("click
   $(id).value = v; look[id] = v; renderPreview();
 }));
 $("redNote").textContent = LAYOUT.reactive.footerNote
-  ? `Reactive dogs and the footer note “${LAYOUT.reactive.footerNote}” are always printed in red. Logo, event name and colours are shared by all the documents.`
-  : "Reactive dogs are always printed in red. Logo, event name and colours are shared by all the documents.";
+  ? `Reactive dogs are always printed in red with the whole row highlighted yellow, and the footer note “${LAYOUT.reactive.footerNote}” in red. Logo, event name and colours are shared by all the documents.`
+  : "Reactive dogs are always printed in red with the whole row highlighted yellow. Logo, event name and colours are shared by all the documents.";
 
 /* ---------- Organisation (saved for the results sheets) ---------- */
 const ORG_OWN = "__own";
@@ -3688,7 +3813,8 @@ function save(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   $("actionNote").textContent = "Saved as “" + filename + "”.";
 }
-$("download").addEventListener("click", async () => {
+$("download").addEventListener("click", () => { if (state && !state.isExample) checkDetails(downloadDocument); });
+async function downloadDocument() {
   if (!state || state.isExample) return;
   const btn = $("download");
   btn.disabled = true;
@@ -3722,7 +3848,7 @@ $("download").addEventListener("click", async () => {
   } catch (err) {
     $("actionNote").textContent = "The download didn't work: " + (err.message || err);
   } finally { btn.disabled = false; quiet = true; renderPreview(); quiet = false; renderSaveBar(); }
-});
+}
 
 /* Example: made-up names only. */
 const H = ["Handler Number", "Handler", "Dog No", "Dog Pet Name", "Dog Breed", "Comments"];

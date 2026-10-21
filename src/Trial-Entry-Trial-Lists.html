@@ -106,6 +106,9 @@ code { font-family: var(--font-mono); font-size: .9em; background: var(--accent-
 .q .yesno button { min-width: 72px; }
 .q .yesno button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
 .q.no .yesno button[aria-pressed="true"] { background: var(--stop); border-color: var(--stop); color: #fff; }
+.q .hnew { display: grid; gap: 3px; max-width: 260px; }
+.q .hnew span { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+.q .herr { color: var(--stop); font-size: 14px; margin: 0; }
 .diffs { margin: 0; padding-left: 20px; font-size: 14px; display: grid; gap: 2px; }
 details.more summary { cursor: pointer; font-size: 14px; color: var(--accent); font-weight: 700; }
 .panel.stop details.more { padding: 10px 12px; border-radius: 10px; background: var(--bg); }
@@ -225,10 +228,20 @@ table.btable th.tick { text-align: center; }
     <div class="picker-list" id="pickerList"></div>
   </section>
 
+  <section class="panel" id="handlerStart" hidden aria-live="polite">
+    <h2>Check the handlers first</h2>
+    <p class="note" id="handlerStartFile"></p>
+    <div class="questions" id="hStart"></div>
+    <div class="actions">
+      <button class="primary" type="button" id="handlerGo" disabled>Make the trial spreadsheet</button>
+    </div>
+  </section>
+
   <section class="panel" id="update" hidden aria-live="polite">
     <h2>Update trial tabs</h2>
     <p class="resumed" id="resumed"></p>
     <ul class="msgs" id="updateMsgs"></ul>
+    <div class="questions" id="hUpdate" hidden></div>
     <div class="questions" id="questions" hidden>
       <h3 id="qTitle">Changes made on the trial tabs</h3>
       <p class="note" id="qNote"></p>
@@ -353,6 +366,7 @@ table.btable th.tick { text-align: center; }
       <li><b>Your trial spreadsheet</b> is one file you keep adding to. Each download ends in “(in progress)”. Always drop the newest one back in.</li>
       <li><b>Sheet 1</b> is the website download, exactly as downloaded. It's locked with a password and has a red tab, with a reminder note in cell A1: you can see and copy it, but not type in it. If it does get changed (for example by another program), the tools list each changed cell and can put Sheet 1 back as downloaded.</li>
       <li><b>Make changes on the Master List:</b> add a late entry as a new row (leave Entry ID blank and put x in its trial columns), type <code>Withdrawn</code> in Status to withdraw an entry from the whole event (the row turns grey and struck through), delete an x to scratch it from one trial, or correct a name. Then drop the file back in here and choose <b>Update trial tabs</b>.</li>
+      <li><b>A new handler needs a new Handler Number.</b> If the Handler on the Master List is changed (for example someone else is running the dog) but the Handler Number isn't, or the website notes in Comments say the Handler was edited but not the Handler SSANZ Number, the page asks about it before going on. Type the new handler's SSANZ Handler Number (it's put on the Master List for you, highlighted yellow), or confirm it's the same person and only the spelling of the name was corrected.</li>
       <li><b>On the trial tabs</b> you can move rows to change the running order, and duplicate a tab to try another order. Start a copy's name with the trial code, e.g. “NWAdv1 Sat plan”. Names and other details typed on a trial tab are replaced by the Master List on update, and you'll be shown what changes first.</li>
       <li><b>Changes made on a trial tab</b> are spotted when you drop the file back in: a row deleted from a trial, a dog moved or copied to another trial, or a new row typed in. You'll be asked about each one, for example “E196 (Jane Smith &amp; Moss) has been removed from NWAdv1. Have they withdrawn from this trial?”. Answer Yes and the Master List is updated to match (changed cells are highlighted yellow; someone left in no trial is marked Withdrawn; a late entry gets its own Entry ID). Answer No and you're asked to check the file first.</li>
       <li><b>Copies of a trial tab</b> (for a different running order, e.g. when elements run separately) must have exactly the same entrants as the trial's main tab, just in a different order. If a dog is missing from, or extra on, some of them, you'll be asked about it in the same way, and on Yes every tab for that trial is updated to match.</li>
@@ -376,7 +390,7 @@ table.btable th.tick { text-align: center; }
 /* =========================================================================
    Trial Lists: the logic (no spreadsheet library needed, so it can be tested on its own)
    ========================================================================= */
-const TOOL = { name: "Trial Lists", version: "5.4" };
+const TOOL = { name: "Trial Lists", version: "5.5" };
 const MASTER = "Master List";
 const SETTINGS_TAB = "Tool Settings";
 const ID_HEAD = "Entry ID", STATUS_HEAD = "Status";
@@ -607,6 +621,68 @@ function doubles(tabs) {
     for (const g of by.values()) if (g.length > 1) out.push({ tab: t.name, handler: g[0].values[1], handlerNo: g[0].values[0], dogs: g.map(r => r.values[3] + (r.values[2] ? ` (${r.values[2]})` : "")) });
   });
   return out;
+}
+
+/* ---------- A new handler needs a new Handler Number ----------
+   A different person must have their own SSANZ Handler Number, so a Handler name change has to come
+   with a Handler Number change. Flags each entry where:
+     "changed"  the Handler on the Master List differs from Sheet 1 (the original download) but the Handler Number doesn't
+     "website"  the website's notes in Comments say the Handler was edited, but not the Handler SSANZ Number
+   ok: { entryId: handlerKey } for entries already answered "same person", so they aren't asked again.
+   Late entries (L…) have no Sheet 1 row to compare with, so only the website notes are checked for them. */
+const EDIT_NAME_RE = /edited\s+handler\b(?!\s+(?:ssanz\s+)?(?:number|no\b|id\b))/i;
+const EDIT_NO_RE = /edited\s+handler\s+(?:ssanz\s+)?(?:number|no\b|id\b)/i;
+const handlerKey = values => lower(values[1]) + "|" + lower(values[0]);
+function handlerChecks(entries, c, sheet1Rows, ok = {}) {
+  if (!c || c.handlerNo < 0 || c.handler < 0) return [];
+  const s1 = columns((sheet1Rows || [])[0] || []);
+  const out = [];
+  entries.forEach(e => {
+    if (e.withdrawn || e.newId) return;
+    const m = /^E(\d+)$/.exec(e.id);
+    const base = m ? (sheet1Rows || [])[Number(m[1]) - 1] : null;
+    const wasName = base && s1.handler >= 0 ? norm(base[s1.handler]) : "";
+    const wasNo = base && s1.handlerNo >= 0 ? norm(base[s1.handlerNo]) : "";
+    const [no, name] = e.values;
+    const comment = c && c.comments >= 0 ? String((e.cells || [])[c.comments] ?? "") : "";
+    const sameNo = lower(no) === lower(wasNo);
+    let why = "";
+    if (base && wasName && lower(name) !== lower(wasName) && sameNo) why = "changed";
+    else if (EDIT_NAME_RE.test(comment) && !EDIT_NO_RE.test(comment) && (!base || sameNo)) why = "website";
+    if (!why || ok[e.id] === handlerKey(e.values)) return;
+    out.push({ id: e.id, row: e.row, name, was: wasName, no, why, values: e.values });
+  });
+  return out;
+}
+/* What's wrong with a typed new Handler Number, or "". */
+function handlerNoProblem(check, no) {
+  no = norm(no);
+  if (!no) return `Type ${check.name || "the new handler"}'s SSANZ Handler Number.`;
+  if (!/^\d+$/.test(no)) return "Numbers only, e.g. 21234.";
+  if (no === norm(check.no)) return `That's the number already there. Type ${check.name || "the new handler"}'s own number.`;
+  return "";
+}
+/* How many still need an answer. answers: { entryId: { mode: "new" | "same", no } } */
+const handlerOpen = (checks, answers) => checks.filter(ch => { const a = answers[ch.id]; return !a || (a.mode === "new" && handlerNoProblem(ch, a.no)); }).length;
+/* Put the answers into the entries (new numbers) and settings.handlerOk (same person). Returns
+   [{ id, row, no }] numbers to write on the Master List, and summary lines. */
+function applyHandlerAnswers(entries, checks, answers, settings) {
+  const byId = new Map(entries.map(e => [e.id, e]));
+  const cells = [], lines = [];
+  checks.forEach(ch => {
+    const a = answers[ch.id], e = byId.get(ch.id);
+    if (!a || !e) return;
+    if (a.mode === "new" && !handlerNoProblem(ch, a.no)) {
+      const no = norm(a.no);
+      lines.push(`${who(e.id, e.values)}: Handler Number changed from ${ch.no || "blank"} to ${no} on the ${MASTER}.`);
+      e.values = [no, ...e.values.slice(1)];
+      cells.push({ id: e.id, row: e.row, no });
+    } else if (a.mode === "same") {
+      settings.handlerOk = { ...(settings.handlerOk || {}), [e.id]: handlerKey(e.values) };
+      lines.push(`${who(e.id, e.values)}: same handler confirmed, Handler Number ${ch.no || "blank"} kept.`);
+    }
+  });
+  return { cells, lines };
 }
 
 /* ---------- Update: apply the Master List to the existing trial tabs ----------
@@ -1066,7 +1142,7 @@ function stamp(d = new Date()) {
 if (typeof module !== "undefined") {
   module.exports = { TOOL, MASTER, SETTINGS_TAB, TRIAL_HEADERS, VALUE_FIELDS, SHEET1_PASSWORD, SHEET1_NOTE, SHEET1_TAB_COLOUR, phoneNumber, reactivity, shuffle, fingerprint, rowsFingerprint, entryId, columns, looksLikeEntries,
     buildMaster, readMaster, startTabs, doubles, readTrialTab, planUpdate, summaryLines, settingsRows, readSettings, stamp, who, snapshot, audit, applyAnswers,
-    copyMatches, sheet1Changes, changeText, sheet1Problem, cellRef,
+    copyMatches, sheet1Changes, changeText, sheet1Problem, cellRef, handlerChecks, handlerNoProblem, handlerOpen, applyHandlerAnswers, handlerKey,
     BALLOT_RULES, STEWARD_DEFINITION, isBallotTab, waitlistTab, ballotTab, notEntered, onWaitlist, ballotClass, mulberry32, newSeed, ballotPlan, ballotRecord, ballotReview, ballotDecisions, groupLabel };
 }
 
@@ -1218,7 +1294,7 @@ function showStop(title, msgs, opts = {}) {
   $("stop").hidden = false;
   $("result").hidden = true;
 }
-function hideAll() { ["stop", "picker", "update", "ballot"].forEach(id => $(id).hidden = true); showStatus(""); }
+function hideAll() { ["stop", "picker", "update", "ballot", "handlerStart"].forEach(id => $(id).hidden = true); showStatus(""); }
 function showStatus(msg) { const s = $("status"); s.textContent = msg; s.hidden = !msg; }
 
 /* ---------- Writing the working file ---------- */
@@ -1352,11 +1428,105 @@ async function writeSettings(wb, settings) {
 }
 const step = what => ({ tool: TOOL.name, version: TOOL.version, what, at: stamp() });
 
+/* ---------- Handler checks on the page ----------
+   One card per entry whose Handler changed without its Handler Number. answers is changed in place;
+   onChange() is called after every answer so the page can turn its main button on or off. */
+function renderHandlerChecks(box, checks, answers, onChange) {
+  box.textContent = "";
+  box.hidden = !checks.length;
+  if (!checks.length) return;
+  const n = checks.length;
+  const h = document.createElement("h3");
+  h.textContent = `${n} ${n === 1 ? "handler change needs" : "handler changes need"} checking`;
+  const note = document.createElement("p"); note.className = "note";
+  note.textContent = "A different handler must have their own SSANZ Handler Number. For each one, type the new handler's number (it's put on the Master List for you, highlighted yellow), or confirm it's the same person and only the spelling of the name changed. The page won't go on until every one is answered.";
+  const ol = document.createElement("ol"); ol.className = "qlist";
+  box.append(h, note, ol);
+  checks.forEach((ch, i) => {
+    const a = answers[ch.id];
+    const dog = ch.values[3] ? ` & ${ch.values[3]}` : "";
+    const li = document.createElement("li");
+    const p = document.createElement("p"); p.className = "qtext";
+    p.textContent = ch.why === "changed"
+      ? `${ch.id} (${ch.was}${dog}): the Handler has been changed to “${ch.name}” on the ${MASTER}, but the Handler Number is still ${ch.no || "blank"}. Is ${ch.name || "this"} a different person?`
+      : `${ch.id} (${ch.name}${dog}): the website notes in Comments say the Handler was edited, but the Handler Number wasn't (it's ${ch.no || "blank"}). Is the handler now a different person?`;
+    const row = document.createElement("div"); row.className = "yesno"; row.setAttribute("role", "group"); row.setAttribute("aria-label", p.textContent);
+    li.append(p, row);
+    const extra = document.createElement("div");
+    const status = () => {
+      const x = answers[ch.id];
+      const bad = x && x.mode === "new" ? handlerNoProblem(ch, x.no) : "";
+      li.className = "q" + (!x ? "" : x.mode === "same" || !bad ? " yes" : "");
+      return bad;
+    };
+    [["new", "Yes, a different person"], ["same", "No, same person"]].forEach(([v, label]) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "small"; b.textContent = label; b.setAttribute("aria-pressed", a && a.mode === v ? "true" : "false");
+      b.addEventListener("click", () => {
+        answers[ch.id] = { mode: v, no: (answers[ch.id] || {}).no || "" };
+        renderHandlerChecks(box, checks, answers, onChange);
+        onChange();
+        const again = box.querySelectorAll(".qlist > li")[i];
+        const focus = again && (v === "new" ? again.querySelector("input") : again.querySelector(".yesno button:nth-child(2)"));
+        if (focus) focus.focus();
+      });
+      row.append(b);
+    });
+    if (a && a.mode === "new") {
+      const lab = document.createElement("label"); lab.className = "hnew";
+      const sp = document.createElement("span"); sp.textContent = `${ch.name || "New handler"}'s SSANZ Handler Number`;
+      const inp = document.createElement("input"); inp.type = "text"; inp.className = "tx"; inp.inputMode = "numeric"; inp.maxLength = 12; inp.autocomplete = "off"; inp.value = a.no || "";
+      const err = document.createElement("p"); err.className = "herr";
+      const ans = document.createElement("p"); ans.className = "answer";
+      const show = () => {
+        const bad = status();
+        err.textContent = a.no ? bad : ""; err.hidden = !err.textContent;
+        ans.textContent = bad ? "" : `${norm(a.no)} will go in the Handler Number column on the ${MASTER} (row ${ch.row}), highlighted yellow, and on the trial tabs.`;
+        ans.hidden = !ans.textContent;
+      };
+      inp.addEventListener("input", () => { a.no = inp.value; show(); onChange(); });
+      lab.append(sp, inp);
+      extra.append(lab, err, ans);
+      show();
+    } else if (a && a.mode === "same") {
+      const ans = document.createElement("p"); ans.className = "answer";
+      ans.textContent = ch.why === "changed"
+        ? `“${ch.name}” is kept with Handler Number ${ch.no || "blank"}. You won't be asked about this entry again unless it changes.`
+        : `Handler Number ${ch.no || "blank"} is kept. You won't be asked about this entry again unless it changes.`;
+      extra.append(ans);
+      status();
+    } else status();
+    li.append(extra);
+    ol.append(li);
+  });
+}
+
 /* ---------- Start: first drop ---------- */
-async function start(wb, sourceWs, rows, baseName, fileLabel, notes = []) {
+async function start(wb, sourceWs, rows, baseName, fileLabel, notes = [], handlerAnswers = null) {
   const master = buildMaster(rows);
   if (!master.rows.length) return showStop("There are no entries in this file", [{ type: "stop", text: "The headings are there, but there are no entry rows under them.", fix: "Check you downloaded the right trial's entries, then drop that file in." }]);
   const read = readMaster([master.header, ...master.rows.map(r => r.cells)]);
+  // A Handler edited on the website without its Handler Number: ask before anything is made.
+  const hChecks = handlerChecks(read.entries, read.columns, rows);
+  if (hChecks.length && !handlerAnswers) {
+    const answers = {};
+    hideAll();
+    $("result").hidden = true;
+    $("handlerStartFile").textContent = `${fileLabel}: nothing has been made yet. Answer each question, then choose Make the trial spreadsheet.`;
+    const go = () => { $("handlerGo").disabled = handlerOpen(hChecks, answers) > 0; };
+    renderHandlerChecks($("hStart"), hChecks, answers, go);
+    go();
+    $("handlerGo").onclick = async () => {
+      if (handlerOpen(hChecks, answers)) return;
+      try { await start(wb, sourceWs, rows, baseName, fileLabel, notes, answers); }
+      catch (err) { showStop("Something went wrong", [splitMsg(err)]); }
+    };
+    $("handlerStart").hidden = false;
+    $("handlerStart").scrollIntoView({ block: "start" });
+    return;
+  }
+  const hHold = {};
+  const hEdits = hChecks.length ? applyHandlerAnswers(read.entries, hChecks, handlerAnswers || {}, hHold) : { cells: [], lines: [] };
   const tabs = startTabs(read.entries, read.trials);
   if (!tabs.length) return showStop("No trial has any entries yet", [{ type: "stop", text: "None of the trial columns (like NWAdv1) have anything entered, so there are no trial tabs to make.", fix: "Check the download is for the right trial, or wait until entries have come in." }]);
   // Replace tabs made earlier by this tool (older versions too), but never the download itself.
@@ -1368,7 +1538,8 @@ async function start(wb, sourceWs, rows, baseName, fileLabel, notes = []) {
     if (names.has(w.name.toLowerCase()) || [MASTER, SETTINGS_TAB].map(x => x.toLowerCase()).includes(w.name.toLowerCase()) || (ours && TRIAL_RE.test(w.name))) wb.removeWorksheet(w.id);
   }
   sourceWs.unprotect && sourceWs.unprotect();
-  writeMaster(wb, sourceWs, master);
+  const masterWs = writeMaster(wb, sourceWs, master);
+  hEdits.cells.forEach(h => { const cell = masterWs.getCell(h.row, read.columns.handlerNo + 1); cell.value = /^\d+$/.test(h.no) ? Number(h.no) : h.no; cell.fill = LATE_FILL; });
   tabs.forEach(t => writeTrialRows(newTrialTab(wb, t.name), t.rows));
   const settings = {
     app: "SSANZ trial tools", schema: 1, trialName: baseName, downloadName: fileLabel, sourceTab: sourceWs.name,
@@ -1377,13 +1548,14 @@ async function start(wb, sourceWs, rows, baseName, fileLabel, notes = []) {
     tabs: Object.fromEntries(tabs.map(t => [t.name, { trial: t.trial, madeBy: TOOL.name, changed: stamp() }])),
     snap: snapshot(read.entries, tabs),
   };
+  if (hHold.handlerOk) settings.handlerOk = hHold.handlerOk;
   await writeSettings(wb, settings);
   current = { wb, baseName, fileLabel, settings, tabs, started: true };
   hideAll();
   renderResult({
     title: "Your trial spreadsheet is ready", label: fileLabel, tabs,
     stats: [read.entries.length, tabs.length, read.entries.filter(e => e.values[5].includes("D")).length, read.entries.filter(e => e.values[5].includes("H")).length],
-    labels: ["dogs marked D", "dogs marked H"], summary: notes.map(n => n.text),
+    labels: ["dogs marked D", "dogs marked H"], summary: [...notes.map(n => n.text), ...hEdits.lines],
   });
   $("actionNote").textContent = `The download has Sheet 1 (locked), the ${MASTER}, ${tabs.length} trial tab${tabs.length === 1 ? "" : "s"} (${tabs.map(t => t.name).join(", ")}) and ${SETTINGS_TAB}.`;
 }
@@ -1441,7 +1613,8 @@ async function resume(wb, baseName, fileLabel, opts = {}) {
   catch (err) { return showStop(`The ${MASTER} can't be read`, [splitMsg(err)], { excel: true }); }
   const tabs = trialCandidates(wb, settings).map(w => readTrialTab(w.name, sheetRows(w), read.trials, read.entries));
   const check = audit(read.entries, tabs, settings.snap);
-  current = { wb, baseName, fileLabel, settings, read, tabs, masterWs, sourceWs, choices: {}, check, answers: {}, notes,
+  const handlers = handlerChecks(read.entries, read.columns, sheet1Now, settings.handlerOk || {});
+  current = { wb, baseName, fileLabel, settings, read, tabs, masterWs, sourceWs, choices: {}, check, answers: {}, notes, handlers, handlerAnswers: {},
     masterHeader: sheetRows(masterWs)[0] || [], ballotChoices: {}, ballotMax: {} };
   tabs.filter(t => !t.unusable).forEach(t => { current.choices[t.name] = "keep"; });
   renderUpdate();
@@ -1466,6 +1639,7 @@ function renderUpdate() {
     const byId = new Map(read.entries.map(e => [e.id, e]));
     plan.diffs.forEach(d => { const li = document.createElement("li"); li.textContent = `${d.tab}, ${who(d.id, (byId.get(d.id) || {}).values)}, ${d.field}: “${d.was}” → “${d.now}”`; ul.append(li); });
   }
+  renderHandlerChecks($("hUpdate"), current.handlers, current.handlerAnswers, refreshUpdateButton);
   renderQuestions();
   renderWaitlists();
   renderChoices();
@@ -1514,8 +1688,9 @@ function refreshUpdateButton() {
   const stop = questions.some(q => answers[q.key] === "no" && q.no === "stop");
   const open = questions.filter(q => !answers[q.key]).length;
   const wait = current.settings ? waitProblems().length : 0;
-  $("doUpdate").disabled = stop || open > 0 || wait > 0;
-  $("doUpdate").title = stop ? "Check the file first (see above)" : open ? `Answer the ${open} ${open === 1 ? "question" : "questions"} above first` : wait ? "Sort out the waitlist messages above first" : "";
+  const hOpen = current.handlers ? handlerOpen(current.handlers, current.handlerAnswers) : 0;
+  $("doUpdate").disabled = stop || open > 0 || wait > 0 || hOpen > 0;
+  $("doUpdate").title = stop ? "Check the file first (see above)" : hOpen ? `Answer the ${hOpen} handler ${hOpen === 1 ? "question" : "questions"} above first` : open ? `Answer the ${open} ${open === 1 ? "question" : "questions"} above first` : wait ? "Sort out the waitlist messages above first" : "";
 }
 function renderChoices() {
   const box = $("choices");
@@ -1554,6 +1729,9 @@ async function saveUpdate(draw) {
     // Changes confirmed on the trial tabs go onto the Master List first, highlighted.
     const edits = draw ? { cells: [], late: [], lines: [] } : applyAnswers(read.entries, tabs, current.check.questions, current.answers);
     writeMasterEdits(masterWs, read, edits);
+    // New Handler Numbers for changed handlers go onto the Master List, highlighted, before the tabs are written.
+    const hEdits = draw ? { cells: [], lines: [] } : applyHandlerAnswers(read.entries, current.handlers || [], current.handlerAnswers || {}, settings);
+    hEdits.cells.forEach(h => { const cell = masterWs.getCell(h.row, read.columns.handlerNo + 1); cell.value = /^\d+$/.test(h.no) ? Number(h.no) : h.no; cell.fill = LATE_FILL; });
     // Ballots: the draw, or waitlist answers and late entries in balloted trials.
     const ballotLines = draw ? drawBallot(draw) : updateBallots();
     const plan = planUpdate(read.entries, tabs, read.trials, draw ? {} : current.choices);
@@ -1572,7 +1750,7 @@ async function saveUpdate(draw) {
       settings.tabs[t.name] = { ...prev, trial: t.trial, madeBy: prev.madeBy || (t.mode === "new" ? TOOL.name : "user copy"), changed: changed ? now : prev.changed || now };
     });
     await writeBallotTabs(wb);
-    const lines = [...(current.notes || []).map(n => n.text), ...edits.lines, ...ballotLines, ...summaryLines(plan)];
+    const lines = [...(current.notes || []).map(n => n.text), ...hEdits.lines, ...edits.lines, ...ballotLines, ...summaryLines(plan)];
     settings.snap = snapshot(read.entries, plan.tabs);
     settings.steps.push(step(draw ? `Ballot drawn for ${draw.trial} (${draw.plan.max} places, ${draw.plan.waitlist.length} on the waitlist)`
       : `Trial tabs updated (${plan.tabs.length} tabs${edits.lines.length ? `, ${edits.lines.length} ${edits.lines.length === 1 ? "change" : "changes"} from the trial tabs confirmed` : ""}${ballotLines.length ? `, ${ballotLines.length} waitlist ${ballotLines.length === 1 ? "change" : "changes"}` : ""})`));
@@ -1631,7 +1809,7 @@ function ballotTrials() {
 function openBallot() {
   const { read, tabs } = current;
   const plan = planUpdate(read.entries, tabs, read.trials, {});
-  const pending = current.check.questions.length > 0 || read.late.length > 0 || waitReviews().some(w => w.review.removed.length || w.review.late.length)
+  const pending = current.check.questions.length > 0 || (current.handlers || []).length > 0 || read.late.length > 0 || waitReviews().some(w => w.review.removed.length || w.review.late.length)
     || plan.tabs.some(t => t.mode === "new" || t.removed.length || t.added.length || t.changed);
   current.ballot = { trial: "", max: "", ticks: {}, by: "", pending };
   hideAll();
