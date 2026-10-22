@@ -28,7 +28,7 @@ TOOLS = [
          does="Makes one email address per person, ready to paste into BCC. Run it on a Payment Split file to email just one group, or on your selection of trial groups. After a ballot it lists who has a place and who is on the waitlist.",
          gives="Emails tab · BCC list"),
     dict(src="Trial-Entry-Trial-Lists.html", out="trial-lists.html", title="Trial Lists",
-         does="Makes a randomly ordered running list for each trial (e.g. NWAdv1), with D / H reactivity flags and a check for handlers with two dogs in one trial. For an oversubscribed trial it can run the SSANZ ballot and keep a numbered waitlist.",
+         does="Makes a randomly ordered running list for each trial (e.g. NWAdv1), with D / H reactivity flags and a check for handlers with two dogs in one trial. You can then change the running order by moving ticked dogs to the top or bottom, or up or down. For an oversubscribed trial it can run the SSANZ ballot and keep a numbered waitlist.",
          gives="One tab per trial"),
     dict(src="Trial-Entry-Documents.html", out="trial-documents.html", title="Trial Documents",
          does="Turns the trial tabs into Word documents (A4): running orders for the catalogue, callboards, and time stewards' and judges' sheets with one element and judge per sheet. It also prints the judging sheets as a PDF, one per dog for each search, with the date, host, judge, element, search time and running-order number filled in. And it prints the certificates onto the pre-printed SSANZ cards. Wherever possible data need only be entered once, however there are plenty of customisation options too, including the possibility of adding your logo.",

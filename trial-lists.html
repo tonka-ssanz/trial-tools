@@ -194,6 +194,26 @@ table.btable td.grp.g1, table.btable td.grp.g2 { color: var(--accent); font-weig
 table.btable td.grp.g0 { color: var(--stop); font-weight: 700; }
 table.btable th.tick { text-align: center; }
 .bsummary { margin: 0; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); font-size: 15px; }
+#order, #order > * { min-width: 0; }
+#orderTab { width: 100%; }
+.otools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); }
+.otools .sep { width: 1px; align-self: stretch; background: var(--line); margin: 0 2px; }
+.otools label { display: flex; gap: 6px; align-items: center; font-size: 14px; color: var(--muted); white-space: nowrap; }
+.otools input[type=number] { width: 64px; padding: 5px 7px; }
+.osel { margin: 0; font-size: 14px; min-height: 1.5em; }
+.osel b { color: var(--accent); }
+table.otable td, table.otable th { padding: 6px 12px; }
+table.otable tbody tr { cursor: pointer; }
+table.otable tbody tr:hover td { background: var(--bg); }
+table.otable tr.picked td { background: var(--accent-soft); }
+table.otable tr.flash td { animation: oflash 1.2s ease-out; }
+@keyframes oflash { from { box-shadow: inset 4px 0 0 var(--accent); background: var(--accent-soft); } to { box-shadow: inset 4px 0 0 transparent; } }
+table.otable td.tick, table.otable th.tick { width: 34px; text-align: center; padding-right: 0; }
+table.otable td.tick input, table.otable th.tick input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+table.otable td.place { font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; width: 3em; }
+tr.moved td { background: var(--accent-soft); }
+@media (max-width: 560px) { table.otable td, table.otable th { padding: 6px 5px; font-size: 13px; } table.otable td.id { font-size: 11px; } .otools .sep { display: none; } }
+@media (prefers-reduced-motion: reduce) { table.otable tr.flash td { animation: none; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
 .crumbs { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; font-size: 14px; margin-bottom: -12px; }
@@ -301,6 +321,7 @@ table.btable th.tick { text-align: center; }
     <div class="actions">
       <button class="primary" type="button" id="doUpdate">Update trial tabs</button>
       <button type="button" id="openBallot">Ballot a trial…</button>
+      <button type="button" id="openOrder">Change running order…</button>
       <button type="button" class="danger" id="restart">Start again from scratch…</button>
     </div>
     <div class="warnbox" id="restartBox" hidden>
@@ -357,6 +378,45 @@ table.btable th.tick { text-align: center; }
     </div>
   </section>
 
+  <section class="panel" id="order" hidden>
+    <h2>Change the running order</h2>
+    <p class="note">Tick one or more dogs, then move them. Ticked dogs stay ticked, so you can keep moving them. Nothing in your spreadsheet changes until you choose <b>Save running order</b>.</p>
+    <div class="warnbox" id="orderPending" hidden>
+      <h3>Update the trial tabs first</h3>
+      <p>There are changes on the Master List or the trial tabs that haven't been applied yet. Choose <b>Go back</b>, then <b>Update trial tabs</b>. On the next page choose <b>Change running order</b>: there's no need to download and drop the file in again in between.</p>
+    </div>
+    <div id="orderForm" hidden>
+      <label class="bfield" for="orderTab"><span>Trial tab</span><select id="orderTab"></select></label>
+      <div class="otools" role="toolbar" aria-label="Move the ticked dogs">
+        <button type="button" class="small" id="oTop" title="Move the ticked dogs to the top">⤒ Top</button>
+        <button type="button" class="small" id="oUp" title="Move the ticked dogs up">↑ Up</button>
+        <button type="button" class="small" id="oDown" title="Move the ticked dogs down">↓ Down</button>
+        <button type="button" class="small" id="oBottom" title="Move the ticked dogs to the bottom">⤓ Bottom</button>
+        <label for="oBy">Up / down by <input type="number" id="oBy" min="1" step="1" value="1" inputmode="numeric"> <span id="oByWord">place</span></label>
+        <span class="sep" aria-hidden="true"></span>
+        <label for="oPlace">Move to place <input type="number" id="oPlace" min="1" step="1" inputmode="numeric"></label>
+        <button type="button" class="small" id="oPlaceGo">Move</button>
+      </div>
+      <p class="osel" id="orderSel" aria-live="polite"></p>
+      <div class="table-box">
+        <table class="otable">
+          <thead><tr><th class="tick"><input type="checkbox" id="oAll" aria-label="Tick or untick every dog"></th><th>Place</th><th>Entry ID</th><th>Handler</th><th>Dog</th><th>Reactive</th></tr></thead>
+          <tbody id="orderRows"></tbody>
+        </table>
+      </div>
+      <div class="actions">
+        <button type="button" class="small" id="oUndo">Undo</button>
+        <button type="button" class="small" id="oReset">Put this tab back as it was</button>
+        <button type="button" class="small" id="oClear">Untick all</button>
+      </div>
+      <p class="note">Tip: hold Shift and tick a second dog to tick every dog in between.</p>
+    </div>
+    <div class="actions">
+      <button class="primary" type="button" id="orderSave" disabled>Save running order</button>
+      <button type="button" id="orderBack">Go back</button>
+    </div>
+  </section>
+
   <section class="result" id="result" aria-live="polite">
     <div class="result-head">
       <h2 id="resultTitle">Example result</h2>
@@ -380,8 +440,9 @@ table.btable th.tick { text-align: center; }
     </div>
 
     <div class="actions">
-      <button class="primary" id="download" type="button" disabled>Download trial spreadsheet</button>
       <button type="button" id="resultBallot" hidden>Ballot a trial…</button>
+      <button type="button" id="resultOrder" hidden>Change running order…</button>
+      <button class="primary" id="download" type="button" disabled>Download trial spreadsheet</button>
     </div>
     <p class="note" id="actionNote">Drop a file to enable the download.</p>
 
@@ -407,7 +468,7 @@ table.btable th.tick { text-align: center; }
       <li><b>Sheet 1</b> is the website download, exactly as downloaded. It's locked with a password and has a red tab, with a reminder note in cell A1: you can see and copy it, but not type in it. If it does get changed (for example by another program), the tools list each changed cell and can put Sheet 1 back as downloaded.</li>
       <li><b>Make changes on the Master List:</b> add a late entry as a new row (leave Entry ID blank and put x in its trial columns), type <code>Withdrawn</code> in Status to withdraw an entry from the whole event (the row turns grey and struck through), delete an x to scratch it from one trial, or correct a name. Then drop the file back in here and choose <b>Update trial tabs</b>.</li>
       <li><b>A new handler needs a new Handler Number.</b> If the Handler on the Master List is changed (for example someone else is running the dog) but the Handler Number isn't, or the website notes in Comments say the Handler was edited but not the Handler SSANZ Number, the page asks about it before going on. Type the new handler's SSANZ Handler Number (it's put on the Master List for you, highlighted yellow), or confirm it's the same person and only the spelling of the name was corrected.</li>
-      <li><b>On the trial tabs</b> you can move rows to change the running order, and duplicate a tab to try another order. Start a copy's name with the trial code, e.g. “NWAdv1 Sat plan”. Names and other details typed on a trial tab are replaced by the Master List on update, and you'll be shown what changes first.</li>
+      <li><b>On the trial tabs</b> you can also move rows in Excel (Change running order, below, is safer), and duplicate a tab to try another order. Start a copy's name with the trial code, e.g. “NWAdv1 Sat plan”. Names and other details typed on a trial tab are replaced by the Master List on update, and you'll be shown what changes first.</li>
       <li><b>Changes made on a trial tab</b> are spotted when you drop the file back in: a row deleted from a trial, a dog moved or copied to another trial, or a new row typed in. You'll be asked about each one, for example “E196 (Jane Smith &amp; Moss) has been removed from NWAdv1. Have they withdrawn from this trial?”. Answer Yes and the Master List is updated to match (changed cells are highlighted yellow; someone left in no trial is marked Withdrawn; a late entry gets its own Entry ID). Answer No and you're asked to check the file first.</li>
       <li><b>Copies of a trial tab</b> (for a different running order, e.g. when elements run separately) must have exactly the same entrants as the trial's main tab, just in a different order. If a dog is missing from, or extra on, some of them, you'll be asked about it in the same way, and on Yes every tab for that trial is updated to match.</li>
       <li><b>Entry IDs</b> (E014, L001…) link each entry across the tabs. Messages always show the handler and dog too, e.g. “E014 (Jane Smith &amp; Moss)”. Don't change or delete the IDs; when you copy or move a dog to another trial tab, copy the whole row including its ID.</li>
@@ -416,6 +477,7 @@ table.btable th.tick { text-align: center; }
       <li><b>Comments:</b> trial tabs show only reactivity: <code>D</code> dog-reactive, <code>H</code> people-reactive, <code>D + H</code> both. Check the Master List for other requests.</li>
       <li><b>Ballots:</b> if a trial has more entries than places, choose <b>Ballot a trial</b> after entries close. Type the maximum places (including judges' and stewards' dogs) and tick the judges and stewards. Places go first to them, then to dogs with fewer than 2 qualifying certificates at that level (Buried Hides: fewer than 3, for that medium), then by random draw among the rest. Qualifiers come from the “Qual@export” columns of the entries download. If the guaranteed places alone are more than the maximum, the page stops: contact SSANZ for guidance.</li>
       <li><b>After a ballot</b> the trial tab keeps the dogs with places, the <code>Waitlist</code> tab lists the rest in order, and the <code>Ballot</code> tab keeps the full ranked list and a record of every change, for the 12 months records must be kept. On the Master List a waitlisted dog shows “Waitlist 3” in that trial's column instead of x. When a place comes free (a withdrawal, or you raise the maximum), Update trial tabs offers it down the waitlist in order; record each answer there. Late entries in a balloted trial go on the bottom of its waitlist. A ballot can't be redrawn.</li>
+      <li><b>To change the running order</b> (helpers early, or moving dogs to avoid clashes), drop the file in here and choose <b>Change running order</b>. If a trial needs a ballot, draw it first, so only the dogs with places are in the order. Tick one or more dogs and move them to the top or bottom, up or down a number of places, or to a given place, then save and download. Each row moves whole, with its Entry ID and any highlighting, which avoids the mix-ups that cutting and pasting in Excel can cause. The new order is listed for you to check.</li>
       <li><b>Tool Settings</b> holds what the tools need to carry on where you left off, including a copy of Sheet 1. Please don't edit or delete it.</li>
       <li><b>Once Trial Documents has started</b>, the Master List and trial tabs are locked. To change entries after that, drop the file in here and choose <b>Make a late change</b>.</li>
       <li><b>Edit your trial spreadsheet in Excel</b> or free Excel for the web (<a href="https://excel.cloud.microsoft" target="_blank" rel="noopener">excel.cloud.microsoft</a>). After editing in Excel for the web, use File → Save As → Download a copy. Keep the file for at least 12 months, stored securely and not on a shared computer.</li>
@@ -503,7 +565,7 @@ table.btable th.tick { text-align: center; }
 /* =========================================================================
    Trial Lists: the logic (no spreadsheet library needed, so it can be tested on its own)
    ========================================================================= */
-const TOOL = { name: "Trial Lists", version: "5.5" };
+const TOOL = { name: "Trial Lists", version: "5.6" };
 const MASTER = "Master List";
 const SETTINGS_TAB = "Tool Settings";
 const ID_HEAD = "Entry ID", STATUS_HEAD = "Status";
@@ -903,7 +965,7 @@ function summaryLines(plan) {
     t.rows.forEach((r, k) => { if (r.isNew) parts.push(`${r.promoted ? "From the waitlist" : "Late entry"}, added at the bottom, row ${k + 2}: ${who(r.id, r.values)}`); });
     (t.confirmed || []).forEach(c => parts.push(c));
     if (t.changed) parts.push(`${t.changed} ${t.changed === 1 ? "detail" : "details"} updated from the Master List`);
-    const late = t.rows.some(r => r.isNew) ? " Move them in Excel if you want them elsewhere." : "";
+    const late = t.rows.some(r => r.isNew) ? " Use Change running order if you want them elsewhere." : "";
     return `${t.name} (order kept): ${parts.length ? parts.join(". ") + "." + late : "no changes."}`;
   });
 }
@@ -1075,6 +1137,31 @@ function applyAnswers(entries, tabs, questions, answers) {
     const e = byId.get(q.id);
     if (!e.withdrawn && ![...e.trials].length) { e.withdrawn = true; e.status = "Withdrawn"; out.cells.push({ id: q.id, status: true, value: "Withdrawn" }); out.lines.push(`${who(q.id, e.values)} is in no other trial, so is marked Withdrawn on the ${MASTER}.`); }
   });
+  return out;
+}
+
+/* ---------- Running order ----------
+   order: the rows of a trial tab, top to bottom (any unique keys). picked: a Set of the keys to move.
+   how: "top" | "bottom" | "up" | "down" (by n places) | "to" (the first ticked row lands on place n, 1 = top).
+   Ticked rows keep their order among themselves; the others keep theirs. Returns a new array. */
+function moveRows(order, picked, how, n = 1) {
+  const sel = order.filter(k => picked.has(k));
+  if (!sel.length) return order.slice();
+  const rest = order.filter(k => !picked.has(k));
+  n = Math.max(1, Math.floor(Number(n)) || 1);
+  if (how === "top") return [...sel, ...rest];
+  if (how === "bottom") return [...rest, ...sel];
+  if (how === "to") { const at = Math.min(n - 1, rest.length); return [...rest.slice(0, at), ...sel, ...rest.slice(at)]; }
+  const len = order.length, out = new Array(len).fill(undefined);
+  if (how === "up") {
+    let next = 0;
+    order.forEach((k, i) => { if (!picked.has(k)) return; const j = Math.max(i - n, next); out[j] = k; next = j + 1; });
+  } else if (how === "down") {
+    let next = len - 1;
+    for (let i = len - 1; i >= 0; i--) { const k = order[i]; if (!picked.has(k)) continue; const j = Math.min(i + n, next); out[j] = k; next = j - 1; }
+  } else return order.slice();
+  let r = 0;
+  for (let j = 0; j < len; j++) if (out[j] === undefined) out[j] = rest[r++];
   return out;
 }
 
@@ -1256,7 +1343,7 @@ if (typeof module !== "undefined") {
   module.exports = { TOOL, MASTER, SETTINGS_TAB, TRIAL_HEADERS, VALUE_FIELDS, SHEET1_PASSWORD, SHEET1_NOTE, SHEET1_TAB_COLOUR, phoneNumber, reactivity, shuffle, fingerprint, rowsFingerprint, entryId, columns, looksLikeEntries,
     buildMaster, readMaster, startTabs, doubles, readTrialTab, planUpdate, summaryLines, settingsRows, readSettings, stamp, who, snapshot, audit, applyAnswers,
     copyMatches, sheet1Changes, changeText, sheet1Problem, cellRef, handlerChecks, handlerNoProblem, handlerOpen, applyHandlerAnswers, handlerKey,
-    BALLOT_RULES, STEWARD_DEFINITION, isBallotTab, waitlistTab, ballotTab, notEntered, onWaitlist, ballotClass, mulberry32, newSeed, ballotPlan, ballotRecord, ballotReview, ballotDecisions, groupLabel };
+    BALLOT_RULES, STEWARD_DEFINITION, isBallotTab, waitlistTab, ballotTab, notEntered, onWaitlist, ballotClass, mulberry32, newSeed, ballotPlan, ballotRecord, ballotReview, ballotDecisions, groupLabel, moveRows };
 }
 
 if (typeof module === "undefined") {
@@ -1407,7 +1494,7 @@ function showStop(title, msgs, opts = {}) {
   $("stop").hidden = false;
   $("result").hidden = true;
 }
-function hideAll() { ["stop", "picker", "update", "ballot", "handlerStart"].forEach(id => $(id).hidden = true); showStatus(""); }
+function hideAll() { ["stop", "picker", "update", "ballot", "order", "handlerStart"].forEach(id => $(id).hidden = true); showStatus(""); }
 function showStatus(msg) { const s = $("status"); s.textContent = msg; s.hidden = !msg; }
 
 /* ---------- Writing the working file ---------- */
@@ -1919,11 +2006,15 @@ function ballotTrials() {
   return read.trials.filter(T => ballotClass(T) && tabs.some(t => !t.unusable && t.name.toLowerCase() === T.toLowerCase()))
     .map(T => ({ T, done: (settings.ballots || {})[T], n: read.entries.filter(e => !e.withdrawn && e.trials.has(T)).length }));
 }
-function openBallot() {
+/* Changes waiting to be applied by Update trial tabs (ballots and running-order changes need the tabs up to date first). */
+function pendingChanges() {
   const { read, tabs } = current;
   const plan = planUpdate(read.entries, tabs, read.trials, {});
-  const pending = current.check.questions.length > 0 || (current.handlers || []).length > 0 || read.late.length > 0 || waitReviews().some(w => w.review.removed.length || w.review.late.length)
+  return current.check.questions.length > 0 || (current.handlers || []).length > 0 || read.late.length > 0 || waitReviews().some(w => w.review.removed.length || w.review.late.length)
     || plan.tabs.some(t => t.mode === "new" || t.removed.length || t.added.length || t.changed);
+}
+function openBallot() {
+  const pending = pendingChanges();
   current.ballot = { trial: "", max: "", ticks: {}, by: "", pending };
   hideAll();
   $("result").hidden = true;
@@ -2181,6 +2272,236 @@ async function writeBallotTabs(wb) {
   }
 }
 
+/* =========================================================================
+   Running order: the page
+   ========================================================================= */
+/* Each trial tab's rows as they are in the spreadsheet. A row is keyed by its sheet row number, and moves
+   whole (every cell, its formatting and notes), so nothing can be split up or overwritten. */
+function orderRows(ws) {
+  const rows = sheetRows(ws), h = (rows[0] || []).map(lower), at = k => h.indexOf(k);
+  const c = { id: at("entry id"), handler: at("handler"), pet: at("dog pet name"), dogNo: at("dog no"), comments: at("comments") };
+  const out = [];
+  rows.forEach((r, i) => {
+    if (i === 0 || !r || r.every(isBlank)) return;
+    const v = k => c[k] < 0 ? "" : norm(r[c[k]]);
+    out.push({ key: i + 1, id: v("id").toUpperCase(), handler: v("handler"), dog: v("pet"), dogNo: v("dogNo"), flag: reactivity(v("comments")) });
+  });
+  return out;
+}
+function openOrder() {
+  const { wb, settings, read, tabs } = current;
+  const pending = pendingChanges();
+  if (!current.orders) {
+    current.orders = {};
+    tabs.filter(t => !t.unusable).forEach(t => {
+      const ws = wb.getWorksheet(t.name);
+      if (!ws) return;
+      const rows = orderRows(ws);
+      current.orders[t.name] = { trial: t.trial, rows: new Map(rows.map(r => [r.key, r])), start: rows.map(r => r.key), order: rows.map(r => r.key), picked: new Set(), moved: new Set(), undo: [], last: null };
+    });
+  }
+  hideAll();
+  $("result").hidden = true;
+  $("orderPending").hidden = !pending;
+  $("orderForm").hidden = pending;
+  const names = Object.keys(current.orders);
+  if (!pending && !names.length) {
+    $("orderPending").hidden = true;
+  }
+  if (!pending) {
+    const sel = $("orderTab");
+    if (!current.orderTab || !current.orders[current.orderTab]) current.orderTab = names[0];
+    sel.textContent = "";
+    names.forEach(n => { const o = document.createElement("option"); o.value = n; sel.append(o); });
+    renderOrderTabs();
+    renderOrder();
+  }
+  refreshOrderSave();
+  $("order").hidden = false;
+  $("order").scrollIntoView({ block: "start" });
+  (pending ? $("orderBack") : $("orderTab")).focus();
+}
+const orderChanged = o => o.order.some((k, i) => k !== o.start[i]);
+function renderOrderTabs() {
+  [...$("orderTab").options].forEach(op => {
+    const o = current.orders[op.value];
+    op.textContent = `${op.value} · ${o.order.length} ${o.order.length === 1 ? "dog" : "dogs"}${orderChanged(o) ? " · changed, not saved yet" : ""}`;
+  });
+  $("orderTab").value = current.orderTab;
+}
+function refreshOrderSave() {
+  const any = Object.values(current.orders || {}).some(orderChanged);
+  $("orderSave").disabled = !any;
+  $("orderSave").title = any ? "" : "Move at least one dog first";
+}
+function renderOrder(flash = new Set()) {
+  const o = current.orders[current.orderTab];
+  const tb = $("orderRows");
+  tb.textContent = "";
+  o.order.forEach((k, i) => {
+    const r = o.rows.get(k), picked = o.picked.has(k);
+    const tr = document.createElement("tr");
+    tr.className = (picked ? "picked" : "") + (flash.has(k) ? " flash" : "");
+    tr.dataset.key = k;
+    const tick = document.createElement("td"); tick.className = "tick";
+    const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = picked;
+    cb.setAttribute("aria-label", `Tick place ${i + 1}: ${who(r.id, ["", r.handler, "", r.dog])}`);
+    tick.append(cb);
+    const cells = [[String(i + 1), "place"], [r.id, "id"], [r.handler, ""], [r.dog, ""], [r.flag, r.flag ? "flag" : ""]];
+    tr.append(tick, ...cells.map(([v, cls]) => { const td = document.createElement("td"); td.textContent = v; if (cls) td.className = cls; return td; }));
+    tr.addEventListener("click", ev => {
+      if (ev.target !== cb) cb.checked = !cb.checked;
+      pickRow(k, cb.checked, ev.shiftKey);
+    });
+    tb.append(tr);
+  });
+  $("oAll").checked = o.order.length > 0 && o.picked.size === o.order.length;
+  $("oAll").indeterminate = o.picked.size > 0 && o.picked.size < o.order.length;
+  $("oByWord").textContent = Number($("oBy").value) === 1 ? "place" : "places";
+  $("oPlace").max = String(Math.max(1, o.order.length));
+  renderOrderSel();
+  ["oTop", "oUp", "oDown", "oBottom", "oPlaceGo", "oClear"].forEach(id => { $(id).disabled = !o.picked.size; });
+  $("oUndo").disabled = !o.undo.length;
+  $("oReset").disabled = !orderChanged(o);
+}
+function renderOrderSel(msg) {
+  const o = current.orders[current.orderTab], el = $("orderSel");
+  el.textContent = "";
+  if (msg) { el.textContent = msg; return; }
+  if (!o.picked.size) { el.textContent = "Nothing ticked. Tick the dogs you want to move."; return; }
+  const places = o.order.map((k, i) => o.picked.has(k) ? i + 1 : 0).filter(Boolean);
+  const b = document.createElement("b"); b.textContent = `${places.length} ${places.length === 1 ? "dog" : "dogs"} ticked`;
+  el.append(b, ` (place${places.length === 1 ? "" : "s"} ${list(places.map(String))}).`);
+}
+function pickRow(k, on, range) {
+  const o = current.orders[current.orderTab];
+  if (range && o.last != null && o.order.includes(o.last)) {
+    const a = o.order.indexOf(o.last), b = o.order.indexOf(k);
+    o.order.slice(Math.min(a, b), Math.max(a, b) + 1).forEach(x => on ? o.picked.add(x) : o.picked.delete(x));
+  } else if (on) o.picked.add(k); else o.picked.delete(k);
+  o.last = k;
+  renderOrder();
+}
+function doMove(how) {
+  const o = current.orders[current.orderTab];
+  if (!o.picked.size) return;
+  const n = how === "to" ? Number($("oPlace").value) : Number($("oBy").value);
+  if (how === "to" && !(n >= 1)) { $("oPlace").focus(); return renderOrderSel("Type the place to move to (1 is the top), then choose Move."); }
+  const next = moveRows(o.order, o.picked, how, n);
+  if (next.every((k, i) => k === o.order[i])) {
+    renderOrder();
+    return renderOrderSel(how === "up" || how === "top" ? "Already at the top." : how === "down" || how === "bottom" ? "Already at the bottom." : "They're already there.");
+  }
+  o.undo.push({ order: o.order.slice(), moved: new Set(o.moved) });
+  o.order = next;
+  o.picked.forEach(k => o.moved.add(k));
+  renderOrder(new Set(o.picked));
+  renderOrderTabs();
+  refreshOrderSave();
+  const places = o.order.map((k, i) => o.picked.has(k) ? i + 1 : 0).filter(Boolean);
+  renderOrderSel(`Moved. Now at place${places.length === 1 ? "" : "s"} ${list(places.map(String))}.`);
+  const first = $("orderRows").querySelector("tr.picked");
+  if (first) first.scrollIntoView({ block: "nearest" });
+}
+$("openOrder").addEventListener("click", openOrder);
+$("resultOrder").addEventListener("click", async () => {
+  if (!current || !current.wb) return;
+  await resume(current.wb, current.baseName, current.fileLabel || current.baseName);
+  if (current.read && !$("update").hidden) openOrder();
+});
+$("orderTab").addEventListener("change", e => { current.orderTab = e.target.value; renderOrder(); });
+[["oTop", "top"], ["oUp", "up"], ["oDown", "down"], ["oBottom", "bottom"], ["oPlaceGo", "to"]].forEach(([id, how]) => $(id).addEventListener("click", () => doMove(how)));
+$("oPlace").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); doMove("to"); } });
+$("oBy").addEventListener("input", () => { $("oByWord").textContent = Number($("oBy").value) === 1 ? "place" : "places"; });
+$("oAll").addEventListener("change", e => { const o = current.orders[current.orderTab]; o.picked = e.target.checked ? new Set(o.order) : new Set(); o.last = null; renderOrder(); });
+$("oClear").addEventListener("click", () => { const o = current.orders[current.orderTab]; o.picked = new Set(); o.last = null; renderOrder(); });
+$("oUndo").addEventListener("click", () => {
+  const o = current.orders[current.orderTab];
+  if (!o.undo.length) return;
+  const u = o.undo.pop();
+  o.order = u.order; o.moved = u.moved;
+  renderOrder(); renderOrderTabs(); refreshOrderSave(); renderOrderSel("Last move undone.");
+});
+$("oReset").addEventListener("click", () => {
+  const o = current.orders[current.orderTab];
+  o.undo.push({ order: o.order.slice(), moved: new Set(o.moved) });
+  o.order = o.start.slice(); o.moved = new Set();
+  renderOrder(); renderOrderTabs(); refreshOrderSave(); renderOrderSel("This tab is back in its saved order. Choose Undo to get your changes back.");
+});
+$("orderBack").addEventListener("click", () => {
+  hideAll();
+  renderUpdate();
+});
+$("orderSave").addEventListener("click", async () => {
+  const btn = $("orderSave"); btn.disabled = true;
+  try { await saveOrder(); }
+  catch (err) { showStop("The running order couldn't be saved", [{ type: "stop", text: String(err.message || err), fix: "Nothing has been downloaded. Drop the file in again and try once more. If it happens again, go back to your most recent downloaded copy." }]); }
+  finally { btn.disabled = false; }
+});
+
+/* Rewrite a sheet's data rows in a new order. order: sheet row numbers, top to bottom. Every cell moves
+   with its value, formatting and note, and the row keeps its height. Blank rows in between end up at the bottom. */
+function permuteRows(ws, order) {
+  const width = Math.max(ws.columnCount || 0, ...order.map(r => ws.getRow(r).cellCount || 0), 1);
+  const copy = x => x == null ? x : (typeof structuredClone === "function" ? structuredClone(x) : JSON.parse(JSON.stringify(x)));
+  const saved = order.map(r => {
+    const row = ws.getRow(r), cells = [];
+    for (let c = 1; c <= width; c++) {
+      const cell = row.getCell(c);
+      cells.push({ value: copy(cell.value), style: copy(cell.style), note: copy(cell.note) });
+    }
+    return { height: row.height, cells };
+  });
+  const last = Math.max(1, ...order);
+  for (let r = 2; r <= last; r++) {
+    const row = ws.getRow(r), s = saved[r - 2];
+    row.height = s ? s.height : undefined;
+    for (let c = 1; c <= width; c++) {
+      const cell = row.getCell(c), v = s ? s.cells[c - 1] : null;
+      cell.value = v ? v.value : null;
+      cell.style = v && v.style ? v.style : {};
+      if (v && v.note) cell.note = v.note;
+      else if (cell.note) cell._comment = undefined;   // ExcelJS 4.4: no public way to remove a note
+    }
+  }
+}
+async function saveOrder() {
+  const { wb, settings, read } = current;
+  const now = stamp(), lines = [], names = [];
+  let moved = 0;
+  for (const [name, o] of Object.entries(current.orders)) {
+    if (!orderChanged(o)) continue;
+    const ws = wb.getWorksheet(name);
+    if (!ws) continue;
+    permuteRows(ws, o.order);
+    const ids = new Set(orderRows(ws).map(r => r.id));
+    if ([...o.rows.values()].some(r => r.id && !ids.has(r.id))) throw new Error(`Something went wrong rearranging ${name}.`);
+    const placed = o.order.map((k, i) => ({ k, i })).filter(x => o.moved.has(x.k) && o.start.indexOf(x.k) !== x.i);
+    moved += placed.length;
+    names.push(name);
+    const shown = placed.slice(0, 12).map(x => { const r = o.rows.get(x.k); return `${who(r.id, ["", r.handler, "", r.dog])} to place ${x.i + 1} (was ${o.start.indexOf(x.k) + 1})`; });
+    lines.push(`${name} (running order changed): ${shown.join("; ")}${placed.length > 12 ? `; and ${placed.length - 12} more` : ""}.`);
+    const prev = (settings.tabs || {})[name] || {};
+    settings.tabs = settings.tabs || {};
+    settings.tabs[name] = { ...prev, trial: o.trial, madeBy: prev.madeBy || "user copy", changed: now };
+  }
+  if (!names.length) return;
+  settings.steps.push(step(`Running order changed on ${list(names)}`));
+  await writeSettings(wb, settings);
+  const movedIds = new Map(Object.entries(current.orders).map(([n, o]) => [n, new Set([...o.moved].map(k => o.rows.get(k).id))]));
+  const tabs = trialCandidates(wb, settings).map(w => readTrialTab(w.name, sheetRows(w), read.trials, read.entries)).filter(t => !t.unusable)
+    .map(t => ({ ...t, rows: t.rows.map(r => ({ ...r, moved: (movedIds.get(t.name) || new Set()).has(r.id) })) }));
+  const first = tabs.findIndex(t => t.name === names[0]);
+  if (first > 0) tabs.unshift(...tabs.splice(first, 1));
+  current.orders = null;
+  current.done = true;
+  hideAll();
+  renderResult({ title: "Running order saved", label: current.fileLabel, tabs,
+    stats: [read.entries.filter(e => !e.withdrawn).length, tabs.length, moved, names.length],
+    labels: [moved === 1 ? "dog moved" : "dogs moved", names.length === 1 ? "tab changed" : "tabs changed"], summary: lines });
+  $("actionNote").textContent = `Download the updated spreadsheet to keep the new order. Dogs you moved are shaded green in the preview below (not in the spreadsheet). Check the order on ${list(names)} before printing.`;
+}
+
 /* ---------- Result and preview ---------- */
 let previewTabs = [];
 function showTab(i) {
@@ -2192,6 +2513,7 @@ function showTab(i) {
   t.rows.forEach(r => {
     const tr = document.createElement("tr");
     if (r.isNew) tr.className = "late";
+    else if (r.moved) tr.className = "moved";
     trialCells(r.id, r.values).forEach((v, k) => { const td = document.createElement("td"); td.textContent = v; if (TRIAL_HEADERS[k] === "Comments" && v) td.className = "flag"; if (k === 0) td.className = "id"; tr.appendChild(td); });
     tb.appendChild(tr);
   });
@@ -2238,6 +2560,7 @@ function renderResult(o) {
   $("doubles").hidden = !dbl.length;
   $("download").disabled = !!o.example;
   $("resultBallot").hidden = !!o.example || !current || !current.wb || !!current.unlockedOnly;
+  $("resultOrder").hidden = $("resultBallot").hidden;
 }
 
 /* ---------- Dropping a file ---------- */
