@@ -271,7 +271,7 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
   <header>
     <p class="eyebrow">SSANZ trial tools</p>
     <h1>Trial Documents</h1>
-    <p class="lede">Drop in your trial spreadsheet from Trial Lists (the file ending “(in progress)”). Choose your organisation, give each class its level, date, session, venue and SSANZ trial # once, then download the catalogue running orders, callboards, time stewards' and judges' sheets as Word documents (A4), the judging sheets as a PDF ready to print, and certificates for the pre-printed SSANZ cards.</p>
+    <p class="lede">Drop in your trial spreadsheet from Trial Lists (the file ending “(in progress)”). Choose your organisation, give each class its level, date, session, venue and SSANZ trial # once, then download the catalogue running orders, callboards, time stewards' and judges' sheets as Word documents or PDFs (A4), the judging sheets as a PDF ready to print, and certificates for the pre-printed SSANZ cards.</p>
   </header>
 
   <label class="drop" id="drop" for="file" tabindex="0">
@@ -420,6 +420,7 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
       <div class="warnbox" id="checks" hidden></div>
       <div class="actions">
         <button class="primary" id="download" type="button" disabled>Download Word document</button>
+        <button id="downloadPdf" type="button" disabled hidden>Download as PDF</button>
         <p class="note batchnote" id="batchNote" hidden></p>
       </div>
       <p class="note" id="actionNote">Drop a file to enable the download.</p>
@@ -454,8 +455,8 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
       <li><b>One setup, several documents:</b> level, date, session, venue and Trial # are entered once and used by every document. Which classes are ticked, the order and the copies are kept separately for each document, so you can print just one or two callboards without changing the catalogue.</li>
       <li><b>Catalogue running orders:</b> each table is kept in one piece, and tables share a page when they fit. A table too long for one page starts on a new page and carries on over the next, with the heading row repeated. The preview's page numbers are a close estimate; Word makes the final fit.</li>
       <li><b>Callboards:</b> each class starts on its own page, with larger text and a Started ✓ column to tick. Set <b>Copies</b> to print more than one. Each copy can have an element line under the title: pick elements from the list in the order they run (each one is added to the end), then edit the text to add numbers such as “Exterior 2”. Or choose <b>Other</b> and type exactly what should be printed (up to one line). If nothing is chosen or typed, a line to write on is printed instead.</li>
-      <li><b>Time stewards and Judges:</b> one sheet per search, up to 8 per class. Choose each search's element from the list, or choose <b>Other</b> and type it. An element used twice in a class is numbered for you (Exterior 1, Exterior 2). The judge's name prints on the right of the element line; leave it blank to write it in. Every search needs an element before the sheets download. Time stewards, Judges and the judging sheets share the same searches, so you only fill them in once.</li>
-      <li><b>Judging sheets:</b> one sheet per dog for each search, with the date, host, judge, element, search time and the dog's running-order number filled in. They use the same searches (copies), elements and judges as the Time stewards and Judges sheets. <b>Standard searches</b> sets up the usual searches for the class in one click. Search times come from the regulations; where the judge sets the time on the day, the range is printed. If you type an element under Other, a usual one (e.g. “Interior 2”) gets the regulation time for the class; anything else asks you for its time in minutes.</li>
+      <li><b>Time stewards and Judges:</b> one sheet per search, up to 8 per class. Choose each search's element from the list, or choose <b>Other</b> and type it. An element used twice in a class is numbered for you (Exterior 1, Exterior 2). The searches are filled in for you the first time: Novice, Intermediate and Advanced get one per element (four), and Excellent gets five, with the fifth left for you to choose. You can change any of them. The judge's name prints on the right of the element line; leave it blank to write it in. Every search needs an element before the sheets download. Time stewards, Judges and the judging sheets share the same searches, so you only fill them in once.</li>
+      <li><b>Judging sheets:</b> one sheet per dog for each search, with the date, host, judge, element, search time and the dog's running-order number filled in. They use the same searches (copies), elements and judges as the Time stewards and Judges sheets. <b>Standard searches</b> puts the usual searches for the class back in one click. Search times come from the regulations; where the judge sets the time on the day, the range is printed. If you type an element under Other, a usual one (e.g. “Interior 2”) gets the regulation time for the class; anything else asks you for its time in minutes.</li>
       <li><b>Spare judging sheets:</b> choose 0–9 for each class, a few for a small class and more for a big one. The judging sheets won't download until every class has a number.</li>
       <li><b>Excellent hides:</b> choose the number of hides for each search. There are 12 in total over the five searches; if the numbers chosen don't add up to 12, a warning on the class asks you to double-check them. The judging sheets won't download until they match the numbers drawn for the trial (3, 3, 3, 2 and 1).</li>
       <li><b>Coloured paper for each element:</b> the usual colours are filled in (Containers yellow, Interior pink, Exterior blue, Vehicle green); change any of them once and they're saved with your trial. Then use the buttons under the download, one per element: load that colour of paper, print, and move on to the next. The Download button still gives every element in one file.</li>
@@ -469,7 +470,8 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
       <li><b>Balloted trials:</b> the Waitlist and Ballot tabs that Trial Lists makes are never used here, so waitlisted dogs aren't on any running order, callboard, sheet or certificate. If a waitlisted dog is given a place later, Trial Lists adds them to the trial tab and this page lists the classes to reprint.</li>
       <li><b>Your own copies</b> of a trial tab (e.g. “NWAdv1 Sat plan”) can be ticked like any other class. They use the same class settings as the trial they came from.</li>
       <li><b>Edit your trial spreadsheet in Excel</b> or free Excel for the web (excel.cloud.microsoft). After editing in Excel for the web, use File → Save As → Download a copy. Keep the file for at least 12 months, stored securely and not on a shared computer.</li>
-      <li><b>Google Docs</b> can open the downloaded .docx too (File → Open → Upload).</li>
+      <li><b>No Microsoft Word?</b> Running orders, callboards, time stewards' and judges' sheets also download as a PDF, laid out the same and ready to print. A PDF can't be edited, so change anything on this page and download again. Google Docs can open the downloaded .docx too (File → Open → Upload).</li>
+      <li><b>Print single-sided:</b> callboards, time stewards' and judges' sheets are each used on their own on the day, so nothing should be on the back.</li>
       <li>The file never leaves your computer. All the work happens in this page.</li>
     </ul>
   </section>
@@ -1221,6 +1223,159 @@ function buildDocx(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
   return files;
 }
 
+/* ---------- The same documents as a PDF, for anyone without Word ----------
+   Laid out like the Word version: A4, the same margins, logo and event name at the top of every page,
+   the red footer note, titles, element lines and tables. Helvetica stands in for Arial (the same widths).
+   Every table that fits on a page is kept in one piece; a longer one starts on a new page and carries
+   on over the next, with the heading row repeated.
+   opts: as buildDocx, but logo = { bytes (JPEG), pxW, pxH } (see logoForPdf). Returns { bytes, pages }. */
+const PT = 25.4 / 72;   // mm per point
+const TWIP = 1 / 56.7;  // mm per twip
+function pdfColour(c, stroke) {
+  const h = hex(c), v = i => f2(parseInt(h.slice(i, i + 2), 16) / 255);
+  return `${v(0)} ${v(2)} ${v(4)} ${stroke ? "RG" : "rg"}`;
+}
+/* Text broken into lines no wider than w mm; a word too long for a line is broken where it has to be. */
+function wrapText(s, w, size, bold) {
+  const out = [];
+  String(s ?? "").split("\n").forEach(part => {
+    let line = "";
+    part.split(/\s+/).filter(Boolean).forEach(word => {
+      const next = line ? line + " " + word : word;
+      if (textWidth(next, size, bold) <= w) { line = next; return; }
+      if (line) out.push(line);
+      while (word.length > 1 && textWidth(word, size, bold) > w) {
+        let k = word.length - 1;
+        while (k > 1 && textWidth(word.slice(0, k), size, bold) > w) k--;
+        out.push(word.slice(0, k));
+        word = word.slice(k);
+      }
+      line = word;
+    });
+    out.push(line);
+  });
+  return out;
+}
+function buildTablePdf(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
+  const PAGE = { w: 210, h: 297, top: A4.top * TWIP, bottom: A4.bottom * TWIP, header: A4.header * TWIP, footer: A4.footer * TWIP };
+  const side = sideMargin(layout) * TWIP, usable = PAGE.w - 2 * side;
+  const total = layout.columns.reduce((a, c) => a + (c.width || 1), 0);
+  const widths = layout.columns.map(c => usable * (c.width || 1) / total);
+  const lh = size => size * 1.15 * PT, padX = 80 * TWIP;
+  const logo = opts.logo && opts.logo.bytes && opts.logo.pxW && opts.logo.pxH ? opts.logo : null;
+  const eventName = String(opts.eventName || "").trim();
+  let logoH = layout.logoHeightMm, logoW = logo ? logoH * logo.pxW / logo.pxH : 0;
+  if (logoW > 80) { logoH = logoH * 80 / logoW; logoW = 80; }
+  const top = logo || eventName ? Math.max(PAGE.top, headerHeight(!!logo, !!eventName, layout) * TWIP + 100 * TWIP) : PAGE.top;
+  const bottom = PAGE.h - PAGE.bottom;
+  const headInk = "#" + textOn(opts.headerColour), headFill = pdfColour(opts.headerColour);
+  const border = pdfColour(layout.colours.borders, true);
+  const red = pdfColour(layout.reactive.colour), yellow = layout.reactive.fill ? pdfColour(layout.reactive.fill) : "";
+  const pdf = new PdfDoc();
+
+  const newPage = () => {
+    pdf.addPage(PAGE.w, PAGE.h);
+    if (logo) pdf.image(logo, side, PAGE.header, logoW, logoH);
+    if (eventName) pdf.text(eventName, side + usable, PAGE.header + (logo ? logoH : 3.6), { size: layout.eventSizePt || 10, align: "right", plain: true, colour: pdfColour(layout.eventColour || "#404040"), maxW: usable - logoW - 6 });
+    if (layout.reactive.footerNote) pdf.text(layout.reactive.footerNote, PAGE.w / 2, PAGE.h - PAGE.footer - 1, { size: 11, bold: true, align: "center", plain: true, colour: red });
+    return top;
+  };
+  /* A tick (✓), drawn with lines because the standard fonts don't have one. */
+  const tick = (cx, base, size, colour) => {
+    const e = size * PT;
+    pdf.op(`${f2(size * 0.09)} w 1 J 1 j ${pdfColour(colour, true)} ${f2((cx - 0.32 * e) * MM)} ${f2(pdf.Y(base - 0.33 * e))} m ${f2((cx - 0.1 * e) * MM)} ${f2(pdf.Y(base - 0.05 * e))} l ${f2((cx + 0.36 * e) * MM)} ${f2(pdf.Y(base - 0.72 * e))} l S 0 J 0 j 0 G`);
+  };
+  /* One line of text in a cell, at baseline y. */
+  const cellLine = (s, k, y, size, bold, colour) => {
+    const c = layout.columns[k], x0 = side + widths.slice(0, k).reduce((a, b) => a + b, 0);
+    const x = c.align === "left" ? x0 + padX : c.align === "right" ? x0 + widths[k] - padX : x0 + widths[k] / 2;
+    if (s === "✓") return tick(x, y, size, colour);
+    pdf.text(s, x, y, { size, bold, plain: true, align: c.align === "left" || c.align === "right" ? c.align : "center", colour: pdfColour(colour) });
+  };
+  /* A row of cells: blocks[k] = [{ lines, size, bold }] stacked in the cell, all centred top to bottom. */
+  const rowHeight = (blocks, padY, minH) => Math.max(minH, ...blocks.map(b => b.reduce((a, x) => a + x.lines.length * lh(x.size), 0) + 2 * padY));
+  const drawRow = (y, h, blocks, fill, colour) => {
+    let x = side;
+    widths.forEach((w, k) => {
+      if (fill) pdf.op(`${fill} ${f2(x * MM)} ${f2(pdf.Y(y + h))} ${f2(w * MM)} ${f2(h * MM)} re f 0 g`);
+      const textH = blocks[k].reduce((a, b) => a + b.lines.length * lh(b.size), 0);
+      let ty = y + (h - textH) / 2;
+      blocks[k].forEach(b => b.lines.forEach(line => {
+        if (line) cellLine(line, k, ty + lh(b.size) / 2 + 0.36 * b.size * PT, b.size, b.bold, colour);
+        ty += lh(b.size);
+      }));
+      x += w;
+    });
+    x = side;
+    pdf.op(`0.5 w ${border} ${f2(side * MM)} ${f2(pdf.Y(y + h))} ${f2(usable * MM)} ${f2(h * MM)} re S` +
+      widths.slice(0, -1).map(w => { x += w; return ` ${f2(x * MM)} ${f2(pdf.Y(y))} m ${f2(x * MM)} ${f2(pdf.Y(y + h))} l S`; }).join("") + " 0 G");
+  };
+  const headBlocks = layout.columns.map((c, k) => {
+    const room = widths[k] - 2 * padX, size = c.headerSizePt || layout.bodySizePt, sub = c.subheaderSizePt || layout.subheaderSizePt;
+    return [{ lines: wrapText(c.header, room, size, true), size, bold: true }, ...(c.subheader ? [{ lines: wrapText(c.subheader, room, sub, false), size: sub, bold: false }] : [])];
+  });
+  const headH = rowHeight(headBlocks, 40 * TWIP, 0);
+  const drawHead = y => { drawRow(y, headH, headBlocks, headFill, headInk); return y + headH; };
+  const minRow = layout.rowHeightMm > 0 ? layout.rowHeightMm : 0;
+  const bodyRow = r => {
+    const blocks = layout.columns.map((c, k) => { const size = c.sizePt || layout.bodySizePt; return [{ lines: wrapText(r.cells[k], widths[k] - 2 * padX, size, r.reactive), size, bold: r.reactive }]; });
+    return { blocks, h: rowHeight(blocks, 30 * TWIP, minRow), fill: r.reactive ? yellow : "", colour: r.reactive ? layout.reactive.colour : "#000000" };
+  };
+
+  const titleH = layout.titleSizePt * 1.2 * PT;
+  let y = newPage();
+  tables.forEach((t, i) => {
+    const line = elementLine(t.element, layout), judge = judgeText(t.element, layout);
+    const elSize = layout.elementSizePt || 12;
+    const lead = titleH + (line ? 60 * TWIP + elSize * 1.2 * PT + 160 * TWIP : 160 * TWIP);
+    const rows = t.rows.map(bodyRow);
+    const height = lead + headH + rows.reduce((a, r) => a + r.h, 0);
+    const fits = height <= bottom - top;
+    const gap = 400 * TWIP;
+    if (i > 0) {
+      if (opts.eachOnNewPage || layout.onePerPage || !fits || y + gap + height > bottom) y = newPage();
+      else y += gap;
+    }
+    // Title, with the date's 1st / 2nd / 3rd raised
+    let x = side;
+    const base = y + titleH * 0.8, colour = pdfColour(opts.titleColour || "#000000");
+    t.parts.forEach(p => {
+      const sz = p.sup ? layout.titleSizePt * 0.65 : layout.titleSizePt;
+      pdf.rawText(pdfCodes(p.text), x, base, sz, true, colour, p.sup ? layout.titleSizePt * 0.33 : 0);
+      x += textWidth(p.text, sz, true);
+    });
+    y += titleH;
+    if (line) {
+      y += 60 * TWIP;
+      const lb = y + elSize * 1.2 * PT * 0.8;
+      pdf.text(line, side, lb, { size: elSize, bold: true, plain: true, maxW: judge ? usable * 0.6 : usable });
+      if (judge) pdf.text(judge, side + usable, lb, { size: elSize, bold: true, plain: true, align: "right", maxW: usable * 0.38 });
+      y += elSize * 1.2 * PT;
+    }
+    y += 160 * TWIP;
+    y = drawHead(y);
+    rows.forEach(r => {
+      if (y + r.h > bottom + 0.01) y = drawHead(newPage());
+      drawRow(y, r.h, r.blocks, r.fill, r.colour);
+      y += r.h;
+    });
+  });
+  return { bytes: pdf.bytes(opts.title || "Trial documents"), pages: pdf.pages.length };
+}
+/* The logo for a PDF: redrawn as a JPEG on white (PDFs take JPEGs as they are; a PNG's see-through parts become white). */
+async function logoForPdf(logo) {
+  if (!logo || !logo.bytes) return null;
+  const bmp = await createImageBitmap(new Blob([logo.bytes], { type: logo.type === "png" ? "image/png" : "image/jpeg" }));
+  const scale = Math.min(1, 400 / bmp.height);
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(bmp.width * scale)); c.height = Math.max(1, Math.round(bmp.height * scale));
+  const g = c.getContext("2d");
+  g.fillStyle = "#ffffff"; g.fillRect(0, 0, c.width, c.height);
+  g.drawImage(bmp, 0, 0, c.width, c.height);
+  const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.92));
+  return { bytes: new Uint8Array(await blob.arrayBuffer()), pxW: c.width, pxH: c.height };
+}
+
 /* =========================================================================
    SCORE SHEETS: SETTINGS
    Everything printed on the judging sheets is set here. When the
@@ -1564,7 +1719,7 @@ function cutAndStack(n) {
 const PDF_WIN = { 0x20AC: 0x80, 0x201A: 0x82, 0x0192: 0x83, 0x201E: 0x84, 0x2026: 0x85, 0x2020: 0x86, 0x2021: 0x87, 0x02C6: 0x88, 0x2030: 0x89, 0x0160: 0x8A, 0x2039: 0x8B, 0x0152: 0x8C, 0x017D: 0x8E,
   0x2018: 0x91, 0x2019: 0x92, 0x201C: 0x93, 0x201D: 0x94, 0x2022: 0x95, 0x2013: 0x96, 0x2014: 0x97, 0x02DC: 0x98, 0x2122: 0x99, 0x0161: 0x9A, 0x203A: 0x9B, 0x0153: 0x9C, 0x017E: 0x9E, 0x0178: 0x9F,
   0x0100: 0x81, 0x0101: 0x8D, 0x0112: 0x8F, 0x0113: 0x90, 0x012A: 0x9D, 0x012B: 0xA4, 0x014C: 0xA6, 0x014D: 0xA8, 0x016A: 0xAA, 0x016B: 0xAF };
-const PDF_DIFFS = "[129 /Amacron 141 /amacron 143 /Emacron 144 /emacron 157 /Imacron 164 /imacron 166 /Omacron 168 /omacron 170 /Umacron 175 /umacron]";
+const PDF_DIFFS = "[127 /dotlessi 129 /Amacron 141 /amacron 143 /Emacron 144 /emacron 157 /Imacron 164 /imacron 166 /Omacron 168 /omacron 170 /Umacron 175 /umacron]";
 const PDF_FREED = new Set([0xA4, 0xA6, 0xA8, 0xAA, 0xAF]);   // Latin-1 codes given to macron letters
 function pdfCode(ch) {
   const u = ch.codePointAt(0);
@@ -1597,7 +1752,26 @@ function textWidth(s, sizePt, bold) {
   const w = bold === "hand" ? CERT_FONT.widths : bold ? PDF_WIDTHS.B : PDF_WIDTHS.R;
   return pdfCodes(s).reduce((a, c) => a + (w[c - 32] || 556), 0) * sizePt / 1000 / MM;
 }
+/* Macron letters in Helvetica: some PDF viewers (Chrome's, among others) have no macron letters in the
+   Helvetica they use instead, and leave a gap. So the plain letter is printed and the macron drawn over it.
+   code → [plain letter's code, capital?]. ī uses the dotless i (code 127, see PDF_DIFFS). */
+const MACRON_BASE = { 0x81: [65, 1], 0x8D: [97, 0], 0x8F: [69, 1], 0x90: [101, 0], 0x9D: [73, 1], 0xA4: [127, 0], 0xA6: [79, 1], 0xA8: [111, 0], 0xAA: [85, 1], 0xAF: [117, 0] };
 PdfDoc.prototype.rawText = function (codes, xMm, yMm, sizePt, bold, colour, rise) {
+  if (bold !== "hand" && codes.some(c => MACRON_BASE[c])) {
+    const w = bold ? PDF_WIDTHS.B : PDF_WIDTHS.R, em = sizePt / MM, bars = [];
+    let x = xMm;
+    codes = codes.map(c => {
+      const cw = (w[c - 32] || 556) / 1000 * em, m = MACRON_BASE[c];
+      if (m) {
+        const half = Math.max(0.12 * em, Math.min(0.25 * em, cw * 0.4)), th = (bold ? 0.09 : 0.07) * em;
+        const bottom = yMm - (rise || 0) / MM - (m[1] ? 0.79 : 0.61) * em;
+        bars.push(`${f2((x + cw / 2 - half) * MM)} ${f2(this.Y(bottom))} ${f2(2 * half * MM)} ${f2(th * MM)} re`);
+      }
+      x += cw;
+      return m ? m[0] : c;
+    });
+    if (bars.length) this.op(`q ${colour || "0 g"} ${bars.join(" ")} f Q`);
+  }
   const str = codes.map(c => c === 40 || c === 41 || c === 92 ? "\\" + String.fromCharCode(c) : c < 32 || c > 126 ? "\\" + c.toString(8).padStart(3, "0") : String.fromCharCode(c)).join("");
   if (bold === "hand") this.usesHand = true;
   this.op(`BT ${colour || "0 g"} /${bold === "hand" ? "F3" : bold ? "F2" : "F1"} ${f2(sizePt)} Tf ${rise ? f2(rise) + " Ts " : ""}${f2(xMm * MM)} ${f2(this.Y(yMm))} Td (${str}) Tj${rise ? " 0 Ts" : ""} ET`);
@@ -1638,6 +1812,13 @@ PdfDoc.prototype.line = function (x1, y1, x2, y2, o = {}) {
 PdfDoc.prototype.logo = function (x, y, size) {
   this.op(`q ${f2(size * MM)} 0 0 ${f2(size * MM)} ${f2(x * MM)} ${f2(this.Y(y + size))} cm /Im1 Do Q`);
 };
+/* Another picture (e.g. the organisation's logo): img = { bytes (JPEG, RGB), pxW, pxH }, drawn w × h mm with its top left at (x, y). */
+PdfDoc.prototype.image = function (img, x, y, w, h) {
+  this.images = this.images || [];
+  let k = this.images.indexOf(img);
+  if (k < 0) { this.images.push(img); k = this.images.length - 1; }
+  this.op(`q ${f2(w * MM)} 0 0 ${f2(h * MM)} ${f2(x * MM)} ${f2(this.Y(y + h))} cm /Im${k + 2} Do Q`);
+};
 /* Returns the finished PDF as a Uint8Array. */
 PdfDoc.prototype.bytes = function (title) {
   const enc = new TextEncoder();
@@ -1649,7 +1830,7 @@ PdfDoc.prototype.bytes = function (title) {
   const add = body => { objs.push(body); return objs.length; };
   const catalog = add(null), pagesId = add(null);
   const widths = w => `/FirstChar 32 /LastChar 255 /Widths [${w.join(" ")}]`;
-  const font = (base, w) => `<< /Type /Font /Subtype /Type1 /BaseFont /${base} /Encoding << /Type /Encoding /BaseEncoding /WinAnsiEncoding /Differences ${PDF_DIFFS} >> ${widths(w)} >>`;
+  const font = (base, w) => (w = w.slice(), w[127 - 32] = w[0xA4 - 32], `<< /Type /Font /Subtype /Type1 /BaseFont /${base} /Encoding << /Type /Encoding /BaseEncoding /WinAnsiEncoding /Differences ${PDF_DIFFS} >> ${widths(w)} >>`);
   const f1 = add(font("Helvetica", PDF_WIDTHS.R)), fb = add(font("Helvetica-Bold", PDF_WIDTHS.B));
   let f3 = 0;
   if (this.usesHand) {   // embed the handwritten font (TrueType) only when it's used
@@ -1660,11 +1841,12 @@ PdfDoc.prototype.bytes = function (title) {
   }
   const logoBytes = b64bytes(PDF_LOGO.b64);
   const img = add([`<< /Type /XObject /Subtype /Image /Width ${PDF_LOGO.w} /Height ${PDF_LOGO.h} /ColorSpace /DeviceGray /BitsPerComponent 8 /Filter /DCTDecode /Length ${logoBytes.length} >>\nstream\n`, logoBytes, "\nendstream"]);
+  const more = (this.images || []).map((m, k) => ` /Im${k + 2} ${add([`<< /Type /XObject /Subtype /Image /Width ${m.pxW} /Height ${m.pxH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${m.bytes.length} >>\nstream\n`, m.bytes, "\nendstream"])} 0 R`).join("");
   const kids = [];
   this.pages.forEach(p => {
     const content = latin1(p.ops.join("\n"));
     const c = add([`<< /Length ${content.length} >>\nstream\n`, content, "\nendstream"]);
-    kids.push(add(`<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${f2(p.w * MM)} ${f2(p.h * MM)}] /Resources << /Font << /F1 ${f1} 0 R /F2 ${fb} 0 R${f3 ? ` /F3 ${f3} 0 R` : ""} >> /XObject << /Im1 ${img} 0 R >> >> /Contents ${c} 0 R >>`));
+    kids.push(add(`<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${f2(p.w * MM)} ${f2(p.h * MM)}] /Resources << /Font << /F1 ${f1} 0 R /F2 ${fb} 0 R${f3 ? ` /F3 ${f3} 0 R` : ""} >> /XObject << /Im1 ${img} 0 R${more} >> >> /Contents ${c} 0 R >>`));
   });
   objs[catalog - 1] = `<< /Type /Catalog /Pages ${pagesId} 0 R /ViewerPreferences << /PrintScaling /None >> >>`;
   objs[pagesId - 1] = `<< /Type /Pages /Kids [${kids.map(k => k + " 0 R").join(" ")}] /Count ${kids.length} >>`;
@@ -2688,7 +2870,9 @@ const newCopy = doc => ({ mode: doc.judgeField ? "choose" : "none", text: "", ju
 /* Copies are kept per document, or per copyGroup when documents share them (Judges + Time stewards + Score sheets). */
 function copiesOf(tab, doc) {
   const key = doc.copyGroup || doc.id;
-  if (!tab.copies[key]) tab.copies[key] = [newCopy(doc)];
+  // Judges, Time stewards and judging sheets start with the usual searches for the class
+  // (Nosework: one per element, plus a fifth for the organisation to choose at Excellent).
+  if (!tab.copies[key]) tab.copies[key] = doc.copyGroup === "judging" && scoreClass(tab.cls) ? standardSearches(tab.cls, []) : [newCopy(doc)];
   return tab.copies[key];
 }
 const docOf = id => DOCUMENTS.find(d => d.id === id) || DOCUMENTS[0];
@@ -2823,12 +3007,17 @@ function renderDocSwitch() {
   if (!pdf) $("byElement").hidden = true;
   if (!cert) $("byCard").hidden = true;
   $("download").textContent = `Download ${doc.label} (${pdf || cert ? "PDF" : "Word"})`;
+  $("downloadPdf").hidden = pdf || cert;
+  $("downloadPdf").textContent = `Download ${doc.label} (PDF)`;
+  $("downloadPdf").title = "For anyone without Microsoft Word: ready to print, but can't be edited";
   $("batchNote").textContent = pdf
     ? "Think about how you'll print before you download. Using coloured paper for each element? Download in batches with the element buttons below, e.g. all the Containers searches together, so each batch goes on its own colour."
     : cert
     ? "Think about how you'll print before you download. Download in batches with the card buttons below, so each level (and Sand or Water) is printed together on its own pre-printed cards."
-    : doc.id === "judge"
-    ? "Think about how you'll print before you download. Each sheet is one search, with its element at the top. Using coloured paper for each element? Tick only the classes you're printing together, and print each element's pages in a batch on its own colour."
+    : doc.id === "judge" || doc.id === "timekeeper"
+    ? "Think about how you'll print before you download. Each sheet is one search, with its element at the top. Print single-sided: each sheet goes on its own clipboard, so nothing should be on the back."
+    : doc.id === "callboard"
+    ? "Think about how you'll print before you download. Print single-sided: each callboard is put up on its own, so nothing should be on the back."
     : "";
   $("batchNote").hidden = !$("batchNote").textContent;
   $("tablesHelp").textContent = cert
@@ -3407,11 +3596,11 @@ function renderPreview() {
   if (missing.length) checks.append(el("span", { text: `Before the ${doc.label} sheets can be downloaded:` }), el("ul", {}, missing.map(m => el("li", { text: m }))));
   if (msgs.length) checks.append(el("span", { text: msgs.join(" ") + (noDate.length || noLevel.length ? " You can still download, and fix it in Word later." : "") }));
   checks.hidden = !msgs.length && !missing.length;
-  $("download").disabled = state.isExample || !items.length || missing.length > 0;
+  $("download").disabled = $("downloadPdf").disabled = state.isExample || !items.length || missing.length > 0;
   const pages = groups.length ? groups[groups.length - 1].last + 1 : 0;
   const what = doc.copies ? `${items.length} ${items.length === 1 ? "sheet" : "sheets"} (${list.length} ${list.length === 1 ? "class" : "classes"})` : `${items.length} ${items.length === 1 ? "table" : "tables"}`;
   $("actionNote").textContent = state.isExample ? "Drop a file to enable the download."
-    : items.length ? `${what} on about ${pages} ${pages === 1 ? "page" : "pages"}. Word makes the final fit.` : "Tick at least one class.";
+    : items.length ? `${what} on about ${pages} ${pages === 1 ? "page" : "pages"}. ${layout.onePerPage ? "Each list starts on a new page." : "Word makes the final fit."}` : "Tick at least one class.";
 }
 
 /* ---------- Logo, event name, layout ---------- */
@@ -3524,7 +3713,7 @@ function showStatus(msg, isError) {
 }
 
 /* ---------- The working file: open, resume, save progress ---------- */
-const DOCS_TOOL = { name: "Trial Documents", version: "2.3" };
+const DOCS_TOOL = { name: "Trial Documents", version: "2.4" };
 const DAMAGE_NOTE = "This file may have been changed by a program other than Excel. Some trial information could be missing or altered. Apple Numbers or Google Sheets are the most common causes.";
 const DOC_WORDS = { catalogue: "running order", callboard: "callboard", timekeeper: "time stewards' sheets", judge: "judges' sheets", scoresheet: "judging sheets", certificate: "certificates" };
 let dirty = false, quiet = false;
@@ -3724,6 +3913,10 @@ function assignTab(t, s) {
     if (k in s.include) t.include[k] = !!s.include[k] && t.tables[k].usable && t.tables[k].rows.length > 0 && (!isPdf(docOf(k)) || !!scoreClass(t.cls));
   });
   if (s.copies) t.copies = JSON.parse(JSON.stringify(s.copies));
+  // Saved before searches were filled in for you: a single untouched search gets the usual ones.
+  const j = t.copies.judging;
+  if (Array.isArray(j) && j.length === 1 && scoreClass(t.cls) && !["text", "judge", "hides", "time"].some(k => String(j[0][k] || "").trim()))
+    t.copies.judging = standardSearches(t.cls, []);
 }
 function applySaved(d) {
   const orphans = [];
@@ -3926,11 +4119,13 @@ function save(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   $("actionNote").textContent = "Saved as “" + filename + "”.";
 }
-$("download").addEventListener("click", () => { if (state && !state.isExample) checkDetails(downloadDocument); });
-async function downloadDocument() {
+$("download").addEventListener("click", () => { if (state && !state.isExample) checkDetails(() => downloadDocument(false)); });
+$("downloadPdf").addEventListener("click", () => { if (state && !state.isExample) checkDetails(() => downloadDocument(true)); });
+/* asPdf: the Word documents as a PDF instead (for anyone without Word). */
+async function downloadDocument(asPdf) {
   if (!state || state.isExample) return;
   const btn = $("download");
-  btn.disabled = true;
+  btn.disabled = $("downloadPdf").disabled = true;
   try {
     const doc = curDoc();
     if (isCert(doc)) {
@@ -3950,6 +4145,15 @@ async function downloadDocument() {
       return;
     }
     if (missingElements(doc).length) throw new Error("choose the element for every search first (listed above).");
+    if (asPdf) {
+      const tables = printItems().map(it => ({ parts: it.parts, rows: it.rows, element: it.element }));
+      const name = `${state.baseName} ${doc.fileSuffix}`;
+      const { bytes } = buildTablePdf(tables, { titleColour: look.titleColour, headerColour: look.headerColour, eventName: look.eventName, eachOnNewPage: look.eachOnNewPage,
+        logo: await logoForPdf(look.logo), title: name }, layoutFor(doc));
+      save(new Blob([bytes], { type: "application/pdf" }), `${name}.pdf`);
+      recordMade(doc.id, chosen());
+      return;
+    }
     if (typeof JSZip === "undefined") throw new Error("The Word library didn't load. Check your internet connection and reload the page.");
     const tables = printItems().map(it => ({ parts: it.parts, rows: it.rows, element: it.element }));
     const files = buildDocx(tables, { titleColour: look.titleColour, headerColour: look.headerColour, eventName: look.eventName, eachOnNewPage: look.eachOnNewPage, logo: look.logo }, layoutFor(doc));

@@ -28,11 +28,11 @@ TOOLS = [
          does="Makes one email address per person, ready to paste into BCC. Run it on a Payment Split file to email just one group, or on your selection of trial groups. After a ballot it lists who has a place and who is on the waitlist.",
          gives="Emails tab · BCC list"),
     dict(src="Trial-Entry-Trial-Lists.html", out="trial-lists.html", title="Trial Lists",
-         does="Makes a randomly ordered running list for each trial (e.g. NWAdv1), with D / H reactivity flags and a check for handlers with two dogs in one trial. You can then change the running order by moving ticked dogs to the top or bottom, or up or down. For an oversubscribed trial it can run the SSANZ ballot and keep a numbered waitlist.",
+         does="Makes a randomly ordered running list for each trial (e.g. NWAdv1), with D / H reactivity flags and a check for handlers with two dogs in one trial. You can then change the running order by moving ticked dogs to the top or bottom, or up or down. For an oversubscribed trial it will run the SSANZ ballot and keep a numbered waitlist.",
          gives="One tab per trial"),
     dict(src="Trial-Entry-Documents.html", out="trial-documents.html", title="Trial Documents",
-         does="Turns the trial tabs into Word documents (A4): running orders for the catalogue, callboards, and time stewards' and judges' sheets with one element and judge per sheet. It also prints the judging sheets as a PDF, one per dog for each search, with the date, host, judge, element, search time and running-order number filled in. And it prints the certificates onto the pre-printed SSANZ cards. Wherever possible data need only be entered once, however there are plenty of customisation options too, including the possibility of adding your logo.",
-         gives="Running orders · Callboards · Time stewards · Judges (.docx) · Judging sheets · Certificates (.pdf)", label="Makes"),
+         does="Turns the trial tabs into A4 documents, in Word or as a PDF for anyone without Microsoft Office: running orders for the catalogue, callboards, and time stewards' and judges' sheets with one element and judge per sheet. It also prints the judging sheets as a PDF, one per dog for each search, with the date, host, judge, element, search time and running-order number filled in. And it prints the certificates onto the pre-printed SSANZ cards. Wherever possible data need only be entered once, however there are plenty of customisation options too, including the possibility of adding your logo.",
+         gives="Running orders · Callboards · Time stewards · Judges (.docx or .pdf) · Judging sheets · Certificates (.pdf)", label="Makes"),
     dict(src="Trial-Entry-Results-Sheets.html", out="results-sheets.html", title="Results Sheets",
          does="Fills in the official SSANZ results spreadsheet for each class: organisation, Org Ref ID, date, venue, Trial #, judges and every dog in alphabetical order of handler, so the admin team only types the points and times. The SSANZ sheet keeps its lock and formulas, and extra rows are added for big classes.",
          gives="one SSANZ results sheet per class (.xlsx)", label="Makes",
@@ -181,8 +181,8 @@ a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
   <header>
     <p class="eyebrow">SSANZ</p>
     <h1>Trial entry tools</h1>
-    <p class="lede">The interfaces on this page automate and simplify the process of taking your downloaded trial entries, extracting the data you need, and reformatting into various different forms that you may want to use for your trial. At each step the spreadsheet tools give your file back with new tabs added, so none of your original data is lost. The Trial Documents step produces the various formats of running orders in Word, judging sheets as a PDF, and will also print certificates.</p>
-    <p class="important"><b>IMPORTANT</b> - trial lists are produced in a random order. If you wish to move people around, you should do that manually before proceeding to step 4. Remember to move the entire line. Also, if you want to change the running order for different elements, duplicate the entire tab and reorder them there.</p>
+    <p class="lede">The interfaces on this page automate and simplify the process of taking your downloaded trial entries, extracting the data you need, and reformatting into various different forms that you may want to use for your trial. At each step the spreadsheet tools give your file back with new tabs added, so none of your original data is lost. The Trial Documents step produces the various formats of running orders in Word or PDF, judging sheets as a PDF, and will also print certificates.</p>
+    <p class="important"><b>IMPORTANT</b> - trial lists are produced in a random order. If you wish to move people around, use Change running order in step 3 before proceeding to step 4. If you are replacing handler details you must also change the handler number. Also, if you want to change the running order for different elements, duplicate the entire tab and reorder them there. Always save changes before exiting. Nothing is saved in these tools.</p>
   </header>
 
   <section>
