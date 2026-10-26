@@ -32,7 +32,7 @@ TOOLS = [
          gives="One tab per trial"),
     dict(src="Trial-Entry-Documents.html", out="trial-documents.html", title="Trial Documents",
          does="Turns the trial tabs into A4 documents, in Word or as a PDF for anyone without Microsoft Office: running orders for the catalogue, callboards, and time stewards' and judges' sheets with one element and judge per sheet. It also prints the judging sheets as a PDF, one per dog for each search, with the date, host, judge, element, search time and running-order number filled in. And it prints the certificates onto the pre-printed SSANZ cards. Wherever possible data need only be entered once, however there are plenty of customisation options too, including the possibility of adding your logo.",
-         gives="Running orders · Callboards · Time stewards · Judges (.docx or .pdf) · Judging sheets · Certificates (.pdf)", label="Makes"),
+         gives="Running orders · Callboards · Time stewards · Judges · Certificate list (.docx or .pdf) · Judging sheets · Certificates (.pdf)", label="Makes"),
     dict(src="Trial-Entry-Results-Sheets.html", out="results-sheets.html", title="Results Sheets",
          does="Fills in the official SSANZ results spreadsheet for each class: organisation, Org Ref ID, date, venue, Trial #, judges and every dog in alphabetical order of handler, so the admin team only types the points and times. The SSANZ sheet keeps its lock and formulas, and extra rows are added for big classes.",
          gives="one SSANZ results sheet per class (.xlsx)", label="Makes",

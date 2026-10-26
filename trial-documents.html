@@ -168,6 +168,10 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
 .pdfview { width: 100%; height: 720px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
 .page { background: #fff; color: #000; font-family: Arial, Helvetica, sans-serif; padding: 22px 26px 16px; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,.18); display: grid; gap: 8px; }
 .page .phead { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; min-height: 0; }
+.page .phead.labelled { display: grid; grid-template-columns: 1fr auto 1fr; }
+.page .phead.labelled .event { justify-self: end; }
+.page .pendnote { margin: 10px 0 0; font-size: 13.2px; }
+.page .phead .plabel { font-weight: 700; font-size: 16.8px; text-align: center; }
 .page .plogo { height: 44px; max-width: 200px; object-fit: contain; }
 .page .event { color: #404040; font-size: 12px; margin-left: auto; text-align: right; }
 .page .ptitle.next { margin-top: 18px; }
@@ -447,7 +451,10 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
     <h3>Good to know</h3>
     <ul>
       <li><b>Before any download</b> the page checks that every ticked class has its date, venue (location) and a judge for every search. If any are blank it lists them, so you can fill them in first or download anyway.</li>
-      <li><b>Row order</b> is never changed. Each table lists the dogs exactly as they appear on the tab.</li>
+      <li><b>Row order</b> is never changed. Each table lists the dogs exactly as they appear on the tab. The only exceptions are the certificate list and the certificates, which are in alphabetical order of handler.</li>
+      <li><b>Which sheet is which:</b> callboards, time stewards' and judges' sheets each have their name in bold at the top centre of every page (CALLBOARD, TIME STEWARD SHEET, JUDGE’S SHEET), between the logo and the event name, so the piles can't get mixed up. On the time stewards' and judges' sheets the big heading is the level and element (e.g. “Advanced 1 – Interior”), with the day, date and session underneath in smaller print and the judge on the right. Each judge's sheet ends with a thank-you note asking the judge to do their debrief video and pack up, then head back to the results room to sign certificates.</li>
+      <li><b>Search time</b> is printed under the element and judge on the time stewards' and judges' sheets, from the regulation times for the level and element (the same times as on the judging sheets). A range such as 3–4 minutes means the judge sets the time on the day within it. For an element typed under Other, the time you type is used; with no time it prints a line to write on.</li>
+      <li><b>Certificate list:</b> a plain list to write certificates by hand from. Each ticked class becomes a table of handler and dog in alphabetical order of handler, headed with the level, trial number (when the same level runs more than once) and the day and date, e.g. “Advanced 1 – Sat 9th May”. Download it as a PDF (or Word).</li>
       <li><b>Numbers</b> are added for you: each table is numbered 1, 2, 3… in the order the dogs appear on the tab.</li>
       <li><b>Reactive dogs:</b> the Reactive column shows D (dogs), H (humans) or D + H, and the whole row is printed in bold red and highlighted yellow on the running orders, callboards, time stewards' and judges' sheets.</li>
       <li><b>Level names</b> are filled in from the tab name (NWAdv1 → Advanced, BHNovS1 → BH Novice Sand). The trial number is kept when a level appears more than once. You can type over any of them.</li>
@@ -692,6 +699,14 @@ const LAYOUT = {
      singleElement    true = one element per sheet (the drop-down picks one; no "+" lists)
      judgeField       true = a "Judge:" name on the right of the element line, typed per copy
      judgeMaxChars    most characters for the judge's name
+     sheetLabel       what the sheet is, printed in bold at the top centre of every page (e.g. "TIME STEWARD SHEET"); "" for none
+     elementInTitle   true = the element goes in the title ("Advanced 1 – Interior"), with the day, date and
+                      session on the smaller line under it (instead of "Element: …"); for one element per sheet
+     searchTime       true = a "Search time:" line under the element line, from the regulation times in SCORE_SHEETS
+     endNote          printed under the last row of each sheet: [bold start, rest] (e.g. a thank-you to the judge); leave out for none
+     sortBy           "handler" = rows in alphabetical order of handler (then dog) instead of running order
+     ownTabOnly       true = only the trial's own tab is ticked to start with, not users' copies of it
+     footerNote       "" = no red footer note (leave out to use the one in LAYOUT)
      kind             "pdf" = the judging sheets (drawn from SCORE_SHEETS, downloaded as a PDF)
      columns          left to right:
        header     text in the heading row
@@ -736,6 +751,7 @@ const DOCUMENTS = [
     elementLine: true,
     elementSizePt: 13,
     elementMaxChars: 65,               // longest element line that fits on one line at elementSizePt
+    sheetLabel: "CALLBOARD",
     columns: [
       { header: "No.",      from: [],                             width: 6,  align: "center", kind: "number" },
       { header: "Handler",  from: ["Handler", "Handler Name"],    width: 28, align: "center" },
@@ -749,6 +765,9 @@ const DOCUMENTS = [
     id: "timekeeper",                  // id kept from when these were the Timekeepers sheets, so saved progress still loads
     label: "Time stewards",
     fileSuffix: "Time Stewards",
+    sheetLabel: "TIME STEWARD SHEET",
+    elementInTitle: true,
+    searchTime: true,
     about: "For the time steward at each search area, who works with the judge to brief and/or time keep. One sheet per element, with the judge's name, and a Time column to write in. Shares its copies, elements and judges with the Judges sheets and the judging sheets.",
     bodySizePt: 12,
     rowHeightMm: 8.5,
@@ -776,6 +795,10 @@ const DOCUMENTS = [
     sideMarginMm: 10,                  // narrow side margins: the extra width goes to Notes
     label: "Judges",
     fileSuffix: "Judges",
+    sheetLabel: "JUDGE’S SHEET",
+    elementInTitle: true,
+    endNote: ["All done! Thank you.", "As soon as you have done your debrief video and packed up, please head back to the results room to sign certificates. You may keep this sheet for your personal records."],
+    searchTime: true,
     about: "For the judge at each search area. One sheet per element, with the judge's name, a Hide(s) Found column and room for notes. Shares its copies, elements and judges with the Time stewards sheets and the judging sheets.",
     bodySizePt: 10,
     rowHeightMm: 12,
@@ -840,6 +863,24 @@ const DOCUMENTS = [
       { header: "Dog",      from: ["Dog Pet Name", "Dog"],        width: 18 },
     ],
   },
+  {
+    id: "certlist",
+    label: "Certificate list",
+    fileSuffix: "Certificate List",
+    about: "A plain list for writing certificates by hand: the handler and dog for each class in alphabetical order of handler, headed with the level, trial number (when needed) and the day and date.",
+    bodySizePt: 12,
+    rowHeightMm: 8,
+    onePerPage: false,
+    copies: false,
+    elementLine: false,
+    sortBy: "handler",
+    ownTabOnly: true,
+    footerNote: "",
+    columns: [
+      { header: "Handler",  from: ["Handler", "Handler Name"],    width: 50, align: "left" },
+      { header: "Dog",      from: ["Dog Pet Name", "Dog"],        width: 50, align: "left" },
+    ],
+  },
 ];
 
 /* Class codes → names used to pre-fill each table's level, and the default table order.
@@ -857,7 +898,11 @@ const CLASS_NAMES = {
 /* ======================= end of settings ======================= */
 
 const TRIAL_TAB = /^[A-Za-z]+[1-9]$/;
-const layoutFor = doc => ({ ...LAYOUT, ...doc });
+const layoutFor = doc => {
+  const l = { ...LAYOUT, ...doc };
+  if (doc && doc.footerNote != null) l.reactive = { ...LAYOUT.reactive, footerNote: doc.footerNote };
+  return l;
+};
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const DAYS_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -925,6 +970,27 @@ function titleParts(level, dateISO, session) {
   return parts;
 }
 const titleText = parts => parts.map(p => p.text).join("");
+/* Title with the element (Judges / Time stewards): "Advanced 1 – Interior". The element is left out when
+   the level already says it (BH Novice Sand), and a blank element prints a line to write on. */
+function elementTitleParts(level, element) {
+  const lv = String(level || "").trim() || "(no level)", e = String(element || "").trim();
+  if (e && norm(lv).endsWith(norm(e))) return [{ text: lv }];
+  return [{ text: `${lv} – ${e || "______________"}` }];
+}
+/* The smaller line under such a title: "Sat 9th May – AM" (ordinal raised). No date: a line to write on. */
+function dateParts(dateISO, session) {
+  const d = parseISODate(dateISO), parts = [];
+  if (d) { const n = d.getDate(); parts.push({ text: `${DAYS[d.getDay()]} ${n}` }, { text: ordinal(n), sup: true }, { text: ` ${MONTHS[d.getMonth()]}` }); }
+  else parts.push({ text: "Date: ______________" });
+  if (session) parts.push({ text: ` – ${session}` });
+  return parts;
+}
+/* The line under the title, as pieces: the date line (elementInTitle) or the element line. null = none. */
+function lineParts(t, layout) {
+  if (layout && layout.elementInTitle && t.sub) return t.sub;
+  const l = elementLine(t.element, layout);
+  return l ? [{ text: l }] : null;
+}
 
 /* Callboard element line. el: { mode: "none" | "choose" | "other", text }.
    "choose" prints "Element(s): <text>"; "other" prints the operator's text exactly as typed.
@@ -945,6 +1011,22 @@ function judgeText(el, layout) {
   if (!layout || !layout.judgeField || !el) return "";
   const name = String(el.judge || "").trim();
   return "Judge: " + (name || "______________________");
+}
+/* Search time line on Judges / Time stewards sheets (searchTime), from the regulation times in SCORE_SHEETS.
+   cls: the class (e.g. NWAdv1); el: the copy, with the element as printed (text) and any time typed for an
+   Other element (time). A range (3–4) means the judge sets the time on the day. Unknown: a line to write on. */
+function searchTimeText(cls, el, layout) {
+  if (!layout || !layout.searchTime || !el) return "";
+  const sc = scoreClass(cls);
+  let t = "";
+  if (sc) {
+    const known = sc.fixedElement ? { base: sc.fixedElement.split(/\s*\+\s*/)[0] } : elementOf(el.text);
+    if (known) t = timeFor(sc.sheet, known.base);
+    else if (TIME_RE.test(String(el.time || "").trim())) t = el.time;
+  }
+  t = String(t || "").trim().replace(/\s*[-–]\s*/, "–");
+  if (!t) return "Search time: ______ minutes";
+  return `Search time: ${t} ${t === "1" ? "minute" : "minutes"}${t.includes("–") ? " (judge sets the time within this range)" : ""}`;
 }
 /* Element choices for a class type code (NW, BH…); every known element if the type isn't known. */
 function elementChoices(typeCode) {
@@ -997,6 +1079,14 @@ function extractTable(rows, layout = layoutFor(DOCUMENTS[0])) {
       out.push({ cells, reactive });
     }
   }
+  if (layout.sortBy === "handler") {
+    // Alphabetical by handler, then dog (ignoring case and accents); any No. column is renumbered.
+    const at = h => layout.columns.findIndex(c => norm(c.header) === h);
+    const hk = at("handler"), dk = at("dog"), nk = layout.columns.findIndex(c => c.kind === "number");
+    const az = (a, b) => String(a || "").localeCompare(String(b || ""), "en", { sensitivity: "base" });
+    out.sort((a, b) => az(a.cells[hk], b.cells[hk]) || az(a.cells[dk], b.cells[dk]));
+    if (nk >= 0) out.forEach((r, i) => { r.cells[nk] = String(i + 1); });
+  }
   return { usable, rows: out, missing };
 }
 
@@ -1028,7 +1118,7 @@ function para(runs, o = {}) {
   let pr = "";
   if (o.keepNext) pr += "<w:keepNext/>";
   if (o.pageBreakBefore) pr += "<w:pageBreakBefore/>";
-  if (o.rightTab) pr += `<w:tabs><w:tab w:val="right" w:pos="${o.rightTab}"/></w:tabs>`;
+  if (o.rightTab || o.centerTab) pr += `<w:tabs>${o.centerTab ? `<w:tab w:val="center" w:pos="${o.centerTab}"/>` : ""}${o.rightTab ? `<w:tab w:val="right" w:pos="${o.rightTab}"/>` : ""}</w:tabs>`;
   pr += `<w:spacing w:before="${o.before || 0}" w:after="${o.after || 0}"/>`;
   if (o.align) pr += `<w:jc w:val="${o.align}"/>`;
   return `<w:p><w:pPr>${pr}</w:pPr>${runs}</w:p>`;
@@ -1081,9 +1171,11 @@ function columnWidths(layout) {
   const total = layout.columns.reduce((a, c) => a + (c.width || 1), 0);
   return layout.columns.map(c => Math.floor(usable * (c.width || 1) / total));
 }
+const LABEL_PT = 14;   // size of the sheet label at the top of the page
 function headerHeight(hasLogo, hasEvent, layout) {
-  if (!hasLogo && !hasEvent) return 0;
-  const content = hasLogo ? layout.logoHeightMm * 56.7 : 12 * TW_PER_PT;
+  const label = !!(layout && layout.sheetLabel);
+  if (!hasLogo && !hasEvent && !label) return 0;
+  const content = Math.max(hasLogo ? layout.logoHeightMm * 56.7 : 0, label ? LABEL_PT * TW_PER_PT * 1.2 : 0, hasEvent ? 12 * TW_PER_PT : 0);
   return A4.header + content + 120;
 }
 function pageSpace(hasLogo, hasEvent, layout) {
@@ -1108,7 +1200,10 @@ function tableHeight(rows, layout, widths = columnWidths(layout)) {
 const titleHeight = (layout, first) => layout.titleSizePt * TW_PER_PT * 1.2 + 160 + (first ? 0 : 400);
 
 /* Returns, for each table: { page (0-based estimate), newPage (force a page break before it), keepTogether }. */
-const elementHeight = (t, layout) => elementLine(t.element, layout) ? (layout.elementSizePt || 12) * TW_PER_PT * 1.2 + 60 : 0;
+const END_NOTE_PT = 11;
+const endNoteHeight = layout => layout.endNote ? 240 + 2 * END_NOTE_PT * TW_PER_PT * 1.2 : 0;   // two lines at most
+const elementHeight = (t, layout) => endNoteHeight(layout) + (lineParts(t, layout) ? (layout.elementSizePt || 12) * TW_PER_PT * 1.2 + 60 : 0)
+  + (searchTimeText(t.cls, t.element, layout) ? layout.bodySizePt * TW_PER_PT * 1.2 + 60 : 0);
 function planPages(tables, o, layout = layoutFor(DOCUMENTS[0])) {
   const space = pageSpace(!!o.hasLogo, !!o.hasEvent, layout);
   const widths = columnWidths(layout);
@@ -1141,15 +1236,18 @@ function buildDocx(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
   let body = "";
   tables.forEach((t, i) => {
     const runs = t.parts.map(p => run(p.text, { bold: true, colour: opts.titleColour, sizePt: layout.titleSizePt, sup: p.sup })).join("");
-    const line = elementLine(t.element, layout), judge = judgeText(t.element, layout);
-    body += para(runs, { keepNext: true, pageBreakBefore: plan[i].newPage, before: i > 0 && !plan[i].newPage ? 400 : 0, after: line ? 60 : 160 });
+    const line = lineParts(t, layout), judge = judgeText(t.element, layout), time = searchTimeText(t.cls, t.element, layout);
+    body += para(runs, { keepNext: true, pageBreakBefore: plan[i].newPage, before: i > 0 && !plan[i].newPage ? 400 : 0, after: line || time ? 60 : 160 });
     const lineStyle = { bold: true, sizePt: layout.elementSizePt || 12 };
-    if (line) body += para(run(line, lineStyle) + (judge ? `<w:r><w:tab/></w:r>` + run(judge, lineStyle) : ""), { keepNext: true, after: 160, rightTab: judge ? usable : 0 });
+    if (line) body += para(line.map(p => run(p.text, { ...lineStyle, sup: p.sup })).join("") + (judge ? `<w:r><w:tab/></w:r>` + run(judge, lineStyle) : ""), { keepNext: true, after: time ? 60 : 160, rightTab: judge ? usable : 0 });
+    if (time) body += para(run(time, { sizePt: layout.bodySizePt }), { keepNext: true, after: 160 });
     body += tableXml({ ...t, keepTogether: plan[i].keepTogether }, opts, layout, widths);
+    if (layout.endNote) body += para(run(layout.endNote[0], { bold: true, sizePt: END_NOTE_PT }) + (layout.endNote[1] ? run(" " + layout.endNote[1], { sizePt: END_NOTE_PT }) : ""), { before: 240 });
   });
   body += para("", {});
 
-  const hasHeader = !!(logo || eventName);
+  const label = String(layout.sheetLabel || "").trim();
+  const hasHeader = !!(logo || eventName || label);
   const sect = (hasHeader ? `<w:headerReference w:type="default" r:id="rIdHeader1"/>` : "") +
     `<w:footerReference w:type="default" r:id="rIdFooter1"/>` +
     `<w:pgSz w:w="${A4.w}" w:h="${A4.h}"/>` +
@@ -1211,9 +1309,11 @@ function buildDocx(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
         `<pic:blipFill><a:blip r:embed="rIdLogo"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>` +
         `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
     }
+    // Sheet label (e.g. TIME STEWARD SHEET) in the centre, between the logo and the event name.
+    const middle = label ? `<w:r><w:tab/></w:r>` + run(label, { bold: true, sizePt: LABEL_PT }) : "";
     const event = eventName ? `<w:r><w:tab/></w:r>` + run(eventName, { colour: layout.eventColour || "404040", sizePt: layout.eventSizePt || 10 }) : "";
     const header = `${decl}<w:hdr xmlns:w="${NS_W}" xmlns:r="${NS_R}" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
-      para(picture + event, { rightTab: usable, after: 120 }) + `</w:hdr>`;
+      para(picture + middle + event, { rightTab: usable, centerTab: label ? Math.round(usable / 2) : 0, after: 120 }) + `</w:hdr>`;
     files.push(["word/header1.xml", header]);
     if (logo) {
       files.push(["word/_rels/header1.xml.rels", `${decl}<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rel("rIdLogo", "image", "media/logo." + ext)}</Relationships>`]);
@@ -1266,7 +1366,10 @@ function buildTablePdf(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
   const eventName = String(opts.eventName || "").trim();
   let logoH = layout.logoHeightMm, logoW = logo ? logoH * logo.pxW / logo.pxH : 0;
   if (logoW > 80) { logoH = logoH * 80 / logoW; logoW = 80; }
-  const top = logo || eventName ? Math.max(PAGE.top, headerHeight(!!logo, !!eventName, layout) * TWIP + 100 * TWIP) : PAGE.top;
+  const label = String(layout.sheetLabel || "").trim();
+  const top = logo || eventName || label ? Math.max(PAGE.top, headerHeight(!!logo, !!eventName, layout) * TWIP + 100 * TWIP) : PAGE.top;
+  const labelW = label ? textWidth(label, LABEL_PT, true) : 0;
+  const headBase = PAGE.header + (logo ? logoH : label ? LABEL_PT * PT * 0.9 : 3.6);
   const bottom = PAGE.h - PAGE.bottom;
   const headInk = "#" + textOn(opts.headerColour), headFill = pdfColour(opts.headerColour);
   const border = pdfColour(layout.colours.borders, true);
@@ -1276,7 +1379,9 @@ function buildTablePdf(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
   const newPage = () => {
     pdf.addPage(PAGE.w, PAGE.h);
     if (logo) pdf.image(logo, side, PAGE.header, logoW, logoH);
-    if (eventName) pdf.text(eventName, side + usable, PAGE.header + (logo ? logoH : 3.6), { size: layout.eventSizePt || 10, align: "right", plain: true, colour: pdfColour(layout.eventColour || "#404040"), maxW: usable - logoW - 6 });
+    if (label) pdf.text(label, side + usable / 2, headBase, { size: LABEL_PT, bold: true, align: "center", plain: true });
+    if (eventName) pdf.text(eventName, side + usable, headBase, { size: layout.eventSizePt || 10, align: "right", plain: true, colour: pdfColour(layout.eventColour || "#404040"),
+      maxW: label ? usable / 2 - labelW / 2 - 4 : usable - logoW - 6 });
     if (layout.reactive.footerNote) pdf.text(layout.reactive.footerNote, PAGE.w / 2, PAGE.h - PAGE.footer - 1, { size: 11, bold: true, align: "center", plain: true, colour: red });
     return top;
   };
@@ -1323,11 +1428,17 @@ function buildTablePdf(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
   };
 
   const titleH = layout.titleSizePt * 1.2 * PT;
+  /* Bold text in pieces, with 1st / 2nd / 3rd raised. */
+  const richText = (parts, x, base, size, colour) => parts.forEach(p => {
+    const sz = p.sup ? size * 0.65 : size;
+    pdf.rawText(pdfCodes(p.text), x, base, sz, true, colour, p.sup ? size * 0.33 : 0);
+    x += textWidth(p.text, sz, true);
+  });
   let y = newPage();
   tables.forEach((t, i) => {
-    const line = elementLine(t.element, layout), judge = judgeText(t.element, layout);
+    const line = lineParts(t, layout), judge = judgeText(t.element, layout), time = searchTimeText(t.cls, t.element, layout);
     const elSize = layout.elementSizePt || 12;
-    const lead = titleH + (line ? 60 * TWIP + elSize * 1.2 * PT + 160 * TWIP : 160 * TWIP);
+    const lead = titleH + (line ? 60 * TWIP + elSize * 1.2 * PT : 0) + (time ? 60 * TWIP + layout.bodySizePt * 1.2 * PT : 0) + 160 * TWIP;
     const rows = t.rows.map(bodyRow);
     const height = lead + headH + rows.reduce((a, r) => a + r.h, 0);
     const fits = height <= bottom - top;
@@ -1337,20 +1448,24 @@ function buildTablePdf(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
       else y += gap;
     }
     // Title, with the date's 1st / 2nd / 3rd raised
-    let x = side;
     const base = y + titleH * 0.8, colour = pdfColour(opts.titleColour || "#000000");
-    t.parts.forEach(p => {
-      const sz = p.sup ? layout.titleSizePt * 0.65 : layout.titleSizePt;
-      pdf.rawText(pdfCodes(p.text), x, base, sz, true, colour, p.sup ? layout.titleSizePt * 0.33 : 0);
-      x += textWidth(p.text, sz, true);
-    });
+    // A title too wide for the page is made smaller to fit on one line.
+    const fullW = t.parts.reduce((a, p) => a + textWidth(p.text, p.sup ? layout.titleSizePt * 0.65 : layout.titleSizePt, true), 0);
+    const tSize = fullW > usable ? layout.titleSizePt * usable / fullW : layout.titleSizePt;
+    richText(t.parts, side, base, tSize, colour);
     y += titleH;
     if (line) {
       y += 60 * TWIP;
       const lb = y + elSize * 1.2 * PT * 0.8;
-      pdf.text(line, side, lb, { size: elSize, bold: true, plain: true, maxW: judge ? usable * 0.6 : usable });
+      if (line.some(p => p.sup)) richText(line, side, lb, elSize, "0 g");
+      else pdf.text(titleText(line), side, lb, { size: elSize, bold: true, plain: true, maxW: judge ? usable * 0.6 : usable });
       if (judge) pdf.text(judge, side + usable, lb, { size: elSize, bold: true, plain: true, align: "right", maxW: usable * 0.38 });
       y += elSize * 1.2 * PT;
+    }
+    if (time) {
+      y += 60 * TWIP;
+      pdf.text(time, side, y + layout.bodySizePt * 1.2 * PT * 0.8, { size: layout.bodySizePt, bold: false, plain: true, maxW: usable });
+      y += layout.bodySizePt * 1.2 * PT;
     }
     y += 160 * TWIP;
     y = drawHead(y);
@@ -1359,6 +1474,20 @@ function buildTablePdf(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
       drawRow(y, r.h, r.blocks, r.fill, r.colour);
       y += r.h;
     });
+    if (layout.endNote) {
+      // Bold start, then the rest, wrapped to the page width.
+      const [lead, rest] = layout.endNote, lhN = lh(END_NOTE_PT), leadW = textWidth(lead + " ", END_NOTE_PT, true);
+      const first = wrapText(rest || "", usable - leadW, END_NOTE_PT, false)[0] || "";
+      const more = wrapText(String(rest || "").slice(first.length).trim(), usable, END_NOTE_PT, false).filter(Boolean);
+      const need = 240 * TWIP + (1 + more.length) * lhN;
+      if (y + need > bottom) y = newPage();
+      y += 240 * TWIP;
+      let b = y + lhN * 0.8;
+      pdf.text(lead, side, b, { size: END_NOTE_PT, bold: true, plain: true });
+      if (first) pdf.text(first, side + leadW, b, { size: END_NOTE_PT, bold: false, plain: true });
+      more.forEach(l => { b += lhN; pdf.text(l, side, b, { size: END_NOTE_PT, bold: false, plain: true }); });
+      y += (1 + more.length) * lhN;
+    }
   });
   return { bytes: pdf.bytes(opts.title || "Trial documents"), pages: pdf.pages.length };
 }
@@ -2855,7 +2984,7 @@ return { TOOL, MASTER, SETTINGS_TAB, TRIAL_HEADERS, SHEET1_PASSWORD, SHEET1_NOTE
 })();
 
 if (typeof module !== "undefined") {
-  module.exports = { LAYOUT, DOCUMENTS, CLASS_NAMES, layoutFor, parseClass, defaultLevels, defaultOrder, titleParts, titleText, reactiveCode, extractTable, buildDocx, ordinal, planPages, elementLine, judgeText, elementChoices,
+  module.exports = { LAYOUT, DOCUMENTS, CLASS_NAMES, layoutFor, parseClass, defaultLevels, defaultOrder, titleParts, titleText, reactiveCode, extractTable, buildDocx, buildTablePdf, searchTimeText, elementTitleParts, dateParts, lineParts, ordinal, planPages, elementLine, judgeText, elementChoices,
     TL, SCORE_SETTINGS, SCORE_SHEETS, scoreClass, elementOf, numberRepeats, scoreSets, cutAndStack, buildScorePdf, longDate, pdfCodes, textWidth, standardSearches,
     CERT_SETTINGS, certDate, certCard, certJudgeNames, certComment, certSets, buildCertPdf,
     ORGANISATIONS, ORG_ID_RE, orgPrefix, trialPrefixes, trialPrefixOf, orgIdProblem, fixTrialNo, trialNoProblem, trialNoDateNote };
@@ -2961,7 +3090,8 @@ function loadSheets(sheets, baseName, isExample, classOf = n => n) {
     DOCUMENTS.forEach(d => {
       tables[d.id] = extractTable(rows, layoutFor(d));
       include[d.id] = tables[d.id].usable && tables[d.id].rows.length > 0 && TRIAL_TAB.test(classes[i]) && (!isPdf(d) || !!scoreClass(classes[i]))
-        && (!isCert(d) || (!!certCard(classes[i]) && names[i] === classes[i]));   // certificates: the trial's own tab, not users' copies
+        && (!isCert(d) || (!!certCard(classes[i]) && names[i] === classes[i]))   // certificates: the trial's own tab, not users' copies
+        && (!d.ownTabOnly || names[i] === classes[i]);
     });
     const p = parseClass(classes[i]);
     return { name, cls: classes[i], level: levels[i], date: "", session: "", venue: "", trialNo: "", spares: "", include, tables, type: p ? p.typeCode : "", copies: {}, defaultPos: 0 };
@@ -2999,7 +3129,7 @@ function renderDocSwitch() {
   $("lookScore").hidden = !pdf;
   $("lookCert").hidden = !cert;
   $("lookTitle").textContent = pdf ? "Host, paper and spare sheets" : cert ? "Host, names and lining up" : "Logo, event name and layout";
-  $("redNote").hidden = pdf || cert;
+  $("redNote").hidden = pdf || cert || doc.footerNote === "";
   $("pages").hidden = pdf || cert;
   $("pdfView").hidden = !(pdf || cert);
   $("pdfView").title = cert ? "Preview of the certificates" : "Preview of the judging sheets";
@@ -3018,6 +3148,8 @@ function renderDocSwitch() {
     ? "Think about how you'll print before you download. Each sheet is one search, with its element at the top. Print single-sided: each sheet goes on its own clipboard, so nothing should be on the back."
     : doc.id === "callboard"
     ? "Think about how you'll print before you download. Print single-sided: each callboard is put up on its own, so nothing should be on the back."
+    : doc.id === "certlist"
+    ? "For writing certificates by hand. Each class is one table, sorted by handler like the printed certificates; tables share a page when they fit."
     : "";
   $("batchNote").hidden = !$("batchNote").textContent;
   $("tablesHelp").textContent = cert
@@ -3292,7 +3424,9 @@ function printItems() {
   chosen().forEach(tab => {
     const copies = doc.copies ? copiesOf(tab, doc) : [{ mode: "none", text: "" }];
     const shown = doc.singleElement ? searchElements(tab, copies) : null;
-    copies.forEach((c, k) => items.push({ tab, parts: titleParts(tab.level, tab.date, tab.session), rows: tab.tables[doc.id].rows,
+    copies.forEach((c, k) => items.push({ tab, cls: tab.cls, rows: tab.tables[doc.id].rows,
+      parts: doc.elementInTitle ? elementTitleParts(tab.level, shown ? shown[k] : c.text) : titleParts(tab.level, tab.date, tab.session),
+      sub: doc.elementInTitle ? dateParts(tab.date, tab.session) : null,
       element: !doc.elementLine ? null : shown ? { ...c, mode: "choose", text: shown[k] } : c }));
   });
   return items;
@@ -3558,16 +3692,19 @@ function renderPreview() {
   groups.forEach(g => {
     const label = g.last > g.page ? `Pages ${g.page + 1}–${g.last + 1} (approx.)` : `Page ${g.page + 1} (approx.)`;
     const page = el("div", { class: "page" });
-    if (look.logoUrl || eventName) page.append(el("div", { class: "phead" },
-      look.logoUrl ? el("img", { class: "plogo", src: look.logoUrl, alt: "" }) : null,
-      eventName ? el("span", { class: "event", text: eventName }) : null));
+    if (look.logoUrl || eventName || layout.sheetLabel) page.append(el("div", { class: "phead" + (layout.sheetLabel ? " labelled" : "") },
+      look.logoUrl ? el("img", { class: "plogo", src: look.logoUrl, alt: "" }) : layout.sheetLabel ? el("span") : null,
+      layout.sheetLabel ? el("span", { class: "plabel", text: layout.sheetLabel }) : null,
+      eventName ? el("span", { class: "event", text: eventName }) : layout.sheetLabel ? el("span") : null));
     g.items.forEach((it, k) => {
       const title = el("p", { class: "ptitle" + (k ? " next" : "") });
       title.style.color = look.titleColour;
       it.parts.forEach(p => title.append(p.sup ? el("sup", { text: p.text }) : p.text));
       page.append(title);
-      const line = elementLine(it.element, layout), judge = judgeText(it.element, layout);
-      if (line) page.append(el("p", { class: "pelement" + (judge ? " split" : "") }, el("span", { text: line }), judge ? el("span", { text: judge }) : null));
+      const line = lineParts(it, layout), judge = judgeText(it.element, layout);
+      if (line) page.append(el("p", { class: "pelement" + (judge ? " split" : "") }, el("span", {}, line.map(p => p.sup ? el("sup", { text: p.text }) : p.text)), judge ? el("span", { text: judge }) : null));
+      const time = searchTimeText(it.cls, it.element, layout);
+      if (time) page.append(el("p", { class: "pelement", style: `font-weight:400;font-size:${(layout.bodySizePt * 1.2).toFixed(1)}px` }, el("span", { text: time })));
       const thead = el("tr", {}, layout.columns.map(c => {
         const th = el("th", { style: c.headerSizePt ? `font-size:${(c.headerSizePt * 1.2).toFixed(1)}px` : null }, c.header, c.subheader ? el("small", { text: c.subheader, style: c.subheaderSizePt ? `font-size:${(c.subheaderSizePt * 1.2).toFixed(1)}px` : null }) : null);
         th.style.background = look.headerColour; th.style.color = headInk; th.style.textAlign = c.align || "center";
@@ -3577,6 +3714,7 @@ function renderPreview() {
         r.cells.map((v, j) => { const td = el("td", { text: v }); td.style.textAlign = layout.columns[j].align || "center"; if (layout.columns[j].sizePt) td.style.fontSize = (layout.columns[j].sizePt * 1.2).toFixed(1) + "px"; if (layout.rowHeightMm) td.style.height = (layout.rowHeightMm * 2.4) + "px"; return td; })));
       const cols = el("colgroup", {}, layout.columns.map(c => { const col = el("col"); col.style.width = (c.width || 1) + "%"; return col; }));
       page.append(el("table", { style: `font-size:${(layout.bodySizePt * 1.2).toFixed(1)}px` }, cols, el("thead", {}, thead), el("tbody", {}, tbody)));
+      if (layout.endNote) page.append(el("p", { class: "pendnote" }, el("b", { text: layout.endNote[0] }), layout.endNote[1] ? " " + layout.endNote[1] : ""));
     });
     if (layout.reactive.footerNote) page.append(el("div", { class: "pfoot" }, el("span", { class: "warnnote", text: layout.reactive.footerNote })));
     box.append(el("p", { class: "pagelabel", text: label }), page);
@@ -3713,7 +3851,7 @@ function showStatus(msg, isError) {
 }
 
 /* ---------- The working file: open, resume, save progress ---------- */
-const DOCS_TOOL = { name: "Trial Documents", version: "2.4" };
+const DOCS_TOOL = { name: "Trial Documents", version: "2.5" };
 const DAMAGE_NOTE = "This file may have been changed by a program other than Excel. Some trial information could be missing or altered. Apple Numbers or Google Sheets are the most common causes.";
 const DOC_WORDS = { catalogue: "running order", callboard: "callboard", timekeeper: "time stewards' sheets", judge: "judges' sheets", scoresheet: "judging sheets", certificate: "certificates" };
 let dirty = false, quiet = false;
@@ -4146,7 +4284,7 @@ async function downloadDocument(asPdf) {
     }
     if (missingElements(doc).length) throw new Error("choose the element for every search first (listed above).");
     if (asPdf) {
-      const tables = printItems().map(it => ({ parts: it.parts, rows: it.rows, element: it.element }));
+      const tables = printItems().map(it => ({ cls: it.cls, parts: it.parts, sub: it.sub, rows: it.rows, element: it.element }));
       const name = `${state.baseName} ${doc.fileSuffix}`;
       const { bytes } = buildTablePdf(tables, { titleColour: look.titleColour, headerColour: look.headerColour, eventName: look.eventName, eachOnNewPage: look.eachOnNewPage,
         logo: await logoForPdf(look.logo), title: name }, layoutFor(doc));
@@ -4155,7 +4293,7 @@ async function downloadDocument(asPdf) {
       return;
     }
     if (typeof JSZip === "undefined") throw new Error("The Word library didn't load. Check your internet connection and reload the page.");
-    const tables = printItems().map(it => ({ parts: it.parts, rows: it.rows, element: it.element }));
+    const tables = printItems().map(it => ({ cls: it.cls, parts: it.parts, sub: it.sub, rows: it.rows, element: it.element }));
     const files = buildDocx(tables, { titleColour: look.titleColour, headerColour: look.headerColour, eventName: look.eventName, eachOnNewPage: look.eachOnNewPage, logo: look.logo }, layoutFor(doc));
     const zip = new JSZip();
     files.forEach(([path, content]) => zip.file(path, content));
