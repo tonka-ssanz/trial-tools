@@ -167,12 +167,12 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
 .pages { display: grid; gap: 16px; max-height: 720px; overflow-y: auto; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
 .pdfview { width: 100%; height: 720px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
 .page { background: #fff; color: #000; font-family: Arial, Helvetica, sans-serif; padding: 22px 26px 16px; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,.18); display: grid; gap: 8px; }
-.page .phead { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; min-height: 0; }
+.page .phead { container-type: inline-size; display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; min-height: 0; }
 .page .phead.labelled { display: grid; grid-template-columns: 1fr auto 1fr; }
 .page .phead.labelled .event { justify-self: end; }
 .page .pendnote { margin: 10px 0 0; font-size: 13.2px; }
 .page .phead .plabel { font-weight: 700; font-size: 16.8px; text-align: center; }
-.page .plogo { height: 44px; max-width: 200px; object-fit: contain; }
+.page .plogo { height: auto; max-width: 100%; object-fit: contain; justify-self: start; }
 .page .event { color: #404040; font-size: 12px; margin-left: auto; text-align: right; }
 .page .ptitle.next { margin-top: 18px; }
 .page .pelement { margin: -2px 0 2px; font-size: 16px; font-weight: 700; }
@@ -182,9 +182,9 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
 .page th, .page td { border: 1px solid #808080; padding: 3px 5px; text-align: center; overflow-wrap: anywhere; }
 .page th { font-weight: 700; }
 .page th small { display: block; font-size: 9px; font-weight: 400; }
-.page tr.react td { color: #C00000; font-weight: 700; background: #FFFF00; }
+.page tr.react td { color: #000; font-weight: 700; background: #FFFF00; }
 .page .pfoot { margin-top: 6px; text-align: center; font-size: 12px; display: grid; gap: 2px; }
-.page .pfoot .warnnote { color: #C00000; font-weight: 700; }
+.page .pfoot .warnnote { color: #000; font-weight: 700; }
 
 .help { border-top: 1px solid var(--line); padding-top: 20px; display: grid; gap: 10px; font-size: 15px; }
 .help h3 { font-family: var(--font-display); font-size: 17px; margin: 0; }
@@ -309,7 +309,7 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
       <h3><span class="n">2</span><span id="lookTitle">Logo, event name and layout</span></h3>
       <div class="look" id="lookGeneral">
         <div class="field wide">
-          <span>Logo (optional) · shown at the top of every page · PNG or JPG</span>
+          <span>Logo (optional) · shown at the top left of every page · PNG or JPG · any size: it's shrunk to fit a space 55 mm wide and 15 mm deep, top left, the same size on every sheet</span>
           <div class="inline">
             <button class="small" type="button" id="logoPick">Choose logo…</button>
             <img class="logo-thumb" id="logoThumb" alt="Chosen logo" hidden>
@@ -381,7 +381,7 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
           <ul class="certnames" id="certNames"></ul>
         </div>
       </div>
-      <p class="note" id="redNote"></p>
+      <p class="note" id="reactNote"></p>
     </div>
 
     <div class="step">
@@ -416,7 +416,7 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
       <li><b>Search time</b> is printed under the element and judge on the time stewards' and judges' sheets, from the regulation times for the level and element (the same times as on the judging sheets). A range such as 3–4 minutes means the judge sets the time on the day within it. For an element typed under Other, the time you type is used; with no time it prints a line to write on.</li>
       <li><b>Certificate list:</b> a plain list to write certificates by hand from. Each ticked class becomes a table of handler and dog in alphabetical order of handler, headed with the level, trial number (when the same level runs more than once) and the day and date, e.g. “Advanced 1 – Sat 9th May”. Download it as a PDF (or Word).</li>
       <li><b>Numbers</b> are added for you: each table is numbered 1, 2, 3… in the order the dogs appear on the tab.</li>
-      <li><b>Reactive dogs:</b> the Reactive column shows D (dogs), H (humans) or D + H, and the whole row is printed in bold red and highlighted yellow on the running orders, callboards, time stewards' and judges' sheets.</li>
+      <li><b>Reactive dogs:</b> the Reactive column shows D (dogs), H (humans) or D + H, and the whole row is printed in bold black and highlighted yellow on the running orders, callboards, time stewards' and judges' sheets.</li>
       <li><b>Level names</b> are filled in from the tab name (NWAdv1 → Advanced, BHNovS1 → BH Novice Sand). The trial number is kept when a level appears more than once. You can type over any of them.</li>
       <li><b>Organisation, venue and Trial #</b> aren't printed on these documents. They're saved with your trial for the <b>Results Sheets</b> step, which fills them in on the SSANZ results spreadsheets so they don't have to be typed there. Choose your organisation from the list once (it comes from the <a href="https://www.scentsports.nz/organisations.php" target="_blank" rel="noopener">SSANZ organisations page</a>; if yours isn't there, choose “Not in the list” and type it). Give each class its venue (trials on different days are often at different venues) and its Trial #, copied from the left-hand column of the <a href="https://www.scentsports.nz/eventspage.php" target="_blank" rel="noopener">SSANZ events page</a>, e.g. NWAdvCS1: DF10262 → DF10262. Each class has its own Trial #.</li>
       <li><b>One setup, several documents:</b> level, date, session, venue and Trial # are entered once and used by every document. Which classes are ticked, the order and the copies are kept separately for each document, so you can print just one or two callboards without changing the catalogue.</li>
@@ -552,15 +552,19 @@ const LAYOUT = {
   font: "Arial",
   titleSizePt: 20,                     // table titles
   subheaderSizePt: 8,                  // the small second line in a heading cell
-  logoHeightMm: 15,                    // logo height at the top left of each page (width follows the logo's shape)
+  logoHeightMm: 15,                    // tallest the logo is printed, top left of each page: the depth the page already
+                                       // allows, so a logo never takes space from the tables
+  logoMaxWidthMm: 55,                  // widest the logo is printed: what fits beside "TIME STEWARD SHEET" with a 5 mm gap,
+                                       // so the logo is the same size on every sheet. A bigger logo is shrunk (keeping its
+                                       // shape) to fit; logoSizeMm also keeps it clear of any longer label added later.
   eventSizePt: 10,                     // event name, top right of each page
   eventColour: "#404040",
   sessions: ["AM", "PM"],              // choices for the optional session
 
   reactive: {
-    colour: "#C00000",                 // always used for reactive rows and the footer note (not changeable on the page)
+    colour: "#000000",                 // text colour of reactive rows and the footer note: black, printed bold (not changeable on the page)
     fill: "#FFFF00",                   // the whole row of a reactive dog is highlighted in this colour; "" for none
-    footerNote: "Yellow highlight and red font indicate a dog that needs space",   // printed at the bottom of every page; "" for none
+    footerNote: "Yellow highlight and bold font indicate a dog that needs space",   // printed in bold at the bottom of every page; "" for none
   },
   colours: {                           // starting colours; the operator can change title and heading on the page
     title: "#000000",
@@ -593,7 +597,7 @@ const LAYOUT = {
      endNote          printed under the last row of each sheet: [bold start, rest] (e.g. a thank-you to the judge); leave out for none
      sortBy           "handler" = rows in alphabetical order of handler (then dog) instead of running order
      ownTabOnly       true = only the trial's own tab is ticked to start with, not users' copies of it
-     footerNote       "" = no red footer note (leave out to use the one in LAYOUT)
+     footerNote       "" = no reactive-dog footer note (leave out to use the one in LAYOUT)
      kind             "pdf" = the judging sheets (drawn from SCORE_SHEETS, downloaded as a PDF)
      columns          left to right:
        header     text in the heading row
@@ -605,7 +609,7 @@ const LAYOUT = {
        width      share of the page width (relative: 8 and 30 means one column is 30/8 times wider)
        align      "left", "center" or "right"
        kind       "number"   → No. column, always numbered 1, 2, 3… in row order
-                  "reactive" → shows D, H or D + H and turns the whole row red, highlighted yellow
+                  "reactive" → shows D, H or D + H and prints the whole row in bold, highlighted yellow
                   leave out for ordinary text (long text wraps in the cell) */
 const DOCUMENTS = [
   {
@@ -1029,13 +1033,13 @@ function tableXml(t, opts, layout, widths) {
   const headRow = `<w:tr><w:trPr><w:cantSplit/><w:tblHeader/></w:trPr>${headCells}</w:tr>`;
 
   const height = layout.rowHeightMm > 0 ? `<w:trHeight w:val="${Math.round(layout.rowHeightMm * 56.7)}" w:hRule="atLeast"/>` : "";
-  const red = layout.reactive.colour, rowFill = layout.reactive.fill ? hex(layout.reactive.fill) : "";
+  const reactInk = layout.reactive.colour, rowFill = layout.reactive.fill ? hex(layout.reactive.fill) : "";
   const bodyRows = t.rows.map((r, ri) => {
     // "Keep with next" on every row but the last keeps the whole table on one page in Word.
     const keep = t.keepTogether && ri < t.rows.length - 1;
     const cells = layout.columns.map((c, k) => {
       const v = r.cells[k];
-      const style = r.reactive ? { bold: true, colour: red, sizePt: c.sizePt } : { sizePt: c.sizePt };
+      const style = r.reactive ? { bold: true, colour: reactInk, sizePt: c.sizePt } : { sizePt: c.sizePt };
       return cell(k, para(v ? run(v, style) : "", { keepNext: keep, before: 30, after: 30, align: align(c) }), r.reactive ? rowFill : "");
     }).join("");
     return `<w:tr><w:trPr><w:cantSplit/>${height}</w:trPr>${cells}</w:tr>`;
@@ -1059,14 +1063,32 @@ function columnWidths(layout) {
   return layout.columns.map(c => Math.floor(usable * (c.width || 1) / total));
 }
 const LABEL_PT = 14;   // size of the sheet label at the top of the page
-function headerHeight(hasLogo, hasEvent, layout) {
+/* The printed size of the logo in mm, { w, h }: no taller than LAYOUT.logoHeightMm, no wider than
+   LAYOUT.logoMaxWidthMm, and on labelled sheets (CALLBOARD etc.) at least 5 mm clear of the centred label.
+   Any logo, whatever its shape or size, is shrunk to fit this box. Used by Word, PDF and the preview. */
+function logoSizeMm(pxW, pxH, layout) {
+  if (!(pxW > 0 && pxH > 0)) return { w: 0, h: 0 };
+  let maxW = layout.logoMaxWidthMm || LAYOUT.logoMaxWidthMm;
+  const label = String(layout.sheetLabel || "").trim();
+  if (label) {
+    const usableMm = (A4.w - 2 * sideMargin(layout)) / 56.7;
+    maxW = Math.min(maxW, usableMm / 2 - textWidth(label, LABEL_PT, true) / 2 - 5);
+  }
+  let h = layout.logoHeightMm || LAYOUT.logoHeightMm, w = h * pxW / pxH;
+  if (w > maxW) { h = h * maxW / w; w = maxW; }
+  return { w, h };
+}
+/* logoMm: the printed height of the logo in mm (0 = no logo; true = the tallest allowed). The header is only
+   as deep as the logo actually printed, so a wide, shallow logo doesn't take space from the tables. */
+function headerHeight(logoMm, hasEvent, layout) {
   const label = !!(layout && layout.sheetLabel);
-  if (!hasLogo && !hasEvent && !label) return 0;
-  const content = Math.max(hasLogo ? layout.logoHeightMm * 56.7 : 0, label ? LABEL_PT * TW_PER_PT * 1.2 : 0, hasEvent ? 12 * TW_PER_PT : 0);
+  if (logoMm === true) logoMm = layout.logoHeightMm;
+  if (!logoMm && !hasEvent && !label) return 0;
+  const content = Math.max(logoMm ? logoMm * 56.7 : 0, label ? LABEL_PT * TW_PER_PT * 1.2 : 0, hasEvent ? 12 * TW_PER_PT : 0);
   return A4.header + content + 120;
 }
-function pageSpace(hasLogo, hasEvent, layout) {
-  const top = Math.max(A4.top, headerHeight(hasLogo, hasEvent, layout) + 100);
+function pageSpace(logoMm, hasEvent, layout) {
+  const top = Math.max(A4.top, headerHeight(logoMm, hasEvent, layout) + 100);
   return A4.h - top - A4.bottom - 120;
 }
 function tableHeight(rows, layout, widths = columnWidths(layout)) {
@@ -1092,7 +1114,7 @@ const endNoteHeight = layout => layout.endNote ? 240 + 2 * END_NOTE_PT * TW_PER_
 const elementHeight = (t, layout) => endNoteHeight(layout) + (lineParts(t, layout) ? (layout.elementSizePt || 12) * TW_PER_PT * 1.2 + 60 : 0)
   + (searchTimeText(t.cls, t.element, layout) ? layout.bodySizePt * TW_PER_PT * 1.2 + 60 : 0);
 function planPages(tables, o, layout = layoutFor(DOCUMENTS[0])) {
-  const space = pageSpace(!!o.hasLogo, !!o.hasEvent, layout);
+  const space = pageSpace(o.logoMm || 0, !!o.hasEvent, layout);
   const widths = columnWidths(layout);
   let page = 0, used = 0;
   return tables.map((t, i) => {
@@ -1118,7 +1140,7 @@ function buildDocx(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
   const widths = columnWidths(layout);
   const logo = opts.logo && opts.logo.bytes && opts.logo.width && opts.logo.height ? opts.logo : null;
   const eventName = String(opts.eventName || "").trim();
-  const plan = planPages(tables, { hasLogo: !!logo, hasEvent: !!eventName, eachOnNewPage: opts.eachOnNewPage }, layout);
+  const plan = planPages(tables, { logoMm: logo ? logoSizeMm(logo.width, logo.height, layout).h : 0, hasEvent: !!eventName, eachOnNewPage: opts.eachOnNewPage }, layout);
 
   let body = "";
   tables.forEach((t, i) => {
@@ -1186,9 +1208,7 @@ function buildDocx(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
     let picture = "";
     if (logo) {
       const EMU_MM = 36000;
-      let hMm = layout.logoHeightMm, wMm = hMm * logo.width / logo.height;
-      const maxW = 80;
-      if (wMm > maxW) { hMm = hMm * maxW / wMm; wMm = maxW; }
+      const { w: wMm, h: hMm } = logoSizeMm(logo.width, logo.height, layout);
       const cx = Math.round(wMm * EMU_MM), cy = Math.round(hMm * EMU_MM);
       picture = `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:effectExtent l="0" t="0" r="0" b="0"/>` +
         `<wp:docPr id="1" name="Logo"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr>` +
@@ -1212,7 +1232,7 @@ function buildDocx(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
 
 /* ---------- The same documents as a PDF, for anyone without Word ----------
    Laid out like the Word version: A4, the same margins, logo and event name at the top of every page,
-   the red footer note, titles, element lines and tables. Helvetica stands in for Arial (the same widths).
+   the reactive-dog footer note, titles, element lines and tables. Helvetica stands in for Arial (the same widths).
    Every table that fits on a page is kept in one piece; a longer one starts on a new page and carries
    on over the next, with the heading row repeated.
    opts: as buildDocx, but logo = { bytes (JPEG), pxW, pxH } (see logoForPdf). Returns { bytes, pages }. */
@@ -1251,16 +1271,15 @@ function buildTablePdf(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
   const lh = size => size * 1.15 * PT, padX = 80 * TWIP;
   const logo = opts.logo && opts.logo.bytes && opts.logo.pxW && opts.logo.pxH ? opts.logo : null;
   const eventName = String(opts.eventName || "").trim();
-  let logoH = layout.logoHeightMm, logoW = logo ? logoH * logo.pxW / logo.pxH : 0;
-  if (logoW > 80) { logoH = logoH * 80 / logoW; logoW = 80; }
+  const { w: logoW, h: logoH } = logo ? logoSizeMm(logo.pxW, logo.pxH, layout) : { w: 0, h: 0 };
   const label = String(layout.sheetLabel || "").trim();
-  const top = logo || eventName || label ? Math.max(PAGE.top, headerHeight(!!logo, !!eventName, layout) * TWIP + 100 * TWIP) : PAGE.top;
+  const top = logo || eventName || label ? Math.max(PAGE.top, headerHeight(logoH, !!eventName, layout) * TWIP + 100 * TWIP) : PAGE.top;
   const labelW = label ? textWidth(label, LABEL_PT, true) : 0;
   const headBase = PAGE.header + (logo ? logoH : label ? LABEL_PT * PT * 0.9 : 3.6);
   const bottom = PAGE.h - PAGE.bottom;
   const headInk = "#" + textOn(opts.headerColour), headFill = pdfColour(opts.headerColour);
   const border = pdfColour(layout.colours.borders, true);
-  const red = pdfColour(layout.reactive.colour), yellow = layout.reactive.fill ? pdfColour(layout.reactive.fill) : "";
+  const reactInk = pdfColour(layout.reactive.colour), yellow = layout.reactive.fill ? pdfColour(layout.reactive.fill) : "";
   const pdf = new PdfDoc();
 
   const newPage = () => {
@@ -1269,7 +1288,7 @@ function buildTablePdf(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
     if (label) pdf.text(label, side + usable / 2, headBase, { size: LABEL_PT, bold: true, align: "center", plain: true });
     if (eventName) pdf.text(eventName, side + usable, headBase, { size: layout.eventSizePt || 10, align: "right", plain: true, colour: pdfColour(layout.eventColour || "#404040"),
       maxW: label ? usable / 2 - labelW / 2 - 4 : usable - logoW - 6 });
-    if (layout.reactive.footerNote) pdf.text(layout.reactive.footerNote, PAGE.w / 2, PAGE.h - PAGE.footer - 1, { size: 11, bold: true, align: "center", plain: true, colour: red });
+    if (layout.reactive.footerNote) pdf.text(layout.reactive.footerNote, PAGE.w / 2, PAGE.h - PAGE.footer - 1, { size: 11, bold: true, align: "center", plain: true, colour: reactInk });
     return top;
   };
   /* A tick (✓), drawn with lines because the standard fonts don't have one. */
@@ -3016,7 +3035,7 @@ function renderDocSwitch() {
   $("lookScore").hidden = !pdf;
   $("lookCert").hidden = !cert;
   $("lookTitle").textContent = pdf ? "Host, paper and spare sheets" : cert ? "Host, names and lining up" : "Logo, event name and layout";
-  $("redNote").hidden = pdf || cert || doc.footerNote === "";
+  $("reactNote").hidden = pdf || cert || doc.footerNote === "";
   $("pages").hidden = pdf || cert;
   $("pdfView").hidden = !(pdf || cert);
   $("pdfView").title = cert ? "Preview of the certificates" : "Preview of the judging sheets";
@@ -3565,8 +3584,9 @@ function renderPreview() {
   const list = chosen(), items = printItems();
   const headInk = "#" + textOn(look.headerColour);
   const eventName = look.eventName.trim();
-  const plan = planPages(items, { hasLogo: !!look.logo, hasEvent: !!eventName, eachOnNewPage: look.eachOnNewPage }, layout);
-  const space = pageSpace(!!look.logo, !!eventName, layout);
+  const logoMm = look.logo ? logoSizeMm(look.logo.width, look.logo.height, layout).h : 0;
+  const plan = planPages(items, { logoMm, hasEvent: !!eventName, eachOnNewPage: look.eachOnNewPage }, layout);
+  const space = pageSpace(logoMm, !!eventName, layout);
   const groups = [];
   items.forEach((it, i) => {
     const start = plan[i].page;
@@ -3576,11 +3596,21 @@ function renderPreview() {
     g.items.push(it);
     g.last = Math.max(g.last, end);
   });
+  /* The logo at the same size as on paper, as a share of the printed width. */
+  function previewLogo(layout) {
+    const img = el("img", { class: "plogo", src: look.logoUrl, alt: "" });
+    if (look.logo) {
+      const { w, h } = logoSizeMm(look.logo.width, look.logo.height, layout), usableMm = (A4.w - 2 * sideMargin(layout)) / 56.7;
+      img.style.width = (100 * w / usableMm).toFixed(2) + "cqw";   // share of the header's width (the page's printed width)
+      img.style.aspectRatio = `${w} / ${h}`;
+    }
+    return img;
+  }
   groups.forEach(g => {
     const label = g.last > g.page ? `Pages ${g.page + 1}–${g.last + 1} (approx.)` : `Page ${g.page + 1} (approx.)`;
     const page = el("div", { class: "page" });
     if (look.logoUrl || eventName || layout.sheetLabel) page.append(el("div", { class: "phead" + (layout.sheetLabel ? " labelled" : "") },
-      look.logoUrl ? el("img", { class: "plogo", src: look.logoUrl, alt: "" }) : layout.sheetLabel ? el("span") : null,
+      look.logoUrl ? previewLogo(layout) : layout.sheetLabel ? el("span") : null,
       layout.sheetLabel ? el("span", { class: "plabel", text: layout.sheetLabel }) : null,
       eventName ? el("span", { class: "event", text: eventName }) : layout.sheetLabel ? el("span") : null));
     g.items.forEach((it, k) => {
@@ -3629,6 +3659,31 @@ function renderPreview() {
 }
 
 /* ---------- Logo, event name, layout ---------- */
+/* A chosen logo file, made no bigger than it needs to be: at most LOGO_MAX_PX on its longer side
+   (plenty for 55 mm wide in print), keeping its shape and, for a PNG, its see-through parts.
+   Smaller files are kept as they are. Keeps the documents and the saved trial spreadsheet small. */
+const LOGO_MAX_PX = 900;
+async function shrinkLogo(file, type) {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    await new Promise((ok, bad) => { img.onload = ok; img.onerror = () => bad(new Error("That image couldn't be opened. Please choose a PNG or JPG.")); img.src = url; });
+    const w = img.naturalWidth, h = img.naturalHeight;
+    if (!w || !h) throw new Error("That image couldn't be opened. Please choose a PNG or JPG.");
+    const scale = Math.min(1, LOGO_MAX_PX / Math.max(w, h));
+    if (scale === 1) return { bytes, width: w, height: h };
+    const c = document.createElement("canvas");
+    c.width = Math.max(1, Math.round(w * scale)); c.height = Math.max(1, Math.round(h * scale));
+    const g = c.getContext("2d");
+    if (type !== "png") { g.fillStyle = "#ffffff"; g.fillRect(0, 0, c.width, c.height); }
+    g.imageSmoothingQuality = "high";
+    g.drawImage(img, 0, 0, c.width, c.height);
+    const blob = await new Promise(ok => c.toBlob(ok, type === "png" ? "image/png" : "image/jpeg", 0.92));
+    if (!blob) return { bytes, width: w, height: h };
+    return { bytes: new Uint8Array(await blob.arrayBuffer()), width: c.width, height: c.height };
+  } finally { URL.revokeObjectURL(url); }
+}
 $("logoPick").addEventListener("click", () => $("logoFile").click());
 $("logoFile").addEventListener("change", async e => {
   const f = e.target.files[0]; e.target.value = "";
@@ -3636,12 +3691,10 @@ $("logoFile").addEventListener("change", async e => {
   const type = /png$/i.test(f.type) || /\.png$/i.test(f.name) ? "png" : /jpe?g$/i.test(f.type) || /\.jpe?g$/i.test(f.name) ? "jpeg" : null;
   if (!type) { showStatus("Please choose a PNG or JPG image for the logo.", true); return; }
   try {
-    const bytes = new Uint8Array(await f.arrayBuffer());
-    const url = URL.createObjectURL(f);
-    const img = new Image();
-    await new Promise((ok, bad) => { img.onload = ok; img.onerror = () => bad(new Error("That image couldn't be opened.")); img.src = url; });
+    const small = await shrinkLogo(f, type);
     if (look.logoUrl) URL.revokeObjectURL(look.logoUrl);
-    look.logo = { bytes, type, width: img.naturalWidth, height: img.naturalHeight };
+    look.logo = { bytes: small.bytes, type, width: small.width, height: small.height };
+    const url = URL.createObjectURL(new Blob([small.bytes], { type: type === "png" ? "image/png" : "image/jpeg" }));
     look.logoUrl = url;
     $("logoThumb").src = url; $("logoThumb").hidden = false; $("logoClear").hidden = false;
     $("logoPick").textContent = "Change logo…";
@@ -3665,9 +3718,9 @@ document.querySelectorAll("[data-reset]").forEach(b => b.addEventListener("click
   const id = b.dataset.reset, v = id === "titleColour" ? LAYOUT.colours.title : LAYOUT.colours.header;
   $(id).value = v; look[id] = v; renderPreview();
 }));
-$("redNote").textContent = LAYOUT.reactive.footerNote
-  ? `Reactive dogs are always printed in red with the whole row highlighted yellow, and the footer note “${LAYOUT.reactive.footerNote}” in red. Logo, event name and colours are shared by all the documents.`
-  : "Reactive dogs are always printed in red with the whole row highlighted yellow. Logo, event name and colours are shared by all the documents.";
+$("reactNote").textContent = LAYOUT.reactive.footerNote
+  ? `Reactive dogs are always printed in bold black with the whole row highlighted yellow, and the footer note “${LAYOUT.reactive.footerNote}” in bold. Logo, event name and colours are shared by all the documents.`
+  : "Reactive dogs are always printed in bold black with the whole row highlighted yellow. Logo, event name and colours are shared by all the documents.";
 
 /* ---------- Organisation (saved for the results sheets) ---------- */
 const ORG_OWN = "__own";
