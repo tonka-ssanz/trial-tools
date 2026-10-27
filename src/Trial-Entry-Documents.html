@@ -1429,6 +1429,7 @@ async function logoForPdf(logo) {
      left, right    the two columns of the table, top to bottom. Each row is one of:
                       { head: "MAJOR FAULTS (5 points deduction)" }  bold heading row
                       { text: "Damage to search area" }        row with a box to mark
+                      { text: ["first line", "second line"] }   a double-height row with the text on two lines
                       { text: "1st hide", value: "10" }        row with a value printed in it
                       { hideRows: true, value: "10" }          one row per hide: 1st hide, 2nd hide…
                       { hideRows: true, value: "10", rows: 3, unused: "N/A" }
@@ -1486,15 +1487,26 @@ const BH_MINOR_LONG = [
   { text: "Neither handler NOR dog crossed start line" },
   { text: "Other handling errors" },
 ];
+/* Wording agreed with the owner (Oct 2026) after Excellent judges found "after 1st find" confusing:
+   "before" and "after" in bold, left and right columns worded alike. Used by Advanced, Excellent and BH Int / Adv;
+   the right column below is for 3 hides (NW Excellent, BH Advanced). */
 const LONG_FAIL = [
   { text: "False Alert **before** 1st find" },
-  { text: "Time out **before** 1st find" },
+  { text: "Timed out **before** 1st find" },
   { text: "Fouling search area / Harsh handling (delete one)" },
   { text: "Request for help / Aborted search **before** 1st find" },
 ];
 const LONG_GAINED = [
-  { head: "ELEMENT FAILURE BUT POINTS GAINED" },
-  { text: "False Alert called **after** 1st find" },
+  { head: "ELEMENT FAILURE AFTER POINTS GAINED" },
+  { text: "False Alert **after** at least 1 find" },
+  { text: "Timed out **after** at least 1 find" },
+  { text: "Request for help / Aborted search **after** find" },
+  { text: "Called an already found hide (2nd time)" },
+];
+/* Classes with only 2 hides (NW Advanced, BH Intermediate): "after 1st find" is clear there, so it stays (owner). */
+const TWO_HIDE_GAINED = [
+  { head: "ELEMENT FAILURE AFTER POINTS GAINED" },
+  { text: "False Alert **after** 1st find" },
   { text: "Timed out **after** 1st find" },
   { text: "Request for help / Aborted search **after** 1st find" },
   { text: "Called an already found hide (2nd time)" },
@@ -1527,7 +1539,7 @@ const SCORE_SHEETS = [
       { head: "FAULT (6 points deduction)" }, { text: "Called an already found hide (1st time)" },
       { head: "MAJOR FAULTS (5 points deduction)" }, ...NW_MAJOR,
       { head: "MINOR FAULTS (2 points deduction)" }, ...NW_MINOR_LONG],
-    right: [...LONG_GAINED, { gap: true },
+    right: [...TWO_HIDE_GAINED, { gap: true },
       { head: "Located Odour = 12.5 points each" }, { hideRows: true, value: "12.5" }, { gap: true },
       { head: "Points: Out of 25" }, { text: "Hides found (as above)", wide: true }, { text: "Less faults to be deducted", wide: true }, { text: "**TOTAL:**", wide: true }, { gap: true },
       { boxes: ["TIME:", "POINTS:"] }],
@@ -1557,7 +1569,7 @@ const SCORE_SHEETS = [
     left: [{ head: "ELEMENT FAILURE (0 points)" }, ...LONG_FAIL, { text: "Worked dog off lead" },
       { head: "MAJOR FAULTS: 3 points deduction" }, { text: "Called an already found hide (1st time)" }, ...BH_MAJOR,
       { head: "MINOR FAULTS: 2 points deduction" }, ...BH_MINOR_LONG],
-    right: [...LONG_GAINED, { gap: true },
+    right: [...TWO_HIDE_GAINED, { gap: true },
       { head: "Located Odour = 25 points each" }, { hideRows: true, value: "25" }, { text: "**TOTAL:**" }, { gap: true },
       { head: "Points: Out of 50" }, { text: "Hides found (as above)", wide: true }, { text: "Less faults to be deducted", wide: true }, { text: "**TOTAL:** (46 points or more to qualify)", wide: true }, { gap: true },
       { boxes: ["TIME:", "POINTS", "QUAL?"] }],
@@ -1959,7 +1971,7 @@ function drawSheet(pdf, set, dog, ox, oy) {
     ? Array.from({ length: r.rows || Math.max(1, set.hides || 1) }, (_, i) => ({ text: `${ordinalWord(i + 1)} hide`, value: r.rows && set.hides && i >= set.hides ? (r.unused || "") : r.value }))
     : [r]);
   const cols = [expand(sh.left || []), expand(sh.right || [])];
-  const units = rows => rows.reduce((a, r) => a + (r.boxes ? 2.5 : 1), 0);
+  const units = rows => rows.reduce((a, r) => a + (r.boxes ? 2.5 : Array.isArray(r.text) ? r.text.length : 1), 0);
   const maxUnits = Math.max(...cols.map(units));
   const rowH = Math.min(S.rowMax, (lowest - tableTop) / maxUnits);
   const tableBottom = tableTop + rowH * maxUnits;
@@ -1988,11 +2000,14 @@ function drawSheet(pdf, set, dog, ox, oy) {
         const own = r.value != null;   // rows without a value use the value column for their text
         const boxX = r.wide ? cx + colW - S.wideMark : markX;   // calculation rows get a wider box to write in
         const textEnd = own ? valueX : boxX;
-        pdf.rect(X(cx), Yy(y), textEnd - cx, rowH);
-        if (own) pdf.rect(X(valueX), Yy(y), S.value, rowH);
-        pdf.rect(X(boxX), Yy(y), cx + colW - boxX, rowH);
-        pdf.text(r.text, X(cx + 1.5), Yy(base), { size: Z.row, maxW: textEnd - cx - 3 });
-        if (r.value) pdf.text(r.value, X(valueX + S.value / 2), Yy(base), { size: Z.row, align: "center" });
+        const lines = Array.isArray(r.text) ? r.text : [r.text], h = rowH * lines.length;
+        pdf.rect(X(cx), Yy(y), textEnd - cx, h);
+        if (own) pdf.rect(X(valueX), Yy(y), S.value, h);
+        pdf.rect(X(boxX), Yy(y), cx + colW - boxX, h);
+        lines.forEach((line, k) => pdf.text(line, X(cx + 1.5), Yy(base + k * rowH), { size: Z.row, maxW: textEnd - cx - 3 }));
+        if (r.value) pdf.text(r.value, X(valueX + S.value / 2), Yy(base + (lines.length - 1) * rowH / 2), { size: Z.row, align: "center" });
+        y += h;
+        return;
       }
       y += rowH;
     });
@@ -3791,7 +3806,7 @@ function showStatus(msg, isError) {
 }
 
 /* ---------- The working file: open, resume, save progress ---------- */
-const DOCS_TOOL = { name: "Trial Documents", version: "2.5" };
+const DOCS_TOOL = { name: "Trial Documents", version: "2.7" };
 const DAMAGE_NOTE = "This file may have been changed by a program other than Excel. Some trial information could be missing or altered. Apple Numbers or Google Sheets are the most common causes.";
 const DOC_WORDS = { catalogue: "running order", callboard: "callboard", timekeeper: "time stewards' sheets", judge: "judges' sheets", scoresheet: "judging sheets", certificate: "certificates" };
 let dirty = false, quiet = false;
