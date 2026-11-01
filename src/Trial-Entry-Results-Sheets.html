@@ -105,6 +105,10 @@ a { color: var(--accent); }
 .question label { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; font-size: 15px; cursor: pointer; }
 .question input[type=radio] { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
 .question input[type=text] { max-width: 320px; }
+.order { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0 0 10px; padding: 0; border: 0; min-width: 0; }
+.order legend { font-size: 14px; font-weight: 700; padding: 0; margin: 0 0 4px; float: left; width: 100%; }
+.order label { display: inline-flex; gap: 8px; align-items: center; font-size: 15px; cursor: pointer; }
+.order input[type=radio] { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
 .judges { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; }
 .judges .from { font-size: 12px; color: var(--muted); }
 .orgown { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 8px 10px; }
@@ -154,7 +158,7 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
   <header>
     <p class="eyebrow">SSANZ trial tools</p>
     <h1>Results Sheets</h1>
-    <p class="lede">Fills in the official SSANZ results spreadsheet for one class: organisation, Org Ref ID, date, venue, Trial #, judges and every dog, in alphabetical order of handler. The admin team then only types the points and times. Everything else on the SSANZ sheet stays exactly as SSANZ made it, including its lock and formulas.</p>
+    <p class="lede">Fills in the official SSANZ results spreadsheet for one class: organisation, Org Ref ID, date, venue, Trial #, judges and every dog, in alphabetical order of handler or in running order (your choice). The admin team then only types the points and times. Everything else on the SSANZ sheet stays exactly as SSANZ made it, including its lock and formulas.</p>
   </header>
 
   <label class="drop" id="drop" for="file" tabindex="0">
@@ -216,6 +220,11 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 
     <div class="step">
       <h3><span class="n">3</span>Dogs</h3>
+      <fieldset class="order" id="order">
+        <legend>Order of dogs on the results sheet</legend>
+        <label><input type="radio" name="order" value="alpha" checked> Alphabetical (handler's first name)</label>
+        <label><input type="radio" name="order" value="run"> Running order (as on the trial tab)</label>
+      </fieldset>
       <p id="dogsHelp"></p>
       <div class="questions" id="questions" hidden></div>
       <div class="tablewrap scroll"><table class="dogs" id="dogs"></table></div>
@@ -240,7 +249,7 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
       <li><b>Big classes:</b> the SSANZ sheet has room for 51 dogs. If a class has more, the extra rows are added for you, with the same formulas, placings and colours, and on the Printable Version too.</li>
       <li><b>Trial #:</b> made of your organisation's letters, the month and year, then the trial's number that month (Dogs First, October 2026, first trial: DF10261). If it doesn't match the class's date the page stops you; if it really is right, tick the box to say so.</li>
       <li><b>Names with marks in them</b> (e.g. “Sam Smith**”): the page asks what should go on the results sheet, because the marks may be a note someone typed.</li>
-      <li><b>Order:</b> dogs are listed in alphabetical order of the handler's first name, then surname. Dogs already withdrawn (taken off the trial tab in Trial Lists) aren't included.</li>
+      <li><b>Order:</b> choose in step 3. Alphabetical lists dogs by the handler's first name, then surname. Running order lists them as they are on the trial tab, the same order as the running orders and callboards from Trial Documents. The choice applies to every class until you change it. Dogs already withdrawn (taken off the trial tab in Trial Lists) aren't included.</li>
       <li><b>Balloted trials:</b> only the dogs with a place (on the trial tab) go on the results sheet. The Waitlist and Ballot tabs made by Trial Lists are ignored.</li>
       <li><b>On the day:</b> if a dog withdraws, type SCRATCHED after the handler's name. Times go in as seconds only, with the hundredths: 2:23.12 on the stopwatch is 143.12.</li>
       <li><b>Judges:</b> each search's judge goes in the column for its element (Container, Interior, Exterior, Vehicle). At Excellent and Premium, a second search of the same element (e.g. Exterior 2) goes under Other Search 1, then Other Search 2. Check them in step 2.</li>
@@ -399,6 +408,8 @@ function sortDogs(dogs) {
     return cmp(fa, fb) || cmp(sa, sb) || cmp(norm(a.dog), norm(b.dog));
   });
 }
+/* The order chosen in step 3: "alpha" (above) or "run" (as on the trial tab, which is the running order). */
+const orderDogs = dogs => S.order === "run" ? [...dogs] : sortDogs(dogs);
 /* Numbers stay numbers (as on the sample sheets); codes like SD700 stay text. */
 const idValue = v => { const s = norm(v); return /^\d{1,15}$/.test(s) ? Number(s) : s; };
 
@@ -802,7 +813,7 @@ function recalcOnOpen(xmlText) {
 function planSheet(job) {
   const { tpl, cls, form } = job;
   const stops = [], warns = [], values = {};
-  const dogs = sortDogs(job.dogs).map(d => ({ ...d, handler: fixedName(form, "handler", d.handler), dog: fixedName(form, "dog", d.dog) }));
+  const dogs = orderDogs(job.dogs).map(d => ({ ...d, handler: fixedName(form, "handler", d.handler), dog: fixedName(form, "dog", d.dog) }));
   if (!tpl) stops.push({ text: `There's no ${cls.pc ? cls.pc.name : cls.cls} results sheet yet.`, fix: `Drop the SSANZ ${cls.pc && cls.pc.sport === "BH" ? "Buried Hides" : "Nosework"} results files zip.` });
   if (tpl && cls.pc && (tpl.sport !== cls.pc.sport || lower(tpl.level) !== lower(cls.pc.level)))
     stops.push({ text: `The results sheet added is for ${tpl.sport === "BH" ? "Buried Hides" : "Nosework"} ${tpl.level}, but ${cls.tab} is ${cls.pc.name}.`, fix: "Drop the SSANZ zip so the page can pick the right level." });
@@ -885,7 +896,7 @@ function el(tag, attrs = {}, ...children) {
   return e;
 }
 const ORG_OWN = "__own";
-const S = { trial: null, trialName: "", templates: new Map(), pick: "", forms: {}, example: true };
+const S = { trial: null, trialName: "", templates: new Map(), pick: "", forms: {}, example: true, order: "alpha" };
 const tplKey = (sport, level) => `${sport}|${String(level).toLowerCase()}`;
 
 function msgEl(m) {
@@ -1055,8 +1066,8 @@ function renderForm() {
   });
   // Dogs
   renderQuestions(c, form);
-  const dogs = sortDogs(c.dogs).map(d => ({ ...d, handler: fixedName(form, "handler", d.handler), dog: fixedName(form, "dog", d.dog) })), cap = tpl ? tpl.capacity : 0;
-  $("dogsHelp").textContent = `${dogs.length} ${dogs.length === 1 ? "dog" : "dogs"} in alphabetical order of handler's first name, as they'll appear on the sheet${cap ? (dogs.length > cap ? ` (the sheet has room for ${cap}; ${dogs.length - cap} more ${dogs.length - cap === 1 ? "row is" : "rows are"} added)` : ` (room for ${cap})`) : ""}.`;
+  const dogs = orderDogs(c.dogs).map(d => ({ ...d, handler: fixedName(form, "handler", d.handler), dog: fixedName(form, "dog", d.dog) })), cap = tpl ? tpl.capacity : 0;
+  $("dogsHelp").textContent = `${dogs.length} ${dogs.length === 1 ? "dog" : "dogs"} ${S.order === "run" ? "in running order (as on the trial tab)" : "in alphabetical order of handler's first name"}, as they'll appear on the sheet${cap ? (dogs.length > cap ? ` (the sheet has room for ${cap}; ${dogs.length - cap} more ${dogs.length - cap === 1 ? "row is" : "rows are"} added)` : ` (room for ${cap})`) : ""}.`;
   const table = $("dogs"); table.textContent = "";
   table.append(el("thead", {}, el("tr", {}, ["", "Dog No.", "Dog Name", "Handler ID", "Handler Name"].map(h => el("th", { text: h })))));
   table.append(el("tbody", {}, dogs.map((d, i) => el("tr", {},
@@ -1097,7 +1108,7 @@ function renderQuestions(c, f) {
 function refreshDogs() {
   const c = current(); if (!c) return;
   const f = formFor(c), tpl = c.pc ? S.templates.get(tplKey(c.pc.sport, c.pc.level)) : null;
-  const dogs = sortDogs(c.dogs).map(d => ({ ...d, handler: fixedName(f, "handler", d.handler), dog: fixedName(f, "dog", d.dog) }));
+  const dogs = orderDogs(c.dogs).map(d => ({ ...d, handler: fixedName(f, "handler", d.handler), dog: fixedName(f, "dog", d.dog) }));
   const rows = $("dogs").tBodies[0];
   if (rows) [...rows.rows].forEach((tr, i) => { if (dogs[i]) { tr.cells[2].textContent = dogs[i].dog; tr.cells[4].textContent = dogs[i].handler; } });
   renderChecks();
@@ -1137,6 +1148,7 @@ $("org").addEventListener("change", e => {
 $("orgName").addEventListener("input", e => { const f = form(); if (f && f.org) { f.org.name = e.target.value; renderChecks(); } });
 $("orgId").addEventListener("input", e => { const f = form(); if (f && f.org) { f.org.id = cleanCode(e.target.value); renderChecks(); } });
 $("date").addEventListener("input", e => { const f = form(); if (f) { f.date = e.target.value; renderTrialOk(); renderChecks(); } });
+$("order").addEventListener("change", e => { if (e.target.name === "order") { S.order = e.target.value === "run" ? "run" : "alpha"; renderForm(); } });
 $("trialOk").addEventListener("change", e => { const f = form(); if (!f) return; f.trialOkFor = e.target.checked ? `${cleanCode(f.trialNo)}|${f.date}` : ""; renderTrialOk(); renderChecks(); });
 $("venue").addEventListener("input", e => { const f = form(); if (f) { f.venue = e.target.value; renderChecks(); } });
 $("trialNo").addEventListener("input", e => { const f = form(); if (f) { f.trialNo = e.target.value; renderChecks(); } });
