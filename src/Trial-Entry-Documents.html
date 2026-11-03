@@ -183,6 +183,9 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
 .page th { font-weight: 700; }
 .page th small { display: block; font-size: 9px; font-weight: 400; }
 .page tr.react td { color: #000; font-weight: 700; background: #FFFF00; }
+.page tr.nophoto td { font-weight: 700; }
+.page tr td.banner { color: #fff; background: #000; font-weight: 700; }
+.page .pfoot .photonote { display: block; }
 .page .pfoot { margin-top: 6px; text-align: center; font-size: 12px; display: grid; gap: 2px; }
 .page .pfoot .warnnote { color: #000; font-weight: 700; }
 
@@ -415,6 +418,7 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
       <li><b>Which sheet is which:</b> callboards, time stewards' and judges' sheets each have their name in bold at the top centre of every page (CALLBOARD, TIME STEWARD SHEET, JUDGE’S SHEET), between the logo and the event name, so the piles can't get mixed up. On the time stewards' and judges' sheets the big heading is the level and element (e.g. “Advanced 1 – Interior”), with the day, date and session underneath in smaller print and the judge on the right. Each judge's sheet ends with a thank-you note asking the judge to do their debrief video and pack up, then head back to the results room to sign certificates.</li>
       <li><b>Search time</b> is printed under the element and judge on the time stewards' and judges' sheets, from the regulation times for the level and element (the same times as on the judging sheets). A range such as 3–4 minutes means the judge sets the time on the day within it. For an element typed under Other, the time you type is used; with no time it prints a line to write on.</li>
       <li><b>Certificate list:</b> a plain list to write certificates by hand from. Each ticked class becomes a table of handler and dog in alphabetical order of handler, headed with the level, trial number (when the same level runs more than once) and the day and date, e.g. “Advanced 1 – Sat 9th May”. Download it as a PDF (or Word).</li>
+      <li><b>Photographers:</b> the running order of every ticked class in one document (tables share a page when they fit), with PHOTOGRAPHER at the top. Anyone who ticked “No photos permitted” on their entry, or asked in their comments for no photos, has <b>NO PHOTOS</b> in white on black in the Photos column and their row in bold, so it stands out even on a black and white printer. The count on each class shows how many. Check the list against the entries if anyone asked by email instead.</li>
       <li><b>Numbers</b> are added for you: each table is numbered 1, 2, 3… in the order the dogs appear on the tab.</li>
       <li><b>Reactive dogs:</b> the Reactive column shows D (dogs), H (humans) or D + H, and the whole row is printed in bold black and highlighted yellow on the running orders, callboards, time stewards' and judges' sheets.</li>
       <li><b>Level names</b> are filled in from the tab name (NWAdv1 → Advanced, BHNovS1 → BH Novice Sand). The trial number is kept when a level appears more than once. You can type over any of them.</li>
@@ -610,6 +614,9 @@ const LAYOUT = {
        align      "left", "center" or "right"
        kind       "number"   → No. column, always numbered 1, 2, 3… in row order
                   "reactive" → shows D, H or D + H and prints the whole row in bold, highlighted yellow
+                  "photos"   → shows NO PHOTOS (white on black) for an entrant who asked for no photos, and
+                               prints that row in bold; read from the entry comments (on the Master List, by Entry ID)
+     photoNote        printed in bold at the bottom of every page, under the reactive-dog note (with a "photos" column)
                   leave out for ordinary text (long text wraps in the cell) */
 const DOCUMENTS = [
   {
@@ -712,6 +719,27 @@ const DOCUMENTS = [
       { header: "Reactive", subheader: "Dog +/or Human", subheaderSizePt: 7, headerSizePt: 8, from: ["Comments", "Reactive"], width: 18, align: "center", kind: "reactive" },
       { header: "Hide(s) Found", headerSizePt: 9, from: [],      width: 18, align: "center" },
       { header: "Notes",    from: [],                             width: 70, align: "center" },
+    ],
+  },
+  {
+    id: "photographer",
+    label: "Photographers",
+    fileSuffix: "Photographers",
+    sheetLabel: "PHOTOGRAPHER",
+    about: "For the trial photographer: the running order of every ticked class in one document, with NO PHOTOS against any entrant who asked on their entry for no photos to be taken. Tables share a page when they fit.",
+    bodySizePt: 11,
+    rowHeightMm: 7,
+    onePerPage: false,
+    copies: false,
+    elementLine: false,
+    photoNote: "NO PHOTOS: the handler has asked for no photos to be taken",
+    columns: [
+      { header: "No.",      from: [],                             width: 7,  align: "center", kind: "number" },
+      { header: "Handler",  from: ["Handler", "Handler Name"],    width: 28, align: "center" },
+      { header: "Dog",      from: ["Dog Pet Name", "Dog"],        width: 16, align: "center" },
+      { header: "Breed",    from: ["Dog Breed", "Breed"],         width: 22, align: "center", sizePt: 9 },
+      { header: "Reactive", subheader: "Dog +/or Human", from: ["Comments", "Reactive"], width: 12, align: "center", kind: "reactive" },
+      { header: "Photos",   from: ["Comments"],                   width: 18, align: "center", kind: "photos" },
     ],
   },
   {
@@ -944,10 +972,24 @@ function reactiveCode(value) {
   return dog && human ? "D + H" : dog ? "D" : human ? "H" : "";
 }
 
+/* True if an entry comment asks for no photos ("  - No photos permitted." on the entry form, or the
+   entrant's own words such as "please don't take photos"). "Photos are fine" and the like don't count. */
+function noPhotos(value) {
+  const s = String(value ?? "").toLowerCase().replace(/[’‘]/g, "'");
+  if (!s.trim()) return false;
+  const pic = "(?:photo(?:s|graph(?:s|y)?)?|pic(?:ture)?s?|images?)";
+  return new RegExp(`\\bno\\s+(?:more\\s+)?${pic}\\b`).test(s)
+    || new RegExp(`\\b${pic}\\s+(?:are\\s+|is\\s+)?not\\s+(?:to\\s+be\\s+taken|permitted|allowed|wanted|ok(?:ay)?)\\b`).test(s)
+    || new RegExp(`\\b(?:do\\s+not|don't|dont|not)\\s+(?:want\\s+(?:any\\s+)?|wish\\s+(?:to\\s+have\\s+)?|allow\\s+(?:any\\s+)?)?(?:to\\s+be\\s+)?(?:take\\s+(?:any\\s+)?|have\\s+(?:any\\s+)?)?${pic}`).test(s)
+    || /\b(?:do\s+not|don't|dont)\s+photograph/.test(s);
+}
+
 /* rows: arrays of cell text, heading row first.
+   extras.noPhotos: Entry IDs (upper case) of entrants who asked for no photos (from the Master List comments).
    Returns the table rows (in spreadsheet order, numbered 1, 2, 3…) and which columns were missing. */
-function extractTable(rows, layout = layoutFor(DOCUMENTS[0])) {
+function extractTable(rows, layout = layoutFor(DOCUMENTS[0]), extras = {}) {
   const head = (rows[0] || []).map(norm);
+  const idCol = head.indexOf(norm("Entry ID")), banned = extras.noPhotos || new Set();
   const colIndex = layout.columns.map(c => {
     for (const name of c.from || []) { const i = head.indexOf(norm(name)); if (i >= 0) return i; }
     return -1;
@@ -960,14 +1002,16 @@ function extractTable(rows, layout = layoutFor(DOCUMENTS[0])) {
     for (let r = 1; r < rows.length; r++) {
       const row = rows[r] || [];
       if (textCols.every(k => isBlank(row[colIndex[k]]))) continue;
-      let reactive = false;
+      let reactive = false, photosOff = false;
+      const id = idCol >= 0 ? String(row[idCol] ?? "").trim().toUpperCase() : "";
       const cells = layout.columns.map((c, k) => {
         const raw = colIndex[k] >= 0 ? String(row[colIndex[k]] ?? "").trim() : "";
         if (c.kind === "number") return String(out.length + 1);
         if (c.kind === "reactive") { const code = reactiveCode(raw); if (code) reactive = true; return code; }
+        if (c.kind === "photos") { photosOff = noPhotos(raw) || (!!id && banned.has(id)); return photosOff ? "NO PHOTOS" : ""; }
         return raw;
       });
-      out.push({ cells, reactive });
+      out.push({ cells, reactive, noPhotos: photosOff });
     }
   }
   if (layout.sortBy === "handler") {
@@ -1038,9 +1082,10 @@ function tableXml(t, opts, layout, widths) {
     // "Keep with next" on every row but the last keeps the whole table on one page in Word.
     const keep = t.keepTogether && ri < t.rows.length - 1;
     const cells = layout.columns.map((c, k) => {
-      const v = r.cells[k];
-      const style = r.reactive ? { bold: true, colour: reactInk, sizePt: c.sizePt } : { sizePt: c.sizePt };
-      return cell(k, para(v ? run(v, style) : "", { keepNext: keep, before: 30, after: 30, align: align(c) }), r.reactive ? rowFill : "");
+      const v = r.cells[k], banner = c.kind === "photos" && r.noPhotos;
+      const style = banner ? { bold: true, colour: "#FFFFFF", sizePt: c.sizePt }
+        : r.reactive ? { bold: true, colour: reactInk, sizePt: c.sizePt } : r.noPhotos ? { bold: true, sizePt: c.sizePt } : { sizePt: c.sizePt };
+      return cell(k, para(v ? run(v, style) : "", { keepNext: keep, before: 30, after: 30, align: align(c) }), banner ? "000000" : r.reactive ? rowFill : "");
     }).join("");
     return `<w:tr><w:trPr><w:cantSplit/>${height}</w:trPr>${cells}</w:tr>`;
   }).join("");
@@ -1099,7 +1144,7 @@ function tableHeight(rows, layout, widths = columnWidths(layout)) {
   rows.forEach(r => {
     const cellH = r.cells.map((v, k) => {
       const size = layout.columns[k].sizePt || layout.bodySizePt;
-      const lines = Math.max(1, Math.ceil(String(v || "").length * size * TW_PER_PT * 0.5 * (r.reactive ? 1.05 : 1) / Math.max(200, widths[k] - 160)));
+      const lines = Math.max(1, Math.ceil(String(v || "").length * size * TW_PER_PT * 0.5 * (r.reactive || r.noPhotos ? 1.05 : 1) / Math.max(200, widths[k] - 160)));
       return lines * size * TW_PER_PT * 1.15;
     });
     h += Math.max(minRow, Math.max(line, ...cellH) + 70);
@@ -1175,9 +1220,10 @@ function buildDocx(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
   const settings = `${decl}<w:settings xmlns:w="${NS_W}"><w:defaultTabStop w:val="720"/><w:characterSpacingControl w:val="doNotCompress"/>` +
     `<w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat></w:settings>`;
 
-  const footerBody = layout.reactive.footerNote
+  const footerBody = (layout.reactive.footerNote
     ? para(run(layout.reactive.footerNote, { bold: true, colour: layout.reactive.colour, sizePt: 11 }), { align: "center" })
-    : para("", {});
+    : layout.photoNote ? "" : para("", {}))
+    + (layout.photoNote ? para(run(layout.photoNote, { bold: true, sizePt: 11 }), { align: "center", before: 40 }) : "");
   const footer = `${decl}<w:ftr xmlns:w="${NS_W}" xmlns:r="${NS_R}">${footerBody}</w:ftr>`;
 
   const files = [];
@@ -1288,7 +1334,9 @@ function buildTablePdf(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
     if (label) pdf.text(label, side + usable / 2, headBase, { size: LABEL_PT, bold: true, align: "center", plain: true });
     if (eventName) pdf.text(eventName, side + usable, headBase, { size: layout.eventSizePt || 10, align: "right", plain: true, colour: pdfColour(layout.eventColour || "#404040"),
       maxW: label ? usable / 2 - labelW / 2 - 4 : usable - logoW - 6 });
-    if (layout.reactive.footerNote) pdf.text(layout.reactive.footerNote, PAGE.w / 2, PAGE.h - PAGE.footer - 1, { size: 11, bold: true, align: "center", plain: true, colour: reactInk });
+    const footBase = PAGE.h - PAGE.footer - 1;
+    if (layout.reactive.footerNote) pdf.text(layout.reactive.footerNote, PAGE.w / 2, footBase - (layout.photoNote ? 5 : 0), { size: 11, bold: true, align: "center", plain: true, colour: reactInk });
+    if (layout.photoNote) pdf.text(layout.photoNote, PAGE.w / 2, footBase, { size: 11, bold: true, align: "center", plain: true, colour: "0 0 0 rg" });
     return top;
   };
   /* A tick (✓), drawn with lines because the standard fonts don't have one. */
@@ -1305,9 +1353,11 @@ function buildTablePdf(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
   };
   /* A row of cells: blocks[k] = [{ lines, size, bold }] stacked in the cell, all centred top to bottom. */
   const rowHeight = (blocks, padY, minH) => Math.max(minH, ...blocks.map(b => b.reduce((a, x) => a + x.lines.length * lh(x.size), 0) + 2 * padY));
-  const drawRow = (y, h, blocks, fill, colour) => {
+  // fill and colour: one for the whole row, or a list with one per cell
+  const drawRow = (y, h, blocks, fills, colours) => {
     let x = side;
     widths.forEach((w, k) => {
+      const fill = Array.isArray(fills) ? fills[k] : fills, colour = Array.isArray(colours) ? colours[k] : colours;
       if (fill) pdf.op(`${fill} ${f2(x * MM)} ${f2(pdf.Y(y + h))} ${f2(w * MM)} ${f2(h * MM)} re f 0 g`);
       const textH = blocks[k].reduce((a, b) => a + b.lines.length * lh(b.size), 0);
       let ty = y + (h - textH) / 2;
@@ -1329,8 +1379,13 @@ function buildTablePdf(tables, opts, layout = layoutFor(DOCUMENTS[0])) {
   const drawHead = y => { drawRow(y, headH, headBlocks, headFill, headInk); return y + headH; };
   const minRow = layout.rowHeightMm > 0 ? layout.rowHeightMm : 0;
   const bodyRow = r => {
-    const blocks = layout.columns.map((c, k) => { const size = c.sizePt || layout.bodySizePt; return [{ lines: wrapText(r.cells[k], widths[k] - 2 * padX, size, r.reactive), size, bold: r.reactive }]; });
-    return { blocks, h: rowHeight(blocks, 30 * TWIP, minRow), fill: r.reactive ? yellow : "", colour: r.reactive ? layout.reactive.colour : "#000000" };
+    const bold = !!(r.reactive || r.noPhotos);
+    const blocks = layout.columns.map((c, k) => { const size = c.sizePt || layout.bodySizePt; return [{ lines: wrapText(r.cells[k], widths[k] - 2 * padX, size, bold), size, bold }]; });
+    const fill = r.reactive ? yellow : "", colour = r.reactive ? layout.reactive.colour : "#000000";
+    if (!r.noPhotos) return { blocks, h: rowHeight(blocks, 30 * TWIP, minRow), fill, colour };
+    // NO PHOTOS: white on black in its own cell, so it stands out from the yellow even on a black and white printer
+    const banner = layout.columns.map(c => c.kind === "photos");
+    return { blocks, h: rowHeight(blocks, 30 * TWIP, minRow), fill: banner.map(b => b ? "0 0 0 rg" : fill), colour: banner.map(b => b ? "#FFFFFF" : colour) };
   };
 
   const titleH = layout.titleSizePt * 1.2 * PT;
@@ -3000,7 +3055,7 @@ async function lockSheet1(ws) {
 }
 
 /* sheets: [[name, rows]], first one (the entries) left out. */
-function loadSheets(sheets, baseName, isExample, classOf = n => n) {
+function loadSheets(sheets, baseName, isExample, classOf = n => n, extras = {}) {
   const list = sheets.slice(1);
   const names = list.map(([n]) => n);
   const classes = names.map(classOf);
@@ -3009,7 +3064,7 @@ function loadSheets(sheets, baseName, isExample, classOf = n => n) {
   const tabs = list.map(([name, rows], i) => {
     const tables = {}, include = {};
     DOCUMENTS.forEach(d => {
-      tables[d.id] = extractTable(rows, layoutFor(d));
+      tables[d.id] = extractTable(rows, layoutFor(d), extras);
       include[d.id] = tables[d.id].usable && tables[d.id].rows.length > 0 && TRIAL_TAB.test(classes[i]) && (!isPdf(d) || !!scoreClass(classes[i]))
         && (!isCert(d) || (!!certCard(classes[i]) && names[i] === classes[i]))   // certificates: the trial's own tab, not users' copies
         && (!d.ownTabOnly || names[i] === classes[i]);
@@ -3132,7 +3187,7 @@ function renderCards() {
         el("label", { class: "inc" },
           el("input", { type: "checkbox", checked: on, disabled, onchange: e => { tab.include[doc.id] = e.target.checked; renderCards(); renderPreview(); } }),
           el("span", { class: "tabname", text: tab.name })),
-        el("span", { class: "count", text: t.usable ? `${n} ${n === 1 ? "dog" : "dogs"}${n && !isPdf(doc) && !isCert(doc) ? ` · ${t.rows.filter(r => r.reactive).length} reactive` : ""}` : "" }),
+        el("span", { class: "count", text: t.usable ? `${n} ${n === 1 ? "dog" : "dogs"}${n && !isPdf(doc) && !isCert(doc) ? ` · ${t.rows.filter(r => r.reactive).length} reactive` : ""}${n && doc.columns.some(c => c.kind === "photos") ? ` · ${t.rows.filter(r => r.noPhotos).length} no photos` : ""}` : "" }),
         el("span", { class: "move" },
           el("button", { class: "icon", type: "button", "aria-label": `Move ${tab.name} up`, disabled: i === 0, onclick: () => move(i, -1) }, "▲"),
           el("button", { class: "icon", type: "button", "aria-label": `Move ${tab.name} down`, disabled: i === state.tabs.length - 1, onclick: () => move(i, 1) }, "▼"))),
@@ -3642,13 +3697,15 @@ function renderPreview() {
         th.style.background = look.headerColour; th.style.color = headInk; th.style.textAlign = c.align || "center";
         return th;
       }));
-      const tbody = it.rows.map(r => el("tr", { class: r.reactive ? "react" : "" },
-        r.cells.map((v, j) => { const td = el("td", { text: v }); td.style.textAlign = layout.columns[j].align || "center"; if (layout.columns[j].sizePt) td.style.fontSize = (layout.columns[j].sizePt * 1.2).toFixed(1) + "px"; if (layout.rowHeightMm) td.style.height = (layout.rowHeightMm * 2.4) + "px"; return td; })));
+      const tbody = it.rows.map(r => el("tr", { class: [r.reactive ? "react" : "", r.noPhotos ? "nophoto" : ""].join(" ").trim() },
+        r.cells.map((v, j) => { const td = el("td", { text: v, class: r.noPhotos && layout.columns[j].kind === "photos" ? "banner" : null }); td.style.textAlign = layout.columns[j].align || "center"; if (layout.columns[j].sizePt) td.style.fontSize = (layout.columns[j].sizePt * 1.2).toFixed(1) + "px"; if (layout.rowHeightMm) td.style.height = (layout.rowHeightMm * 2.4) + "px"; return td; })));
       const cols = el("colgroup", {}, layout.columns.map(c => { const col = el("col"); col.style.width = (c.width || 1) + "%"; return col; }));
       page.append(el("table", { style: `font-size:${(layout.bodySizePt * 1.2).toFixed(1)}px` }, cols, el("thead", {}, thead), el("tbody", {}, tbody)));
       if (layout.endNote) page.append(el("p", { class: "pendnote" }, el("b", { text: layout.endNote[0] }), layout.endNote[1] ? " " + layout.endNote[1] : ""));
     });
-    if (layout.reactive.footerNote) page.append(el("div", { class: "pfoot" }, el("span", { class: "warnnote", text: layout.reactive.footerNote })));
+    if (layout.reactive.footerNote || layout.photoNote) page.append(el("div", { class: "pfoot" },
+      layout.reactive.footerNote ? el("span", { class: "warnnote", text: layout.reactive.footerNote }) : null,
+      layout.photoNote ? el("span", { class: "warnnote photonote", text: layout.photoNote }) : null));
     box.append(el("p", { class: "pagelabel", text: label }), page);
   });
   if (!items.length) box.append(el("p", { class: "note", text: "Nothing ticked yet." }));
@@ -3806,7 +3863,7 @@ function showStatus(msg, isError) {
 }
 
 /* ---------- The working file: open, resume, save progress ---------- */
-const DOCS_TOOL = { name: "Trial Documents", version: "2.7" };
+const DOCS_TOOL = { name: "Trial Documents", version: "2.8" };
 const DAMAGE_NOTE = "This file may have been changed by a program other than Excel. Some trial information could be missing or altered. Apple Numbers or Google Sheets are the most common causes.";
 const DOC_WORDS = { catalogue: "running order", callboard: "callboard", timekeeper: "time stewards' sheets", judge: "judges' sheets", scoresheet: "judging sheets", certificate: "certificates" };
 let dirty = false, quiet = false;
@@ -3949,9 +4006,10 @@ async function openWorkbook(wb, fileName, opts = {}) {
   const notes = read2.filter(t => t.unusable || t.problems.length).flatMap(t => t.problems);
   if (opts.restored) notes.unshift({ type: "info", text: `Sheet 1 has been put back as downloaded (${opts.restored} ${opts.restored === 1 ? "cell" : "cells"}).`, fix: `Choose Save progress to keep it. If any of those changes were meant, make them on the ${TL.MASTER} using Trial Lists.` });
   quiet = true;
-  loadSheets([["", []], ...sheets.map(s => [s.ws.name, s.rows])], fileName.replace(/\.[^.]+$/, "").replace(/ \((in progress|Numbered|with [^)]*)\)$/i, ""), false, classOf);
+  const extras = masterExtras(masterRows);
+  loadSheets([["", []], ...sheets.map(s => [s.ws.name, s.rows])], fileName.replace(/\.[^.]+$/, "").replace(/ \((in progress|Numbered|with [^)]*)\)$/i, ""), false, classOf, extras);
   state.wb = wb; state.settings = settings; state.fileName = fileName; state.sheets = sheets; state.classOf = classOf;
-  Object.assign(state, masterExtras(masterRows));
+  Object.assign(state, extras);
   state.fps = Object.fromEntries(sheets.map(s => [s.ws.name, TL.rowsFingerprint(s.rows)]));
   state.made = JSON.parse(JSON.stringify((settings.docs || {}).made || {}));
   if (look.host === EXAMPLE_HOST) { look.host = ""; $("host").value = ""; $("certHost").value = ""; }
@@ -3965,12 +4023,12 @@ async function openWorkbook(wb, fileName, opts = {}) {
   showStatus("");
 }
 
-/* Dog Full Name and comments about certificates from the Master List, by Entry ID. */
+/* Dog Full Name, comments about certificates and who asked for no photos, from the Master List, by Entry ID. */
 function masterExtras(rows) {
   const head = (rows[0] || []).map(h => String(h ?? "").trim().toLowerCase());
   const at = n => head.indexOf(n);
   const iId = at("entry id"), iFull = at("dog full name"), iCom = at("comments");
-  const fullNames = {}, certComments = {};
+  const fullNames = {}, certComments = {}, noPhotoIds = new Set();
   rows.slice(1).forEach(r => {
     const id = String((r || [])[iId] ?? "").trim().toUpperCase();
     if (iId < 0 || !id) return;
@@ -3978,8 +4036,9 @@ function masterExtras(rows) {
     if (full) fullNames[id] = full;
     const c = iCom < 0 ? "" : certComment(r[iCom]);
     if (c) certComments[id] = c;
+    if (iCom >= 0 && noPhotos(r[iCom])) noPhotoIds.add(id);
   });
-  return { fullNames, certComments };
+  return { fullNames, certComments, noPhotos: noPhotoIds };
 }
 
 /* ---------- Putting saved settings back ---------- */
@@ -4112,8 +4171,8 @@ $("restartSettings").addEventListener("click", () => {
   colourKey = "";
   if (look.logoUrl) URL.revokeObjectURL(look.logoUrl);
   look.logo = null; look.logoUrl = null;
-  const keep = { wb: state.wb, settings: state.settings, fileName: state.fileName, sheets: state.sheets, classOf: state.classOf, fps: state.fps, fullNames: state.fullNames, certComments: state.certComments };
-  loadSheets([["", []], ...state.sheets.map(s => [s.ws.name, s.rows])], state.baseName, false, keep.classOf);
+  const keep = { wb: state.wb, settings: state.settings, fileName: state.fileName, sheets: state.sheets, classOf: state.classOf, fps: state.fps, fullNames: state.fullNames, certComments: state.certComments, noPhotos: state.noPhotos };
+  loadSheets([["", []], ...state.sheets.map(s => [s.ws.name, s.rows])], state.baseName, false, keep.classOf, { noPhotos: state.noPhotos });
   Object.assign(state, keep, { made: {} });
   syncLookInputs();
   quiet = false;
@@ -4266,9 +4325,9 @@ quiet = true;
 loadSheets([
   ["Entries", [["Entry Full Name"]]],
   ["NWAdv1", [H, ["20001", "Kiri Example", "2001", "Moss", "Border Collie", ""], ["20002", "Tom Sample", "2002", "Biscuit", "Labrador Retriever", "D"],
-    ["20003", "Ana Placeholder", "2003", "Juno", "Spoodle", ""], ["20004", "Rua Demo", "2004", "Pip", "Jack Russell Terrier", "D + H"]]],
+    ["20003", "Ana Placeholder", "2003", "Juno", "Spoodle", "::::::  - No photos permitted."], ["20004", "Rua Demo", "2004", "Pip", "Jack Russell Terrier", "D + H"]]],
   ["NWExc1", [H, ["20005", "Mere Testing", "2005", "Kōwhai", "Golden Retriever", ""], ["20006", "Sam Mockup", "2006", "Tui", "Australian Koolie", "H"]]],
-  ["NWAdv2", [H, ["20003", "Ana Placeholder", "2003", "Juno", "Spoodle", ""], ["20004", "Rua Demo", "2004", "Pip", "Jack Russell Terrier", "D + H"],
+  ["NWAdv2", [H, ["20003", "Ana Placeholder", "2003", "Juno", "Spoodle", "::::::  - No photos permitted."], ["20004", "Rua Demo", "2004", "Pip", "Jack Russell Terrier", "D + H"],
     ["20001", "Kiri Example", "2001", "Moss", "Border Collie", ""]]],
   ["Paid", [["Entry Full Name", "Handler", "Dog Pet Name", "Dog Breed", "Comments", "Amount Due"], ["Kiri Example", "Kiri Example", "Moss", "Border Collie", "", "0"]]],
   ["Emails", [["Email", "Full Name"], ["kiri@example.com", "Kiri Example"]]],
