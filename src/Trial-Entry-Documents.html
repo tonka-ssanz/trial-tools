@@ -1481,19 +1481,24 @@ async function logoForPdf(logo) {
      hides          hides per search; "operator" = typed per search on the page
      hideSplit      (operator hides only) the numbers drawn for the searches, e.g. [3,3,3,2,1]
      hidesBox       true = print a "Number of hides" box in the heading
-     left, right    the two columns of the table, top to bottom. Each row is one of:
-                      { head: "MAJOR FAULTS (5 points deduction)" }  bold heading row
-                      { text: "Damage to search area" }        row with a box to mark
-                      { text: ["first line", "second line"] }   a double-height row with the text on two lines
-                      { text: "1st hide", value: "10" }        row with a value printed in it
-                      { hideRows: true, value: "10" }          one row per hide: 1st hide, 2nd hide…
-                      { hideRows: true, value: "10", rows: 3, unused: "N/A" }
-                                                               always 3 hide rows; rows past the search's hides print "N/A"
-                      { text: "TOTAL:", wide: true }            row with a wider box to write a score in
-                      { gap: true }                            empty row
-                      { boxes: ["TIME:", "POINTS:"] }          tall box at the bottom (rest of the column)
+     left           the faults, top to bottom, in the left column (it uses the full height of the sheet)
+     right          rows at the top of the right column, above the POINTS table (e.g. ELEMENT FAILURE AFTER
+                    POINTS GAINED); leave out for none
+                    Each row in left / right is one of:
+                      { head: "MAJOR FAULTS: 5 points deduction" }  bold heading row
+                      { text: "Damage to search area" }            row with a box to mark
                     **words** prints those words in bold. 1st / 2nd / 3rd are raised automatically.
-     strip          (optional) a row of boxes under the table, e.g. Time | Converted | Score
+     points         the POINTS table on the right: one row per hide with its points, then
+                    "Less faults to be deducted" with a minus sign. Its title is worked out:
+                    "POINTS: Out of <points × hides>" (e.g. Out of 25; Excellent: Out of 30, 20 or 10).
+                      perHide   points for each hide, as printed, e.g. "12.5"
+                      rows      (optional) always print this many hide rows; rows past the search's hides print unused
+                      unused    what those extra rows show, e.g. "N/A"
+                    A single hide is printed as "Hide Sourced"; more are numbered 1st hide, 2nd hide…
+     qualify        (optional) points needed to qualify, e.g. 46: added to the POINTS title and a QUAL? box
+                    is printed after TOTAL POINTS and TIME
+   Under the POINTS table come TOTAL POINTS | TIME (| QUAL?), then Comments, then the judge's
+   signature and name. The sizes are in SHEET (further down).
    ========================================================================= */
 const SCORE_SETTINGS = {
   versionLabel: "",                            // optional small label at the bottom right of every sheet ("" for none)
@@ -1544,7 +1549,7 @@ const BH_MINOR_LONG = [
 ];
 /* Wording agreed with the owner (Oct 2026) after Excellent judges found "after 1st find" confusing:
    "before" and "after" in bold, left and right columns worded alike. Used by Advanced, Excellent and BH Int / Adv;
-   the right column below is for 3 hides (NW Excellent, BH Advanced). */
+   LONG_GAINED is for 3 hides (NW Excellent, BH Advanced). */
 const LONG_FAIL = [
   { text: "False Alert **before** 1st find" },
   { text: "Timed out **before** 1st find" },
@@ -1566,78 +1571,64 @@ const TWO_HIDE_GAINED = [
   { text: "Request for help / Aborted search **after** 1st find" },
   { text: "Called an already found hide (2nd time)" },
 ];
-const STRIP_25 = [{ label: "Time:" }, { label: "Faults Deducted:" }, { label: "Points:", suffix: "/ 25" }];
+const ELEMENT_FAILURE = { head: "ELEMENT FAILURE: 0 points" };
+const NW_MAJOR_HEAD = { head: "MAJOR FAULTS: 5 points deduction" }, BH_MAJOR_HEAD = { head: "MAJOR FAULTS: 3 points deduction" };
+const MINOR_HEAD = { head: "MINOR FAULTS: 2 points deduction" };
+/* Nosework Advanced and Excellent share the same faults. */
+const NW_LONG_LEFT = [ELEMENT_FAILURE, ...LONG_FAIL,
+  { head: "FAULT: 6 points deduction" }, { text: "Called an already found hide (1st time)" },
+  NW_MAJOR_HEAD, ...NW_MAJOR, MINOR_HEAD, ...NW_MINOR_LONG];
+/* Buried Hides Intermediate and Advanced share the same faults. */
+const BH_LONG_LEFT = [ELEMENT_FAILURE, ...LONG_FAIL, { text: "Worked dog off lead" },
+  BH_MAJOR_HEAD, { text: "Called an already found hide (1st time)" }, ...BH_MAJOR, MINOR_HEAD, ...BH_MINOR_LONG];
 const NW_SEARCHES = ["Containers", "Interior", "Exterior", "Vehicle"];
 
+/* Layout agreed with the owner and signed off by SSANZ (Nov 2026): faults on the left; POINTS table,
+   TOTAL POINTS | TIME (| QUAL?), Comments and the judge's signature and name on the right. */
 const SCORE_SHEETS = [
   {
     sport: "NW", level: "Nov", title: "NOVICE JUDGING SHEET",
     searches: NW_SEARCHES, times: { Containers: "2", Interior: "3", Exterior: "3", Vehicle: "3" }, hides: 1,
-    left: [{ head: "FALSE ALERT: 6 points deduction" }, { text: "False Alert (False Continue)" }, { gap: true },
-      { head: "MAJOR FAULTS: 5 points deduction" }, ...NW_MAJOR],
-    right: [{ head: "MINOR FAULTS: 2 points deduction" }, ...NW_MINOR_SHORT, { gap: true },
-      { head: "ELEMENT FAILURE: 0 points" }, { text: "2nd false alert" }, { text: "Time out" }, { text: "Fouling search area" }, { text: "Request for help / Aborted search" }, { text: "Harsh handling" }],
-    strip: STRIP_25,
+    left: [ELEMENT_FAILURE, { text: "2nd false alert" }, { text: "Time out" }, { text: "Fouling search area" }, { text: "Request for help / Aborted search" }, { text: "Harsh handling" },
+      { head: "FALSE ALERT: 6 points deduction" }, { text: "False Alert (False Continue)" },
+      NW_MAJOR_HEAD, ...NW_MAJOR, MINOR_HEAD, ...NW_MINOR_SHORT],
+    points: { perHide: "25" },
   },
   {
     sport: "NW", level: "Int", title: "INTERMEDIATE JUDGING SHEET",
     searches: NW_SEARCHES, times: { Containers: "2", Interior: "3", Exterior: "4", Vehicle: "3" }, hides: 1,
-    left: [{ head: "MAJOR FAULTS: 5 points deduction" }, ...NW_MAJOR],
-    right: [{ head: "MINOR FAULTS: 2 points deduction" }, ...NW_MINOR_SHORT, { gap: true },
-      { head: "ELEMENT FAILURE: 0 points" }, { text: "False Alert" }, { text: "Time out" }, { text: "Fouling search area" }, { text: "Request for help / Aborted search" }, { text: "Harsh handling" }],
-    strip: STRIP_25,
+    left: [ELEMENT_FAILURE, { text: "False Alert" }, { text: "Time out" }, { text: "Fouling search area" }, { text: "Request for help / Aborted search" }, { text: "Harsh handling" },
+      NW_MAJOR_HEAD, ...NW_MAJOR, MINOR_HEAD, ...NW_MINOR_SHORT],
+    points: { perHide: "25" },
   },
   {
     sport: "NW", level: "Adv", title: "ADVANCED JUDGING SHEET",
     searches: NW_SEARCHES, times: { Containers: "3", Interior: "2-6", Exterior: "3-5", Vehicle: "3-4" }, hides: 2,
-    left: [{ head: "ELEMENT FAILURE (0 points)" }, ...LONG_FAIL,
-      { head: "FAULT (6 points deduction)" }, { text: "Called an already found hide (1st time)" },
-      { head: "MAJOR FAULTS (5 points deduction)" }, ...NW_MAJOR,
-      { head: "MINOR FAULTS (2 points deduction)" }, ...NW_MINOR_LONG],
-    right: [...TWO_HIDE_GAINED, { gap: true },
-      { head: "Located Odour = 12.5 points each" }, { hideRows: true, value: "12.5" }, { gap: true },
-      { head: "Points: Out of 25" }, { text: "Hides found (as above)", wide: true }, { text: "Less faults to be deducted", wide: true }, { text: "**TOTAL:**", wide: true }, { gap: true },
-      { boxes: ["TIME:", "POINTS:"] }],
+    left: NW_LONG_LEFT, right: TWO_HIDE_GAINED,
+    points: { perHide: "12.5" },
   },
   {
     sport: "NW", level: "Exc", title: "EXCELLENT JUDGING SHEET",
     searches: [...NW_SEARCHES, ""], times: { Containers: "3-4", Interior: "3-6", Exterior: "3-6", Vehicle: "3-4" },
     hides: "operator", hideSplit: [3, 3, 3, 2, 1], hidesBox: true,
-    left: [{ head: "ELEMENT FAILURE (0 points)" }, ...LONG_FAIL,
-      { head: "FAULT (6 points deduction)" }, { text: "Called an already found hide (1st time)" },
-      { head: "MAJOR FAULTS (5 points deduction)" }, ...NW_MAJOR,
-      { head: "MINOR FAULTS (2 points deduction)" }, ...NW_MINOR_LONG],
-    right: [...LONG_GAINED, { gap: true },
-      { head: "Located Odour = 10 points each" }, { hideRows: true, value: "10", rows: 3, unused: "N/A" }, { gap: true },
-      { head: "Points: (Each hide = 10)" }, { text: "Hides found (as above)", wide: true }, { text: "Less faults to be deducted", wide: true }, { text: "**TOTAL:**", wide: true }, { gap: true },
-      { boxes: ["TIME:", "POINTS:"] }],
+    left: NW_LONG_LEFT, right: LONG_GAINED,
+    points: { perHide: "10", rows: 3, unused: "N/A" },
   },
   {
     sport: "BH", level: "Nov", title: "NOVICE BH JUDGING SHEET", times: { any: "2" }, hides: 1,
-    left: [{ head: "MAJOR FAULTS: 3 points deduction" }, ...BH_MAJOR],
-    right: [{ head: "MINOR FAULTS: 2 points deduction" }, { text: "Tangling line" }, { text: "Dropping line" }, { text: "Neither handler NOR dog crossed start line" }, { text: "Handling errors" }, { gap: true },
-      { head: "ELEMENT FAILURE: 0 points" }, { text: "False alert" }, { text: "Time out" }, { text: "Fouling search area" }, { text: "Request for help / Aborted search" }, { text: "Worked dog off lead" }, { text: "Harsh handling" }],
-    strip: STRIP_25,
+    left: [ELEMENT_FAILURE, { text: "False alert" }, { text: "Time out" }, { text: "Fouling search area" }, { text: "Request for help / Aborted search" }, { text: "Worked dog off lead" }, { text: "Harsh handling" },
+      BH_MAJOR_HEAD, ...BH_MAJOR, MINOR_HEAD, { text: "Tangling line" }, { text: "Dropping line" }, { text: "Neither handler NOR dog crossed start line" }, { text: "Handling errors" }],
+    points: { perHide: "25" }, qualify: 21,
   },
   {
     sport: "BH", level: "Int", title: "INTERMEDIATE BH JUDGING SHEET", times: { any: "3" }, hides: 2,
-    left: [{ head: "ELEMENT FAILURE (0 points)" }, ...LONG_FAIL, { text: "Worked dog off lead" },
-      { head: "MAJOR FAULTS: 3 points deduction" }, { text: "Called an already found hide (1st time)" }, ...BH_MAJOR,
-      { head: "MINOR FAULTS: 2 points deduction" }, ...BH_MINOR_LONG],
-    right: [...TWO_HIDE_GAINED, { gap: true },
-      { head: "Located Odour = 25 points each" }, { hideRows: true, value: "25" }, { text: "**TOTAL:**" }, { gap: true },
-      { head: "Points: Out of 50" }, { text: "Hides found (as above)", wide: true }, { text: "Less faults to be deducted", wide: true }, { text: "**TOTAL:** (46 points or more to qualify)", wide: true }, { gap: true },
-      { boxes: ["TIME:", "POINTS", "QUAL?"] }],
+    left: BH_LONG_LEFT, right: TWO_HIDE_GAINED,
+    points: { perHide: "25" }, qualify: 46,
   },
   {
     sport: "BH", level: "Adv", title: "ADVANCED BH JUDGING SHEET", element: "Sand + Water", times: { any: "4" }, hides: 3,
-    left: [{ head: "ELEMENT FAILURE (0 points)" }, ...LONG_FAIL, { text: "Worked dog off lead" },
-      { head: "MAJOR FAULTS: 3 points deduction" }, { text: "Called an already found hide (1st time)" }, ...BH_MAJOR,
-      { head: "MINOR FAULTS: 2 points deduction" }, ...BH_MINOR_LONG],
-    right: [...LONG_GAINED, { gap: true },
-      { head: "Located Odour = 25 points each" }, { hideRows: true, value: "25" }, { text: "**TOTAL:**" }, { gap: true },
-      { head: "Points: Out of 75" }, { text: "Hides found (as above)", wide: true }, { text: "Less faults to be deducted", wide: true }, { text: "**TOTAL:** (71 points or more to qualify)", wide: true }, { gap: true },
-      { boxes: ["TIME:", "POINTS", "QUAL?"] }],
+    left: BH_LONG_LEFT, right: LONG_GAINED,
+    points: { perHide: "25" }, qualify: 71,
   },
 ];
 /* ======================= end of score sheet settings ======================= */
@@ -1976,8 +1967,13 @@ function b64bytes(b64) {
 }
 
 /* ---------- Drawing one sheet (A5 landscape, 210 × 148 mm) at (ox, oy) on the page ---------- */
-const SHEET = { w: 210, h: 148, mL: 10, mR: 10, mT: 8, mB: 7, gap: 4, mark: 13, value: 14, wideMark: 27, rowMax: 6.5,
-  size: { title: 12, field: 10.5, row: 10, box: 9.5, footer: 11, hides: 9 }, tableTop: 29.5 };
+/* Sizes in mm. mark: tick box beside each fault (left column); rightMark / value: write-in box and printed-points
+   box in the right column; rightRow: row height on the right; box / boxSingle: depth of TOTAL POINTS | TIME
+   (single-hide sheets have more room, so their boxes are deeper); qual: width of the QUAL? box;
+   bottom: where the left column ends; sigY / nameY: baselines of the judge's signature and name lines. */
+const SHEET = { w: 210, h: 148, mL: 10, mR: 10, mT: 8, gap: 4, mark: 11, rightMark: 14, value: 12, rowMax: 6.5, rightRow: 5.4,
+  space: 1.8, groupGap: 2, box: 11, boxSingle: 18, qual: 13, bottom: 142.3, sigY: 134.5, nameY: 141.5,
+  size: { title: 12, field: 10.5, row: 10, box: 9.5, footer: 11, hides: 9, minus: 13 }, tableTop: 29.5 };
 const GREY = "0.92 g", ORANGE = "0.89 0.42 0.04 rg";
 
 function drawSheet(pdf, set, dog, ox, oy) {
@@ -2009,79 +2005,70 @@ function drawSheet(pdf, set, dog, ox, oy) {
     if (set.hides) pdf.text(String(set.hides), X((188 + right) / 2), Yy(S.mT + 17.6), { size: 12, bold: true, align: "center" });
   }
 
-  // Footer: judge's name and signature
-  const judgeY = S.h - S.mB + 0.5;
-  const jw = pdf.text("Judge’s Name:", X(S.mL), Yy(judgeY), { size: Z.footer });
-  if (set.judge) pdf.text(set.judge, X(S.mL + jw + 2), Yy(judgeY), { size: Z.footer, bold: true, maxW: 104 - S.mL - jw - 6 });
-  else pdf.line(X(S.mL + jw + 2), Yy(judgeY + 0.8), X(100), Yy(judgeY + 0.8), { lw: 0.4 });
-  const sw = pdf.text("Judge’s Signature:", X(104), Yy(judgeY), { size: Z.footer });
-  pdf.line(X(104 + sw + 2), Yy(judgeY + 0.8), X(SCORE_SETTINGS.versionLabel ? 170 : right), Yy(judgeY + 0.8), { lw: 0.4 });
-  if (SCORE_SETTINGS.versionLabel) pdf.text(SCORE_SETTINGS.versionLabel, X(right), Yy(judgeY), { size: 6.5, align: "right", colour: ORANGE });
-
-  // The two columns. Rows are as tall as fits (up to rowMax); the strip and Comments follow straight after.
-  const commentsH = 11, stripH = 9, space = 1.8;
-  const lowest = judgeY - 7.5 - commentsH - space - (sh.strip ? stripH + space : 0);
-  const tableTop = S.tableTop;
-  const expand = rows => rows.flatMap(r => r.hideRows
-    ? Array.from({ length: r.rows || Math.max(1, set.hides || 1) }, (_, i) => ({ text: `${ordinalWord(i + 1)} hide`, value: r.rows && set.hides && i >= set.hides ? (r.unused || "") : r.value }))
-    : [r]);
-  const cols = [expand(sh.left || []), expand(sh.right || [])];
-  const units = rows => rows.reduce((a, r) => a + (r.boxes ? 2.5 : Array.isArray(r.text) ? r.text.length : 1), 0);
-  const maxUnits = Math.max(...cols.map(units));
-  const rowH = Math.min(S.rowMax, (lowest - tableTop) / maxUnits);
-  const tableBottom = tableTop + rowH * maxUnits;
-  const colW = (right - S.mL - S.gap) / 2;
-  cols.forEach((rows, ci) => {
-    const cx = S.mL + ci * (colW + S.gap);
-    const hasValue = rows.some(r => r.value != null);
-    const markX = cx + colW - S.mark, valueX = hasValue ? markX - S.value : markX;
-    let y = tableTop;
+  const top = S.tableTop, colW = (right - S.mL - S.gap) / 2, cx2 = S.mL + colW + S.gap;
+  /* One column of rows from y. mark: width of the write-in box; value: width of the printed-points box (0 = none). */
+  const column = (rows, cx, y, rowH, mark, value) => {
+    const markX = cx + colW - mark, valueX = markX - value;
     rows.forEach(r => {
-      if (r.gap) { y += rowH; return; }
-      if (r.boxes) {
-        const h = Math.max(rowH * 2, tableBottom - y), bw = colW / r.boxes.length;
-        r.boxes.forEach((label, k) => {
-          pdf.rect(X(cx + k * bw), Yy(y), bw, h);
-          pdf.text(label, X(cx + k * bw + 1.5), Yy(y + 3.6), { size: Z.box });
-        });
-        y += h;
-        return;
-      }
       const base = y + rowH / 2 + 1.25;
       if (r.head) {
         pdf.rect(X(cx), Yy(y), colW, rowH, { fill: GREY });
         pdf.text(r.head, X(cx + 1.5), Yy(base), { size: Z.row, bold: true, maxW: colW - 3 });
       } else {
-        const own = r.value != null;   // rows without a value use the value column for their text
-        const boxX = r.wide ? cx + colW - S.wideMark : markX;   // calculation rows get a wider box to write in
-        const textEnd = own ? valueX : boxX;
-        const lines = Array.isArray(r.text) ? r.text : [r.text], h = rowH * lines.length;
-        pdf.rect(X(cx), Yy(y), textEnd - cx, h);
-        if (own) pdf.rect(X(valueX), Yy(y), S.value, h);
-        pdf.rect(X(boxX), Yy(y), cx + colW - boxX, h);
-        lines.forEach((line, k) => pdf.text(line, X(cx + 1.5), Yy(base + k * rowH), { size: Z.row, maxW: textEnd - cx - 3 }));
-        if (r.value) pdf.text(r.value, X(valueX + S.value / 2), Yy(base + (lines.length - 1) * rowH / 2), { size: Z.row, align: "center" });
-        y += h;
-        return;
+        const own = r.value != null, end = own ? valueX : markX;
+        pdf.rect(X(cx), Yy(y), end - cx, rowH);
+        if (own) pdf.rect(X(valueX), Yy(y), value, rowH);
+        pdf.rect(X(markX), Yy(y), cx + colW - markX, rowH);
+        pdf.text(r.text, X(cx + 1.5), Yy(base), { size: Z.row, maxW: end - cx - (r.minus ? 8 : 3) });
+        if (r.value) pdf.text(r.value, X(valueX + value / 2), Yy(base), { size: Z.row, align: "center" });
+        if (r.minus) pdf.text("–", X(markX - 1.5), Yy(base + 0.2), { size: Z.minus, bold: true, align: "right", plain: true });
       }
       y += rowH;
     });
+    return y;
+  };
+
+  // Left column: every fault, using the full height of the sheet
+  const left = sh.left || [];
+  column(left, S.mL, top, Math.min(S.rowMax, (S.bottom - top) / left.length), S.mark, 0);
+
+  // Right column: any rows above the POINTS table, then the POINTS table
+  let y = top;
+  if (sh.right && sh.right.length) y = column(sh.right, cx2, y, S.rightRow, S.rightMark, 0) + S.groupGap;
+  const pts = sh.points || {}, hides = Number(set.hides) || 0, each = Number(pts.perHide) || 0;
+  const qualify = sh.qualify ? ` (${sh.qualify} or more to qualify)` : "";
+  const ptsHead = hides && each ? `POINTS: Out of ${Math.round(hides * each * 10) / 10}${qualify}` : `POINTS: Each hide = ${pts.perHide || ""}${qualify}`;
+  const hideCount = pts.rows || Math.max(1, hides);
+  const hideRows = Array.from({ length: hideCount }, (_, i) => ({
+    text: hideCount === 1 ? "Hide Sourced" : `${ordinalWord(i + 1)} hide`,
+    value: pts.rows && hides && i >= hides ? (pts.unused || "") : (pts.perHide || ""),
+  }));
+  y = column([{ head: ptsHead }, ...hideRows, { text: "Less faults to be deducted", minus: true }], cx2, y, S.rightRow, S.rightMark, S.value);
+
+  // TOTAL POINTS | TIME (| QUAL?): POINTS always to the left of TIME
+  const labels = ["TOTAL POINTS:", "TIME:", ...(sh.qualify ? ["QUAL?"] : [])];
+  const boxTop = y + S.space, boxH = sh.hides === 1 ? S.boxSingle : S.box;
+  const qw = sh.qualify ? S.qual : 0, bw = (colW - qw) / (labels.length - (qw ? 1 : 0));
+  labels.forEach((label, k) => {
+    const w = label === "QUAL?" ? qw : bw;
+    pdf.rect(X(cx2 + k * bw), Yy(boxTop), w, boxH);
+    pdf.text(label, X(cx2 + k * bw + 1.5), Yy(boxTop + 3.6), { size: Z.box, maxW: w - 2 });
   });
-  let next = tableBottom + space;
-  if (sh.strip) {
-    const total = sh.strip.reduce((a, b) => a + (b.width || 1), 0);
-    let x = S.mL;
-    sh.strip.forEach(b => {
-      const w = (right - S.mL) * (b.width || 1) / total;
-      pdf.rect(X(x), Yy(next), w, stripH);
-      pdf.text(b.label, X(x + 1.5), Yy(next + 3.6), { size: Z.box });
-      if (b.suffix) pdf.text(b.suffix, X(x + w - 2), Yy(next + 7.2), { size: Z.footer, align: "right" });
-      x += w;
-    });
-    next += stripH + space;
-  }
-  pdf.rect(X(S.mL), Yy(next), right - S.mL, commentsH);
-  pdf.text("Comments:", X(S.mL + 1.5), Yy(next + 3.8), { size: Z.box });
+
+  // Comments: the rest of the column, down to the signature
+  const cTop = boxTop + boxH + S.space, cBottom = S.sigY - 6.5;
+  pdf.rect(X(cx2), Yy(cTop), colW, cBottom - cTop);
+  pdf.text("Comments:", X(cx2 + 1.5), Yy(cTop + 3.8), { size: Z.box });
+
+  // Judge's signature, then the judge's name below it (printed when typed with the searches)
+  const sigLabel = "Judge’s Signature:", nameLabel = "Judge’s Name:";
+  const vx = cx2 + Math.max(textWidth(sigLabel, Z.footer), textWidth(nameLabel, Z.footer)) + 2;
+  pdf.text(sigLabel, X(cx2), Yy(S.sigY), { size: Z.footer });
+  pdf.line(X(vx), Yy(S.sigY + 0.8), X(right), Yy(S.sigY + 0.8), { lw: 0.4 });
+  pdf.text(nameLabel, X(cx2), Yy(S.nameY), { size: Z.footer });
+  if (set.judge) pdf.text(set.judge, X(vx), Yy(S.nameY), { size: Z.footer, bold: true, maxW: right - vx });
+  else pdf.line(X(vx), Yy(S.nameY + 0.8), X(right), Yy(S.nameY + 0.8), { lw: 0.4 });
+  if (SCORE_SETTINGS.versionLabel) pdf.text(SCORE_SETTINGS.versionLabel, X(right), Yy(S.h - 1.6), { size: 6.5, align: "right", colour: ORANGE });
 }
 
 /* sets (from scoreSets), paper: "A4" (two per page, cut and stack) or "A5".
@@ -3863,7 +3850,7 @@ function showStatus(msg, isError) {
 }
 
 /* ---------- The working file: open, resume, save progress ---------- */
-const DOCS_TOOL = { name: "Trial Documents", version: "2.8" };
+const DOCS_TOOL = { name: "Trial Documents", version: "2.9" };
 const DAMAGE_NOTE = "This file may have been changed by a program other than Excel. Some trial information could be missing or altered. Apple Numbers or Google Sheets are the most common causes.";
 const DOC_WORDS = { catalogue: "running order", callboard: "callboard", timekeeper: "time stewards' sheets", judge: "judges' sheets", scoresheet: "judging sheets", certificate: "certificates" };
 let dirty = false, quiet = false;
