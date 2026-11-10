@@ -32,8 +32,9 @@ header { display: grid; gap: 10px; }
 .eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0; }
 h1 { font-family: var(--font-display); font-size: clamp(32px, 7vw, 48px); line-height: 1.05; margin: 0; text-wrap: balance; }
 .lede { margin: 0; color: var(--muted); max-width: 60ch; font-size: 17px; }
-.important { margin: 6px 0 0; max-width: 60ch; font-size: 16px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--warn); border-radius: 10px; padding: 12px 16px; }
-.important b { color: var(--warn); letter-spacing: .04em; }
+.important { margin: 6px 0 0; max-width: 60ch; font-size: 16px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--warn); border-radius: 10px; padding: 12px 16px; display: grid; gap: 6px; }
+.important .head { margin: 0; color: var(--warn); font-weight: 700; letter-spacing: .04em; }
+.important ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
 h2 { font-family: var(--font-display); font-size: 20px; margin: 0 0 12px; }
 .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .tool { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 16px; align-items: center; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); transition: border-color .15s; }
@@ -94,7 +95,15 @@ a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
     <p class="eyebrow">SSANZ</p>
     <h1>Trial entry tools</h1>
     <p class="lede">The interfaces on this page automate and simplify the process of taking your downloaded trial entries, extracting the data you need, and reformatting into various different forms that you may want to use for your trial. At each step the spreadsheet tools give your file back with new tabs added, so none of your original data is lost. The Trial Documents step produces the various formats of running orders in Word or PDF, judging sheets as a PDF, and will also print certificates.</p>
-    <p class="important"><b>IMPORTANT</b> - trial lists are produced in a random order. If you wish to move people around, use Change running order in step 3 before proceeding to step 4. If you are replacing handler details you must also change the handler number. Also, if you want to change the running order for different elements, duplicate the entire tab and reorder them there. Always save changes before exiting. Nothing is saved in these tools.</p>
+    <div class="important">
+      <p class="head">IMPORTANT</p>
+      <ul>
+        <li>Trial lists are produced in a random order. To move people around, open step 3 (Trial Lists), drop in your trial spreadsheet and choose <b>Change running order</b>. Do this before going on to step 4.</li>
+        <li>To use a different running order for different elements, duplicate the whole trial tab in Excel, start the copy's name with the trial code (for example “NWAdv1 Sat plan”), then reorder the copy with <b>Change running order</b>.</li>
+        <li>If you replace a handler's details, you must also change the Handler Number.</li>
+        <li>Nothing is saved in these tools. Always download and save your file before closing the page.</li>
+      </ul>
+    </div>
   </header>
 
   <section>

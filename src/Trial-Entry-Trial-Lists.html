@@ -139,6 +139,8 @@ button.danger { border-color: var(--stop); color: var(--stop); }
 button:disabled { opacity: .45; cursor: not-allowed; }
 button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .note { font-size: 14px; color: var(--muted); margin: 0; }
+.droptip { margin-top: -16px; font-size: 15px; }
+.droptip b { color: var(--ink); }
 
 .sub { font-family: var(--font-display); font-size: 17px; margin: 0; }
 .tabs { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -231,6 +233,7 @@ tr.moved td { background: var(--accent-soft); }
     <span>or click to choose · Excel (.xlsx) · a CSV download for the first drop only</span>
     <input type="file" id="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
   </label>
+  <p class="note droptip"><b>To change the running order</b> (or ballot a trial), drop your trial spreadsheet in here, then choose <b>Change running order</b>. The button appears once your file is in.</p>
 
   <p class="status" id="status" hidden></p>
 
@@ -428,7 +431,7 @@ tr.moved td { background: var(--accent-soft); }
       <li><b>Sheet 1</b> is the website download, exactly as downloaded. It's locked with a password and has a red tab, with a reminder note in cell A1: you can see and copy it, but not type in it. If it does get changed (for example by another program), the tools list each changed cell and can put Sheet 1 back as downloaded.</li>
       <li><b>Make changes on the Master List:</b> add a late entry as a new row (leave Entry ID blank and put x in its trial columns), type <code>Withdrawn</code> in Status to withdraw an entry from the whole event (the row turns grey and struck through), delete an x to scratch it from one trial, or correct a name. Then drop the file back in here and choose <b>Update trial tabs</b>.</li>
       <li><b>A new handler needs a new Handler Number.</b> If the Handler on the Master List is changed (for example someone else is running the dog) but the Handler Number isn't, or the website notes in Comments say the Handler was edited but not the Handler SSANZ Number, the page asks about it before going on. Type the new handler's SSANZ Handler Number (it's put on the Master List for you, highlighted yellow), or confirm it's the same person and only the spelling of the name was corrected.</li>
-      <li><b>On the trial tabs</b> you can also move rows in Excel (Change running order, below, is safer), and duplicate a tab to try another order. Start a copy's name with the trial code, e.g. “NWAdv1 Sat plan”. Names and other details typed on a trial tab are replaced by the Master List on update, and you'll be shown what changes first.</li>
+      <li><b>On the trial tabs</b> you can also move rows in Excel, but the <b>Change running order</b> button (it appears after you drop your file in here) is safer. You can duplicate a tab to try another order. Start a copy's name with the trial code, e.g. “NWAdv1 Sat plan”. Names and other details typed on a trial tab are replaced by the Master List on update, and you'll be shown what changes first.</li>
       <li><b>Changes made on a trial tab</b> are spotted when you drop the file back in: a row deleted from a trial, a dog moved or copied to another trial, or a new row typed in. You'll be asked about each one, for example “E196 (Jane Smith &amp; Moss) has been removed from NWAdv1. Have they withdrawn from this trial?”. Answer Yes and the Master List is updated to match (changed cells are highlighted yellow; someone left in no trial is marked Withdrawn; a late entry gets its own Entry ID). Answer No and you're asked to check the file first.</li>
       <li><b>Copies of a trial tab</b> (for a different running order, e.g. when elements run separately) must have exactly the same entrants as the trial's main tab, just in a different order. If a dog is missing from, or extra on, some of them, you'll be asked about it in the same way, and on Yes every tab for that trial is updated to match.</li>
       <li><b>Entry IDs</b> (E014, L001…) link each entry across the tabs. Messages always show the handler and dog too, e.g. “E014 (Jane Smith &amp; Moss)”. Don't change or delete the IDs; when you copy or move a dog to another trial tab, copy the whole row including its ID.</li>
