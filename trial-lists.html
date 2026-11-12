@@ -640,10 +640,21 @@ tr.moved td { background: var(--accent-soft); }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
+/* Make a file re-saved by the spreadsheet library open cleanly in Excel. The website's entries download has no
+   theme and no default row height; re-saved as they are, Excel says it "found a problem with some content" and
+   repairs the file. Keep the same in every tool that saves a spreadsheet. */
+function excelSafe(wb) {
+  if (wb._themes && typeof wb._themes === "object" && !Object.keys(wb._themes).length) wb._themes = undefined;
+  wb.worksheets.forEach(ws => {
+    ws.properties = ws.properties || {};
+    if (!(Number(ws.properties.defaultRowHeight) > 0)) ws.properties.defaultRowHeight = 15;
+  });
+  return wb;
+}
 /* =========================================================================
    Trial Lists: the logic (no spreadsheet library needed, so it can be tested on its own)
    ========================================================================= */
-const TOOL = { name: "Trial Lists", version: "5.8" };
+const TOOL = { name: "Trial Lists", version: "5.9" };
 const MASTER = "Master List";
 const SETTINGS_TAB = "Tool Settings";
 const ID_HEAD = "Entry ID", STATUS_HEAD = "Status";
@@ -3203,7 +3214,7 @@ $("download").addEventListener("click", async () => {
     s.fileName = cleanShortName($("shortName").value) || cleanShortName(s.fileName) || defaultShortName();
     s.version = (Number(s.version) || 0) + 1;
     await writeSettings(current.wb, s);
-    const buf = await current.wb.xlsx.writeBuffer();
+    const buf = await excelSafe(current.wb).xlsx.writeBuffer();
     const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     const filename = fileNameFor(s.fileName, "Trial Data", s.version, ".xlsx");
     const a = document.createElement("a");

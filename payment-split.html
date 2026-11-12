@@ -301,6 +301,17 @@ tr:last-child td { border-bottom: 0; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
+/* Make a file re-saved by the spreadsheet library open cleanly in Excel. The website's entries download has no
+   theme and no default row height; re-saved as they are, Excel says it "found a problem with some content" and
+   repairs the file. Keep the same in every tool that saves a spreadsheet. */
+function excelSafe(wb) {
+  if (wb._themes && typeof wb._themes === "object" && !Object.keys(wb._themes).length) wb._themes = undefined;
+  wb.worksheets.forEach(ws => {
+    ws.properties = ws.properties || {};
+    if (!(Number(ws.properties.defaultRowHeight) > 0)) ws.properties.defaultRowHeight = 15;
+  });
+  return wb;
+}
 /* ---------- File names ----------
    Every file the tools save is named "<short name> <what> Version 04 (12 Nov)", e.g. "Nov 26 Trial Data Version 04 (12 Nov).xlsx".
    The short name is chosen by the user (the trial's month by default). Two-digit versions keep files in order in a folder.
@@ -597,7 +608,7 @@ $("download").addEventListener("click", async () => {
   const btn = $("download");
   btn.disabled = true;
   try {
-    const buf = await current.wb.xlsx.writeBuffer();
+    const buf = await excelSafe(current.wb).xlsx.writeBuffer();
     const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     current.short = cleanShortName($("shortName").value) || current.short || defaultShortName();
     current.version += 1;

@@ -469,6 +469,17 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
+/* Make a file re-saved by the spreadsheet library open cleanly in Excel. The website's entries download has no
+   theme and no default row height; re-saved as they are, Excel says it "found a problem with some content" and
+   repairs the file. Keep the same in every tool that saves a spreadsheet. */
+function excelSafe(wb) {
+  if (wb._themes && typeof wb._themes === "object" && !Object.keys(wb._themes).length) wb._themes = undefined;
+  wb.worksheets.forEach(ws => {
+    ws.properties = ws.properties || {};
+    if (!(Number(ws.properties.defaultRowHeight) > 0)) ws.properties.defaultRowHeight = 15;
+  });
+  return wb;
+}
 /* =========================================================================
    SETTINGS
    LAYOUT holds what every document shares. DOCUMENTS holds one block per
@@ -3893,7 +3904,7 @@ const shortName = () => (state && state.settings && cleanShortName(state.setting
 const docVersion = () => state && state.settings ? Number(state.settings.version) || 0 : 0;
 const docName = (what, ext) => fileNameFor(shortName(), what, docVersion(), ext);
 const docTitle = what => `${shortName()} ${what}`;
-const DOCS_TOOL = { name: "Trial Documents", version: "3.1" };
+const DOCS_TOOL = { name: "Trial Documents", version: "3.2" };
 const DAMAGE_NOTE = "This file may have been changed by a program other than Excel. Some trial information could be missing or altered. Apple Numbers or Google Sheets are the most common causes.";
 const DOC_WORDS = { catalogue: "running order", callboard: "callboard", timekeeper: "time stewards' sheets", judge: "judges' sheets", scoresheet: "judging sheets", certificate: "certificates" };
 let dirty = false, quiet = false;
@@ -4273,7 +4284,7 @@ $("saveProgress").addEventListener("click", async () => {
     settings.fileName = cleanShortName($("shortName").value) || cleanShortName(settings.fileName) || defaultShortName();
     settings.version = (Number(settings.version) || 0) + 1;
     await writeSettingsTab(wb, settings);
-    const buf = await wb.xlsx.writeBuffer();
+    const buf = await excelSafe(wb).xlsx.writeBuffer();
     const filename = fileNameFor(settings.fileName, "Trial Data", settings.version, ".xlsx");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })); a.download = filename; a.click();
