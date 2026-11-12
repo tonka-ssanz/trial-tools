@@ -218,6 +218,45 @@ table.otable td.place { font-family: var(--font-display); font-weight: 700; font
 tr.moved td { background: var(--accent-soft); }
 @media (max-width: 560px) { table.otable td, table.otable th { padding: 6px 5px; font-size: 13px; } table.otable td.id { font-size: 11px; } .otools .sep { display: none; } }
 @media (prefers-reduced-motion: reduce) { table.otable tr.flash td { animation: none; } }
+/* Make changes */
+#changes, #changes > * { min-width: 0; }
+.chgfind { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.chgfind .bfield { flex: 1 1 260px; }
+.chgfind input { width: 100%; }
+.chglist { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; max-height: 300px; overflow-y: auto; }
+.chglist button { width: 100%; text-align: left; font-weight: 400; color: var(--ink); border-color: var(--line); padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 2px 10px; justify-content: space-between; }
+.chglist button:hover { border-color: var(--accent); background: var(--accent-soft); }
+.chglist .cid { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.chglist .ctr { font-size: 13px; color: var(--muted); }
+.chglist .cw { color: var(--stop); font-size: 13px; }
+.chgform { display: grid; gap: 14px; padding: 14px 16px; border: 2px solid var(--accent); border-radius: 12px; background: var(--bg); }
+.chgform h3 { font-family: var(--font-display); font-size: 18px; margin: 0; overflow-wrap: anywhere; }
+.chgform h4 { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.cgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
+@media (max-width: 560px) { .cgrid { grid-template-columns: 1fr; } }
+.cgrid input { width: 100%; }
+.cgrid .bfield.changed input { background: #fff2cc; color: #1d2420; }
+.cticks { display: flex; flex-wrap: wrap; gap: 8px; }
+.cticks label { display: flex; gap: 8px; align-items: center; padding: 7px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-family: var(--font-mono); font-size: 14px; cursor: pointer; }
+.cticks label.changed { background: #fff2cc; color: #1d2420; border-color: var(--warn); }
+.cticks label.off { opacity: .6; cursor: default; }
+.cticks.react label { font-family: var(--font-body); font-size: 15px; }
+.cticks input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+.cticks small { font-family: var(--font-body); font-size: 12px; color: inherit; opacity: .8; }
+.cwd { display: flex; gap: 8px; align-items: center; font-weight: 700; }
+.cwd input { width: 18px; height: 18px; margin: 0; accent-color: var(--stop); }
+.chgform details summary { cursor: pointer; font-size: 14px; color: var(--accent); font-weight: 700; }
+.chgform details .cgrid { margin-top: 10px; }
+.chgq { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.numcheck { display: grid; gap: 8px; }
+.numcheck .cwd { font-weight: 400; font-size: 15px; }
+.numcheck .cwd input { accent-color: var(--accent); flex: none; }
+.chgq li { display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 10px; background: #fff2cc; color: #1d2420; font-size: 15px; }
+.chgq li span { min-width: 0; overflow-wrap: anywhere; flex: 1 1 260px; }
+.chgq li .acts { display: flex; gap: 6px; }
+.chgq li button { color: #1d2420; border-color: #8a6d1f; }
+.offer { display: grid; gap: 8px; padding: 12px 14px; border-radius: 10px; border: 2px solid var(--accent); background: var(--accent-soft); }
+.offer p { margin: 0; font-size: 15px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
 .crumbs { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; font-size: 14px; margin-bottom: -12px; }
@@ -262,7 +301,7 @@ tr.moved td { background: var(--accent-soft); }
   <header>
     <p class="eyebrow">SSANZ trial tools</p>
     <h1>Trial Lists</h1>
-    <p class="lede">Drop in the entries download (Excel or CSV) to start your trial spreadsheet: a locked copy of the download, a <b>Master List</b> for late entries and withdrawals, and a randomly ordered tab for each trial (for example <code>NWAdv1</code>). Later, drop the spreadsheet back in to apply Master List changes to the trial tabs.</p>
+    <p class="lede">Drop in the entries download (Excel or CSV) to start your trial spreadsheet: a locked copy of the download, a <b>Master List</b> for late entries and withdrawals, and a randomly ordered tab for each trial (for example <code>NWAdv1</code>). Later, drop the spreadsheet back in to make late entries, withdrawals and corrections with <b>Make changes</b>, and update the trial tabs.</p>
   </header>
 
   <label class="drop" id="drop" for="file" tabindex="0">
@@ -270,7 +309,7 @@ tr.moved td { background: var(--accent-soft); }
     <span>or click to choose · Excel (.xlsx) · a CSV download for the first drop only</span>
     <input type="file" id="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
   </label>
-  <p class="note droptip"><b>To change the running order</b> (or ballot a trial), drop your trial spreadsheet in here, then choose <b>Change running order</b>. The button appears once your file is in.</p>
+  <p class="note droptip"><b>For late entries, withdrawals and corrections</b>, drop your trial spreadsheet in here and choose <b>Make changes</b>. <b>Change running order</b> and <b>Ballot a trial</b> are there too. The buttons appear once your file is in.</p>
 
   <p class="status" id="status" hidden></p>
 
@@ -325,6 +364,7 @@ tr.moved td { background: var(--accent-soft); }
     <div class="choices" id="choices"></div>
     <div class="actions">
       <button class="primary" type="button" id="doUpdate">Update trial tabs</button>
+      <button type="button" id="openChanges">Make changes…</button>
       <button type="button" id="openBallot">Ballot a trial…</button>
       <button type="button" id="openOrder">Change running order…</button>
       <button type="button" class="danger" id="restart">Start again from scratch…</button>
@@ -422,6 +462,32 @@ tr.moved td { background: var(--accent-soft); }
     </div>
   </section>
 
+  <section class="panel" id="changes" hidden>
+    <h2>Make changes</h2>
+    <p class="note">Late entries, withdrawals, scratching a dog from a trial, entering it in another trial, or correcting a name, breed or phone number. Changes go on the <b>Master List</b>, highlighted yellow, and then on to the trial tabs. Nothing in your spreadsheet changes until you choose <b>Save changes</b>.</p>
+    <div class="warnbox" id="chgPending" hidden>
+      <h3>Answer the questions on the update page first</h3>
+      <p>There are questions about the trial tabs or handlers waiting on the update page. Choose <b>Go back</b>, answer them and choose <b>Update trial tabs</b>. Then choose <b>Make changes</b>: there's no need to download and drop the file in again in between.</p>
+    </div>
+    <div id="chgBody">
+      <div class="chgfind">
+        <label class="bfield" for="chgSearch"><span>Find an entry · handler, dog, number or Entry ID</span><input type="text" class="tx" id="chgSearch" autocomplete="off" spellcheck="false" placeholder="e.g. Moss, Jane Smith or E014"></label>
+        <button type="button" id="chgLate">+ Add a late entry</button>
+      </div>
+      <ul class="chglist" id="chgResults" aria-label="Matching entries"></ul>
+      <div class="chgform" id="chgForm" hidden></div>
+      <div id="chgQueue" hidden>
+        <h3 class="sub">Changes ready to save</h3>
+        <ul class="chgq" id="chgQueueList"></ul>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="primary" type="button" id="chgSave" disabled>Save changes</button>
+      <button type="button" id="chgBack">Go back</button>
+    </div>
+    <p class="note" id="chgNote"></p>
+  </section>
+
   <section class="result" id="result" aria-live="polite">
     <div class="result-head">
       <h2 id="resultTitle">Example result</h2>
@@ -450,6 +516,7 @@ tr.moved td { background: var(--accent-soft); }
     </div>
 
     <div class="actions">
+      <button type="button" id="resultChanges" hidden>Make changes…</button>
       <button type="button" id="resultBallot" hidden>Ballot a trial…</button>
       <button type="button" id="resultOrder" hidden>Change running order…</button>
       <button class="primary" id="download" type="button" disabled>Download trial spreadsheet</button>
@@ -476,20 +543,21 @@ tr.moved td { background: var(--accent-soft); }
     <ul>
       <li><b>Your trial spreadsheet</b> is one file you keep adding to. Each download is named like <code>Nov 26 Trial Data Version 04 (12 Nov)</code>: the start of the name (the trial's month unless you change it), the version number, which goes up by one with every download, and the date it was saved. <b>Always drop in the highest version number</b>, unless you want to go back to an earlier copy. Every file the tools make for the trial starts with the same name, and documents show the version they were made from.</li>
       <li><b>Sheet 1</b> is the website download, exactly as downloaded. It's locked with a password and has a red tab, with a reminder note in cell A1: you can see and copy it, but not type in it. If it does get changed (for example by another program), the tools list each changed cell and can put Sheet 1 back as downloaded.</li>
-      <li><b>Make changes on the Master List:</b> add a late entry as a new row (leave Entry ID blank and put x in its trial columns), type <code>Withdrawn</code> in Status to withdraw an entry from the whole event (the row turns grey and struck through), delete an x to scratch it from one trial, or correct a name. Then drop the file back in here and choose <b>Update trial tabs</b>.</li>
+      <li><b>Make changes</b> (the button appears after you drop your trial spreadsheet in here) is the easy way to change entries. Find an entry by handler, dog or Entry ID, then correct its details, tick or untick trials to scratch it, enter it in another trial or move it, or tick <b>Withdrawn from the whole event</b>. <b>Add a late entry</b> opens a blank form (Handler Number and Dog No are needed). If you change a handler's or dog's name, you're asked to type the new Handler Number or Dog No, or to tick that it's the same person or dog with the spelling corrected. Choose <b>Save changes</b>: the changes go on the Master List, highlighted yellow, then choose <b>Update trial tabs</b> and download. Someone left in no trial is marked Withdrawn.</li>
+      <li><b>You can still edit the Master List in Excel</b> if you prefer, for example to add payment notes: add a late entry as a new row (leave Entry ID blank and put x in its trial columns), type <code>Withdrawn</code> in Status, delete an x to scratch a dog from one trial, or correct a name. Then drop the file back in here and choose <b>Update trial tabs</b>.</li>
       <li><b>A new handler needs a new Handler Number.</b> If the Handler on the Master List is changed (for example someone else is running the dog) but the Handler Number isn't, or the website notes in Comments say the Handler was edited but not the Handler SSANZ Number, the page asks about it before going on. Type the new handler's SSANZ Handler Number (it's put on the Master List for you, highlighted yellow), or confirm it's the same person and only the spelling of the name was corrected.</li>
-      <li><b>On the trial tabs</b> you can also move rows in Excel, but the <b>Change running order</b> button (it appears after you drop your file in here) is safer. You can duplicate a tab to try another order. Start a copy's name with the trial code, e.g. “NWAdv1 Sat plan”. Names and other details typed on a trial tab are replaced by the Master List on update, and you'll be shown what changes first.</li>
-      <li><b>Changes made on a trial tab</b> are spotted when you drop the file back in: a row deleted from a trial, a dog moved or copied to another trial, or a new row typed in. You'll be asked about each one, for example “E196 (Jane Smith &amp; Moss) has been removed from NWAdv1. Have they withdrawn from this trial?”. Answer Yes and the Master List is updated to match (changed cells are highlighted yellow; someone left in no trial is marked Withdrawn; a late entry gets its own Entry ID). Answer No and you're asked to check the file first.</li>
+      <li><b>The trial tabs are locked</b> (no password) so they can't be typed over or have rows deleted by mistake. You can still colour cells and change column widths. Use <b>Make changes</b> for entries and <b>Change running order</b> to move dogs. You can duplicate a tab in Excel to try another order: start the copy's name with the trial code, e.g. “NWAdv1 Sat plan”, then set its order with Change running order.</li>
+      <li><b>If a trial tab is unlocked and changed in Excel</b> (Review → Unprotect Sheet), the changes are spotted when you drop the file back in. Names and other details typed on a trial tab are replaced by the Master List on update, and you'll be shown what changes first. Rows deleted, moved or added are asked about: a row deleted from a trial, a dog moved or copied to another trial, or a new row typed in. You'll be asked about each one, for example “E196 (Jane Smith &amp; Moss) has been removed from NWAdv1. Have they withdrawn from this trial?”. Answer Yes and the Master List is updated to match (changed cells are highlighted yellow; someone left in no trial is marked Withdrawn; a late entry gets its own Entry ID). Answer No and you're asked to check the file first.</li>
       <li><b>Copies of a trial tab</b> (for a different running order, e.g. when elements run separately) must have exactly the same entrants as the trial's main tab, just in a different order. If a dog is missing from, or extra on, some of them, you'll be asked about it in the same way, and on Yes every tab for that trial is updated to match.</li>
       <li><b>Entry IDs</b> (E014, L001…) link each entry across the tabs. Messages always show the handler and dog too, e.g. “E014 (Jane Smith &amp; Moss)”. Don't change or delete the IDs; when you copy or move a dog to another trial tab, copy the whole row including its ID.</li>
       <li><b>Rows start in random order</b>, shuffled separately for each tab, so a dog entered in two trials will usually be in a different spot on each.</li>
       <li><b>Phone</b> comes from the download's “Entry Phone” column (the person who made the entry, who may not be the handler). On the Master List and trial tabs it's written in international form with no spaces, e.g. 021 792 551 becomes +6421792551, whatever way it was typed. Phone numbers are never printed on the trial documents. Trial spreadsheets started before the Phone column was added keep their trial tabs without it.</li>
       <li><b>Comments:</b> trial tabs show only reactivity: <code>D</code> dog-reactive, <code>H</code> people-reactive, <code>D + H</code> both. Check the Master List for other requests.</li>
       <li><b>Ballots:</b> if a trial has more entries than places, choose <b>Ballot a trial</b> after entries close. Type the maximum places (including judges' and stewards' dogs) and tick the judges and stewards. Places go first to them, then to dogs with fewer than 2 qualifying certificates at that level (Buried Hides: fewer than 3, for that medium), then by random draw among the rest. Qualifiers come from the “Qual@export” columns of the entries download. If the guaranteed places alone are more than the maximum, the page stops: contact SSANZ for guidance.</li>
-      <li><b>After a ballot</b> the trial tab keeps the dogs with places, the <code>Waitlist</code> tab lists the rest in order, and the <code>Ballot</code> tab keeps the full ranked list and a record of every change, for the 12 months records must be kept. On the Master List a waitlisted dog shows “Waitlist 3” in that trial's column instead of x. When a place comes free (a withdrawal, or you raise the maximum), Update trial tabs offers it down the waitlist in order; record each answer there. Late entries in a balloted trial go on the bottom of its waitlist. A ballot can't be redrawn.</li>
+      <li><b>After a ballot</b> the trial tab keeps the dogs with places, the <code>Waitlist</code> tab lists the rest in order, and the <code>Ballot</code> tab keeps the full ranked list and a record of every change, for the 12 months records must be kept. On the Master List a waitlisted dog shows “Waitlist 3” in that trial's column instead of x. When a place comes free (a withdrawal, a scratching, or you raise the maximum), the update page names the dog at the top of the waitlist: contact them, then choose <b>They accepted</b> or <b>They declined</b>. If they decline, it names the next one. Late entries in a balloted trial go on the bottom of its waitlist. A ballot can't be redrawn.</li>
       <li><b>To change the running order</b> (helpers early, or moving dogs to avoid clashes), drop the file in here and choose <b>Change running order</b>. If a trial needs a ballot, draw it first, so only the dogs with places are in the order. Tick one or more dogs and move them to the top or bottom, up or down a number of places, or to a given place, then save and download. Each row moves whole, with its Entry ID and any highlighting, which avoids the mix-ups that cutting and pasting in Excel can cause. The new order is listed for you to check.</li>
       <li><b>Tool Settings</b> holds what the tools need to carry on where you left off, including a copy of Sheet 1. Please don't edit or delete it.</li>
-      <li><b>Once Trial Documents has started</b>, the Master List and trial tabs are locked. To change entries after that, drop the file in here and choose <b>Make a late change</b>.</li>
+      <li><b>Once Trial Documents has started</b>, the Master List is locked too. To change entries after that, drop the file in here and choose <b>Make a late change</b>: the Make changes page opens.</li>
       <li><b>Edit your trial spreadsheet in Excel</b> or free Excel for the web (<a href="https://excel.cloud.microsoft" target="_blank" rel="noopener">excel.cloud.microsoft</a>). After editing in Excel for the web, use File → Save As → Download a copy. Keep the file for at least 12 months, stored securely and not on a shared computer.</li>
       <li>The file never leaves your computer. All the work happens in this page.</li>
     </ul>
@@ -575,7 +643,7 @@ tr.moved td { background: var(--accent-soft); }
 /* =========================================================================
    Trial Lists: the logic (no spreadsheet library needed, so it can be tested on its own)
    ========================================================================= */
-const TOOL = { name: "Trial Lists", version: "5.7" };
+const TOOL = { name: "Trial Lists", version: "5.8" };
 const MASTER = "Master List";
 const SETTINGS_TAB = "Tool Settings";
 const ID_HEAD = "Entry ID", STATUS_HEAD = "Status";
@@ -1530,7 +1598,7 @@ function showStop(title, msgs, opts = {}) {
   $("stop").hidden = false;
   $("result").hidden = true;
 }
-function hideAll() { ["stop", "picker", "update", "ballot", "order", "handlerStart"].forEach(id => $(id).hidden = true); showStatus(""); }
+function hideAll() { ["stop", "picker", "update", "ballot", "order", "changes", "handlerStart"].forEach(id => $(id).hidden = true); showStatus(""); }
 function showStatus(msg) { const s = $("status"); s.textContent = msg; s.hidden = !msg; }
 
 /* ---------- Writing the working file ---------- */
@@ -1661,6 +1729,16 @@ async function writeSettings(wb, settings) {
   ws.getCell("B8").alignment = { wrapText: true, vertical: "top" };
   // Sheet 1 stays locked with the password: visible and selectable, but not editable.
   await lockSheet1(wb.getWorksheet(settings.sourceTab));
+  await lockTrialTabs(wb, settings);
+}
+/* Trial tabs are locked without a password, so they can't be typed over or have rows deleted by accident.
+   Changes go through Make changes and Change running order. Colouring and column widths are still allowed.
+   Review → Unprotect Sheet opens one; anything changed there is still found and asked about on the next drop. */
+const TRIAL_TAB_LOCK = { selectLockedCells: true, selectUnlockedCells: true, formatCells: true, formatColumns: true, formatRows: true };
+async function lockTrialTabs(wb, settings) {
+  for (const ws of trialCandidates(wb, settings)) {
+    try { await ws.protect("", TRIAL_TAB_LOCK); } catch (err) { /* left unlocked: the checks on the next drop still apply */ }
+  }
 }
 const step = what => ({ tool: TOOL.name, version: TOOL.version, what, at: stamp() });
 /* Files saved before file names had versions: take the name and version from the file's own name if it has them. */
@@ -1846,21 +1924,19 @@ async function resume(wb, baseName, fileLabel, opts = {}) {
   // Files saved before 5.3 have no copy of Sheet 1 yet: make one now (Sheet 1 matches), saved with the next download.
   if (!copyMatches(settings.sheet1, settings.sheet1Fingerprint)) settings.sheet1 = sheet1Copy(sourceWs);
   if (opts.restored) settings.steps.push(step(`Sheet 1 put back as downloaded (${opts.restored} ${opts.restored === 1 ? "cell" : "cells"})`));
-  const notes = opts.restored ? [{ type: "info", text: `Sheet 1 has been put back as downloaded (${opts.restored} ${opts.restored === 1 ? "cell" : "cells"}).`, fix: `Download the spreadsheet from this page to keep it. If any of those changes were meant, make them on the ${MASTER}.` }] : [];
+  const notes = (opts.notes || []).slice();
+  if (opts.restored) notes.push(...[{ type: "info", text: `Sheet 1 has been put back as downloaded (${opts.restored} ${opts.restored === 1 ? "cell" : "cells"}).`, fix: `Download the spreadsheet from this page to keep it. If any of those changes were meant, make them with Make changes.` }]);
   const masterWs = wb.getWorksheet(MASTER);
   if (!masterWs) return showStop(`The ${MASTER} is missing`, [{ type: "stop", text: `This file has no ${MASTER} tab.`, fix: "Go back to your most recent copy downloaded from this tool." }], { excel: true });
   if (settings.locked && !opts.lateChange) {
-    return showStop("This file is locked because documents have been started", [...notes, { type: "stop", text: `Trial Documents locked the ${MASTER} and trial tabs on ${settings.lockedAt || "an earlier date"}.`, fix: `Choose Make a late change to unlock them. Make your changes on the ${MASTER}, drop the file back in here and update. Your Trial Documents settings are kept, and Trial Documents will then list the classes that may need reprinting.` }],
+    return showStop("This file is locked because documents have been started", [...notes, { type: "stop", text: `Trial Documents locked the ${MASTER} and trial tabs on ${settings.lockedAt || "an earlier date"}.`, fix: `Choose Make a late change: the Make changes page opens, where you can add, withdraw, scratch, move or correct entries, then update the trial tabs. Your Trial Documents settings are kept, and Trial Documents will then list the classes that may need reprinting.` }],
       { actions: [{ label: "Make a late change", primary: true, onclick: async () => {
-        trialCandidates(wb, settings).concat([masterWs]).forEach(w => w.unprotect && w.unprotect());
+        masterWs.unprotect && masterWs.unprotect();
         settings.locked = false;
-        settings.steps.push(step("Late change: Master List and trial tabs unlocked"));
+        settings.steps.push(step("Late change: Master List unlocked"));
         await writeSettings(wb, settings);
-        current = { wb, baseName, settings, unlockedOnly: true };
-        hideAll();
-        renderResult({ title: "Unlocked for a late change", label: fileLabel, tabs: [], stats: ["–", "–", "–", "–"], labels: ["", ""],
-          summary: [`The ${MASTER} and trial tabs are unlocked. Download this copy, make your changes on the ${MASTER} in Excel, then drop it back in here to update the trial tabs.`] });
-        $("actionNote").textContent = "Download the unlocked copy, then make your changes in Excel.";
+        await resume(wb, baseName, fileLabel, { notes: [{ type: "info", text: `Unlocked for a late change. Your Trial Documents settings are kept, and Trial Documents will list the classes that may need reprinting.`, fix: "Make your changes, update the trial tabs and download the spreadsheet." }] });
+        if (current.read && !$("update").hidden) openChanges({ note: "Unlocked for a late change. Make your changes here, then Save changes and Update trial tabs." });
       } }] });
   }
   let read;
@@ -2194,6 +2270,22 @@ function renderWaitlists() {
     inp.addEventListener("change", () => { current.ballotMax[T] = inp.value; renderWaitlists(); refreshUpdateButton(); const a = $("wlmax-" + T); if (a) a.focus(); });
     lab.append(el("span", "", "Maximum places"), inp);
     card.append(head, lab, el("p", "note", `${review.count} of ${dec.max} places taken · ${Math.max(0, dec.free)} free${dec.promote.length ? ` · ${dec.promote.length} accepted here` : ""}`));
+    // A free place: name the dog at the top of the waitlist and ask for their answer.
+    const nextK = review.waitlist.findIndex(id => !choices[id]);
+    if (dec.left > 0 && nextK >= 0 && !dec.problems.length && !review.problems.length) {
+      const id = review.waitlist[nextK], e = current.read.entries.find(x => x.id === id);
+      const offer = el("div", "offer");
+      offer.append(el("p", "", `${dec.left === 1 ? "A place is" : `${dec.left} places are`} free in ${T}. Offer it to Waitlist ${nextK + 1}: ${who(id, e && e.values)}.`),
+        el("p", "note", "Contact them, then record their answer. If they decline, the next dog on the waitlist is named here."));
+      const acts = el("div", "actions");
+      [["accepted", "They accepted", "primary"], ["declined", "They declined", ""]].forEach(([v, label, cls]) => {
+        const b = el("button", cls, label); b.type = "button"; b.id = `offer-${T}-${v}`;
+        b.addEventListener("click", () => { choices[id] = v; renderWaitlists(); refreshUpdateButton(); const a = $(`offer-${T}-accepted`) || $(`wl-${T}-${id}`); if (a) a.focus(); });
+        acts.append(b);
+      });
+      offer.append(acts, el("p", "note", "Haven't heard back yet? Leave it: Update trial tabs keeps the place free, and you'll be asked again next time."));
+      card.append(offer);
+    }
     const ul = el("ul", "msgs");
     review.problems.forEach(m => ul.append(msgEl(m)));
     review.removed.forEach(r => ul.append(msgEl({ type: "info", text: `${who(r.id, r.values)} ${r.why}, so they'll come off the ${T} waitlist.`, fix: "" })));
@@ -2557,6 +2649,409 @@ async function saveOrder() {
   $("actionNote").textContent = `Download the updated spreadsheet to keep the new order. Dogs you moved are shaded green in the preview below (not in the spreadsheet). Check the order on ${list(names)} before printing.`;
 }
 
+/* =========================================================================
+   Make changes: late entries, withdrawals, scratching, entering another trial and corrections,
+   made in a form and written to the Master List (highlighted), then applied by Update trial tabs.
+   ========================================================================= */
+/* The Master List columns the form shows first, in this order. Every other column (except Entry ID, Status
+   and the trial columns) is under "More details". */
+const CHG_MAIN = [["handlerNo", "Handler Number"], ["handler", "Handler"], ["dogNo", "Dog No"], ["pet", "Dog Pet Name"], ["breed", "Dog Breed"], ["phone", "Phone"], ["email", "Email"]];
+const REACT_D = "  - Reactive to dogs.", REACT_H = "   - Reactive to people.";
+/* Comment text with the standard reactivity phrases set to match d and h (the website's own wording). */
+function setReactivity(comment, d, h) {
+  let t = String(comment ?? "").replace(/\s*-\s*Reactive to dogs\.?/gi, "").replace(/\s*-\s*Reactive to people\.?/gi, "").replace(/\s+$/, "");
+  if ((d || h) && !t.includes("::")) t += "::::::";
+  return t + (d ? REACT_D : "") + (h ? REACT_H : "");
+}
+/* What changed between two Master List rows, in words. c: columns(header). */
+function changeWords(header, c, before, after) {
+  const bits = [], trial = new Set(c.trials.map(t => t.i));
+  const was = k => norm(before[k]), now = k => norm(after[k]);
+  if (c.status >= 0 && was(c.status) !== now(c.status)) bits.push(/^withdrawn$/i.test(now(c.status)) ? "withdrawn from the whole event" : `no longer withdrawn (Status “${now(c.status)}”)`);
+  c.trials.forEach(t => {
+    if (was(t.i) === now(t.i)) return;
+    if (onWaitlist(was(t.i)) && isBlank(now(t.i))) bits.push(`taken off the ${t.name} waitlist`);
+    else if (isBlank(was(t.i))) bits.push(`entered in ${t.name}`);
+    else if (isBlank(now(t.i))) bits.push(`scratched from ${t.name}`);
+    else bits.push(`${t.name} “${was(t.i)}” → “${now(t.i)}”`);
+  });
+  header.forEach((h, k) => {
+    if (k === c.id || k === c.status || trial.has(k) || was(k) === now(k)) return;
+    if (k === c.comments && reactivity(before[k]) !== reactivity(after[k])) bits.push(`reactivity ${reactivity(before[k]) || "none"} → ${reactivity(after[k]) || "none"}`);
+    else bits.push(`${norm(h)} ${was(k) ? `“${was(k)}”` : "blank"} → ${now(k) ? `“${now(k)}”` : "blank"}`);
+  });
+  return bits;
+}
+/* A changed handler or dog name needs its number checked: either the number changes too, or it's
+   confirmed as the same person or dog (only the spelling corrected). Returns "handler", "dog" or both. */
+function numberChecks(c, before, row) {
+  const out = [];
+  if (c.handlerNo >= 0 && lower(row[c.handler]) !== lower(before[c.handler]) && norm(row[c.handlerNo]) === norm(before[c.handlerNo])) out.push("handler");
+  if (c.dogNo >= 0 && lower(row[c.pet]) !== lower(before[c.pet]) && norm(row[c.dogNo]) === norm(before[c.dogNo])) out.push("dog");
+  return out;
+}
+/* Problems that stop a row being saved. late: a new entry (before is null). conf: { handler, dog } ticked as the same. */
+function changeProblems(c, row, before, conf = {}) {
+  const out = [], late = !before;
+  if (isBlank(row[c.handler])) out.push("Type the handler's name.");
+  if (late && c.handlerNo >= 0 && isBlank(row[c.handlerNo])) out.push("Type the SSANZ Handler Number.");
+  if (isBlank(row[c.pet])) out.push("Type the dog's pet name.");
+  if (late && c.dogNo >= 0 && isBlank(row[c.dogNo])) out.push("Type the Dog No.");
+  if (late && !c.trials.some(t => !isBlank(row[t.i]))) out.push("Tick at least one trial.");
+  if (!late) numberChecks(c, before, row).forEach(k => {
+    if (conf[k]) return;
+    out.push(k === "handler" ? "The handler's name has changed: type the new handler's SSANZ Handler Number, or tick that it's the same person."
+      : "The dog's name has changed: type the new Dog No, or tick that it's the same dog.");
+  });
+  return out;
+}
+/* Changes waiting on the update page that would be lost if the Master List were re-read now. */
+const changesBlocked = () => current.check.questions.length > 0 || (current.handlers || []).length > 0;
+
+function openChanges(opts = {}) {
+  const { read, masterWs } = current;
+  if (!current.chg) {
+    const rows = sheetRows(masterWs), header = rows[0] || [];
+    const base = rows.map(r => header.map((_, k) => r[k] ?? ""));
+    current.chg = { header, c: columns(header), base, draft: new Map(), confirm: new Map(), late: [], open: null, query: "" };
+  }
+  hideAll();
+  $("result").hidden = true;
+  const blocked = changesBlocked();
+  $("chgPending").hidden = !blocked;
+  $("chgBody").hidden = blocked;
+  $("chgSearch").value = current.chg.query;
+  $("chgNote").textContent = opts.note || "";
+  renderChgResults(); renderChgForm(); renderChgQueue();
+  $("changes").hidden = false;
+  $("changes").scrollIntoView({ block: "start" });
+  (blocked ? $("chgBack") : $("chgSearch")).focus();
+}
+/* The Master List row as it would be saved (draft, or as it is). i: index into base (0 = heading). */
+const chgRow = i => current.chg.draft.get(i) || current.chg.base[i];
+function chgEntries() {
+  const { base, c } = current.chg;
+  const out = [];
+  base.forEach((r, i) => {
+    if (i === 0 || r.every((v, k) => k === c.id || k === c.status || isBlank(v))) return;
+    out.push({ i, row: chgRow(i) });
+  });
+  return out;
+}
+function entrySummary(c, row) {
+  const ticks = c.trials.filter(t => !isBlank(row[t.i])).map(t => onWaitlist(row[t.i]) ? `${t.name} (${norm(row[t.i])})` : /^declined/i.test(norm(row[t.i])) ? `${t.name} (declined)` : t.name);
+  return ticks.join(", ") || "no trials";
+}
+function renderChgResults() {
+  const { c, query } = current.chg, ul = $("chgResults");
+  ul.textContent = "";
+  const q = lower(query);
+  if (!q) return;
+  const words = q.split(" ").filter(Boolean);
+  const hits = chgEntries().filter(({ row }) => {
+    const hay = lower([row[c.id], row[c.handler], row[c.handlerNo], row[c.pet], row[c.dogNo], row[c.breed]].join(" "));
+    return words.every(w => hay.includes(w));
+  });
+  hits.slice(0, 40).forEach(({ i, row }) => {
+    const li = document.createElement("li"), b = document.createElement("button");
+    b.type = "button";
+    const left = document.createElement("span");
+    const id = document.createElement("span"); id.className = "cid"; id.textContent = (norm(row[c.id]) || "new") + " ";
+    left.append(id, `${norm(row[c.handler])} & ${norm(row[c.pet])}`);
+    const right = document.createElement("span"); right.className = "ctr"; right.textContent = entrySummary(c, row);
+    b.append(left, right);
+    if (c.status >= 0 && /^withdrawn$/i.test(norm(row[c.status]))) { const w = document.createElement("span"); w.className = "cw"; w.textContent = "Withdrawn"; b.append(w); }
+    b.addEventListener("click", () => { current.chg.open = { i }; renderChgForm(); $("chgForm").scrollIntoView({ block: "nearest" }); const f = $("chgForm").querySelector("input"); if (f) f.focus(); });
+    li.append(b); ul.append(li);
+  });
+  if (!hits.length) { const li = document.createElement("li"); li.className = "note"; li.textContent = "No entry matches. Check the spelling, or choose Add a late entry."; ul.append(li); }
+  else if (hits.length > 40) { const li = document.createElement("li"); li.className = "note"; li.textContent = `…and ${hits.length - 40} more. Type more of the name to narrow it down.`; ul.append(li); }
+}
+/* The open form: an existing entry ({ i }) or a late entry ({ late: k }). */
+function renderChgForm() {
+  const ch = current.chg, box = $("chgForm"), o = ch.open;
+  box.textContent = "";
+  box.hidden = !o;
+  if (!o) return;
+  const { c, header } = ch, isLate = o.late != null;
+  const row = isLate ? ch.late[o.late] : chgRow(o.i).slice();
+  const before = isLate ? header.map(() => "") : ch.base[o.i];
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  let probs = null;   // the problems shown after Done; cleared as soon as anything changes
+  const commit = () => {
+    if (probs) probs.textContent = "";
+    if (isLate) ch.late[o.late] = row;
+    else if (row.every((v, k) => norm(v) === norm(before[k]))) ch.draft.delete(o.i);
+    else ch.draft.set(o.i, row.slice());
+    renderChgQueue(); renderChgResults();
+  };
+  box.append(el("h3", "", isLate ? "New late entry" : `${norm(before[c.id])} · ${norm(before[c.handler])} & ${norm(before[c.pet])}`));
+  if (isLate) box.append(el("p", "note", "Fill in what you have. It gets its own Entry ID (L001, L002…) when you update the trial tabs, and goes at the bottom of each trial tab, highlighted."));
+  const hooks = {};   // run after a field is typed in, by column
+  const fieldEl = (k, label) => {
+    const lab = el("label", "bfield"), inp = document.createElement("input");
+    inp.type = "text"; inp.className = "tx"; inp.id = `chg-f${k}`; inp.autocomplete = "off"; inp.value = norm(row[k]);
+    lab.htmlFor = inp.id;
+    const mark = () => lab.classList.toggle("changed", !isLate && norm(row[k]) !== norm(before[k]));
+    inp.addEventListener("input", () => { row[k] = inp.value; mark(); commit(); renderHandlerWarn(); if (hooks[k]) hooks[k](); });
+    mark();
+    lab.append(el("span", "", label), inp);
+    return lab;
+  };
+  const main = CHG_MAIN.map(([key, label]) => [c[key], label]).filter(([k]) => k >= 0);
+  const grid = el("div", "cgrid");
+  main.forEach(([k, label]) => grid.append(fieldEl(k, label)));
+  box.append(grid);
+  // A changed handler or dog name: the number must change too, or be confirmed as the same person or dog.
+  const conf = isLate ? {} : (ch.confirm.get(o.i) || {});
+  const hw = el("div", "numcheck");
+  const renderHandlerWarn = () => {
+    hw.textContent = "";
+    if (isLate) { hw.hidden = true; return; }
+    const need = numberChecks(c, before, row);
+    hw.hidden = !need.length;
+    Object.keys(conf).forEach(k => { if (!need.includes(k)) delete conf[k]; });
+    need.forEach(k => {
+      const box = el("div", "warnbox");
+      const no = norm(before[k === "handler" ? c.handlerNo : c.dogNo]) || "blank";
+      box.append(el("h3", "", k === "handler" ? "Check the Handler Number" : "Check the Dog No"),
+        el("p", "", k === "handler" ? `The handler's name has changed but the Handler Number (${no}) hasn't. If someone else is now running the dog, type their SSANZ Handler Number above.`
+          : `The dog's name has changed but the Dog No (${no}) hasn't. If it's a different dog, type its Dog No above.`));
+      const lab = el("label", "cwd"), cb = document.createElement("input");
+      cb.type = "checkbox"; cb.id = `chg-same-${k}`; cb.checked = !!conf[k];
+      cb.addEventListener("change", () => { conf[k] = cb.checked; ch.confirm.set(o.i, conf); renderChgQueue(); });
+      lab.append(cb, k === "handler" ? `Same person, I've only corrected the spelling: keep Handler Number ${no}` : `Same dog, I've only corrected the spelling: keep Dog No ${no}`);
+      box.append(lab);
+      hw.append(box);
+    });
+  };
+  renderHandlerWarn();
+  box.append(hw);
+  // Reactivity: ticks that set the standard wording in Comments.
+  if (c.comments >= 0) {
+    const r = el("div", "cticks react"), shows = el("p", "note");
+    const now = () => reactivity(row[c.comments]);
+    const tick = (label, which) => {
+      const lab = el("label"), cb = document.createElement("input");
+      cb.type = "checkbox"; cb.checked = now().includes(which);
+      cb.addEventListener("change", () => {
+        const d = which === "D" ? cb.checked : now().includes("D"), h = which === "H" ? cb.checked : now().includes("H");
+        row[c.comments] = setReactivity(row[c.comments], d, h);
+        const want = d && h ? "D + H" : d ? "D" : h ? "H" : "";
+        cb.checked = now().includes(which);
+        shows.textContent = `Shows on the trial tabs as: ${now() || "nothing (not reactive)"}.${now() !== want ? " Other wording in Comments also mentions reactivity: change it under More details." : ""}`;
+        const cf = $(`chg-f${c.comments}`); if (cf) { cf.value = norm(row[c.comments]); cf.parentElement.classList.toggle("changed", !isLate && norm(row[c.comments]) !== norm(before[c.comments])); }
+        commit();
+      });
+      lab.append(cb, label);
+      return lab;
+    };
+    const tD = tick("Reactive to dogs (D)", "D"), tH = tick("Reactive to people (H)", "H");
+    r.append(tD, tH);
+    shows.textContent = `Shows on the trial tabs as: ${now() || "nothing (not reactive)"}.`;
+    hooks[c.comments] = () => {
+      tD.querySelector("input").checked = now().includes("D"); tH.querySelector("input").checked = now().includes("H");
+      shows.textContent = `Shows on the trial tabs as: ${now() || "nothing (not reactive)"}.`;
+    };
+    box.append(el("h4", "", "Reactivity"), r, shows);
+  }
+  // Trials.
+  const ballots = current.settings.ballots || {};
+  const tr = el("div", "cticks"), tnotes = el("ul", "msgs");
+  const renderTrialNotes = () => {
+    tnotes.textContent = "";
+    c.trials.forEach(t => {
+      const b = ballots[t.name];
+      if (!b) return;
+      const id = norm(before[c.id]), was = !isBlank(before[t.i]) && !notEntered(before[t.i]), is = !isBlank(row[t.i]) && !notEntered(row[t.i]);
+      const out = (c.status >= 0 && /^withdrawn$/i.test(norm(row[c.status]))) && !(c.status >= 0 && /^withdrawn$/i.test(norm(before[c.status])));
+      if (!isLate && b.members.includes(id) && was && (!is || out)) {
+        const top = (b.waitlist || []).map(w => current.read.entries.find(e => e.id === w)).find(e => e && !e.withdrawn);
+        tnotes.append(msgEl({ type: "info", text: `${t.name} has had a ballot, so this frees a place.${top ? ` After saving you'll be asked to offer it to the top of the waitlist: ${who(top.id, top.values)}.` : " Nobody is on the waitlist."}`, fix: "" }));
+      } else if (!was && is && !b.members.includes(id)) {
+        tnotes.append(msgEl({ type: "info", text: `${t.name} has had a ballot, so this entry goes on the bottom of its waitlist, unless there's a free place.`, fix: "" }));
+      }
+    });
+  };
+  c.trials.forEach(t => {
+    const lab = el("label"), cb = document.createElement("input"), orig = norm(before[t.i]);
+    cb.type = "checkbox";
+    const wait = onWaitlist(orig), declined = /^declined/i.test(orig);
+    cb.checked = !isBlank(row[t.i]);
+    const mark = () => lab.classList.toggle("changed", !isLate && norm(row[t.i]) !== orig);
+    if (declined) { cb.disabled = true; lab.classList.add("off"); }
+    cb.addEventListener("change", () => {
+      row[t.i] = cb.checked ? (wait ? orig : "x") : "";
+      mark(); commit(); renderTrialNotes();
+    });
+    mark();
+    lab.append(cb, t.name);
+    if (wait) lab.append(el("small", "", `on the waitlist (${orig}): untick to take them off it`));
+    if (declined) lab.append(el("small", "", "declined a place"));
+    tr.append(lab);
+  });
+  box.append(el("h4", "", "Trials"), tr);
+  if (!isLate) box.append(el("p", "note", "Untick a trial to scratch the dog from it. Tick another to enter it there too, or untick one and tick another to move it."));
+  renderTrialNotes();
+  box.append(tnotes);
+  // Withdrawn from the whole event.
+  if (c.status >= 0 && !isLate) {
+    const lab = el("label", "cwd"), cb = document.createElement("input");
+    cb.type = "checkbox"; cb.id = "chgWithdrawn"; cb.checked = /^withdrawn$/i.test(norm(row[c.status]));
+    cb.addEventListener("change", () => { row[c.status] = cb.checked ? "Withdrawn" : (/^withdrawn$/i.test(norm(before[c.status])) ? "" : before[c.status]); commit(); renderTrialNotes(); });
+    lab.append(cb, "Withdrawn from the whole event");
+    box.append(lab, el("p", "note", "The row stays on the Master List, greyed out and struck through, and the dog comes off every trial tab. Untick to put an entry back."));
+  }
+  // Every other column.
+  const skip = new Set([c.id, c.status, ...c.trials.map(t => t.i), ...main.map(([k]) => k), c.comments]);
+  const rest = header.map((h, k) => [k, norm(h)]).filter(([k, h]) => h && !skip.has(k));
+  const more = el("details");
+  more.append(el("summary", "", `More details (${rest.length + (c.comments >= 0 ? 1 : 0)} more columns, including Comments)`));
+  const g2 = el("div", "cgrid");
+  if (c.comments >= 0) g2.append(fieldEl(c.comments, "Comments"));
+  rest.forEach(([k, h]) => g2.append(fieldEl(k, h)));
+  more.append(g2);
+  more.open = !isLate && [c.comments, ...rest.map(([k]) => k)].some(k => k >= 0 && norm(row[k]) !== norm(before[k]));
+  box.append(more);
+  probs = el("ul", "msgs");
+  box.append(probs);
+  const acts = el("div", "actions");
+  const done = el("button", "primary", "Done");
+  done.type = "button";
+  done.addEventListener("click", () => {
+    const p = changeProblems(c, row, isLate ? null : before, conf);
+    probs.textContent = "";
+    if (p.length) { p.forEach(t => probs.append(msgEl({ type: "stop", text: t, fix: "" }))); return; }
+    commit();
+    ch.open = null; renderChgForm(); renderChgQueue();
+    $("chgSearch").focus();
+  });
+  const undo = el("button", "", isLate ? "Remove this late entry" : "Undo changes to this entry");
+  undo.type = "button";
+  undo.addEventListener("click", () => {
+    if (isLate) ch.late.splice(o.late, 1); else { ch.draft.delete(o.i); ch.confirm.delete(o.i); }
+    ch.open = null; renderChgForm(); renderChgQueue(); renderChgResults();
+    $("chgSearch").focus();
+  });
+  acts.append(done, undo);
+  box.append(acts);
+}
+/* Each change, in words, with Edit and Undo. */
+function chgLines() {
+  const ch = current.chg, { c, header } = ch, out = [];
+  [...ch.draft.entries()].sort((a, b) => a[0] - b[0]).forEach(([i, row]) => {
+    const bits = changeWords(header, c, ch.base[i], row);
+    if (bits.length) out.push({ i, text: `${who(norm(ch.base[i][c.id]), [ch.base[i][c.handlerNo], ch.base[i][c.handler], "", ch.base[i][c.pet]].map(norm))}: ${bits.join("; ")}.`, problems: changeProblems(c, row, ch.base[i], ch.confirm.get(i) || {}) });
+  });
+  ch.late.forEach((row, k) => {
+    const trials = c.trials.filter(t => !isBlank(row[t.i])).map(t => t.name);
+    out.push({ late: k, text: `Late entry: ${norm(row[c.handler]) || "(no handler yet)"} & ${norm(row[c.pet]) || "(no dog yet)"}, entered in ${trials.length ? list(trials) : "no trials yet"}.`, problems: changeProblems(c, row, null) });
+  });
+  return out;
+}
+function renderChgQueue() {
+  const ch = current.chg, ul = $("chgQueueList");
+  ul.textContent = "";
+  const lines = chgLines();
+  $("chgQueue").hidden = !lines.length;
+  lines.forEach(l => {
+    const li = document.createElement("li"), t = document.createElement("span");
+    t.textContent = l.text + (l.problems && l.problems.length ? ` Not ready: ${l.problems.join(" ")}` : "");
+    const acts = document.createElement("span"); acts.className = "acts";
+    const edit = document.createElement("button"); edit.type = "button"; edit.className = "small"; edit.textContent = "Edit";
+    edit.addEventListener("click", () => { ch.open = l.late != null ? { late: l.late } : { i: l.i }; renderChgForm(); $("chgForm").scrollIntoView({ block: "nearest" }); });
+    const undo = document.createElement("button"); undo.type = "button"; undo.className = "small"; undo.textContent = "Undo";
+    undo.addEventListener("click", () => {
+      if (l.late != null) ch.late.splice(l.late, 1); else { ch.draft.delete(l.i); ch.confirm.delete(l.i); }
+      if (ch.open && ((l.late != null && ch.open.late === l.late) || ch.open.i === l.i)) ch.open = null;
+      renderChgForm(); renderChgQueue(); renderChgResults();
+    });
+    acts.append(edit, undo);
+    li.append(t, acts);
+    ul.append(li);
+  });
+  const notReady = lines.some(l => l.problems && l.problems.length);
+  $("chgSave").disabled = !lines.length || notReady || changesBlocked();
+  $("chgSave").title = !lines.length ? "Make a change first" : notReady ? "Finish the changes marked Not ready first" : "";
+}
+$("chgSearch").addEventListener("input", e => { current.chg.query = e.target.value; renderChgResults(); });
+$("chgLate").addEventListener("click", () => {
+  const ch = current.chg;
+  ch.late.push(ch.header.map(() => ""));
+  ch.open = { late: ch.late.length - 1 };
+  renderChgForm(); renderChgQueue();
+  const f = $("chgForm").querySelector("input"); if (f) f.focus();
+});
+$("chgBack").addEventListener("click", () => { hideAll(); renderUpdate(); });
+$("openChanges").addEventListener("click", () => openChanges());
+$("resultChanges").addEventListener("click", async () => {
+  if (!current || !current.wb) return;
+  await resume(current.wb, current.baseName, current.fileLabel || current.baseName);
+  if (current.read && !$("update").hidden) openChanges();
+});
+$("chgSave").addEventListener("click", async () => {
+  const btn = $("chgSave"); btn.disabled = true;
+  try { await saveChanges(); }
+  catch (err) { showStop("The changes couldn't be saved", [{ type: "stop", text: String(err.message || err), fix: "Nothing has been downloaded. Drop the file in again and try once more. If it happens again, go back to your most recent downloaded copy." }]); }
+  finally { btn.disabled = false; }
+});
+/* A typed value for a Master List cell: numbers stay numbers, phone numbers are tidied and kept as text. */
+function chgValue(c, k, text, old) {
+  const t = norm(text);
+  if (t === "") return null;
+  if (k === c.phone) return phoneNumber(t);
+  if (/^-?\d+(\.\d+)?$/.test(t) && (k === c.handlerNo || k === c.dogNo || typeof old === "number")) return Number(t);
+  return t;
+}
+async function saveChanges() {
+  const { wb, masterWs, settings, baseName, fileLabel } = current, ch = current.chg, { c, header } = ch;
+  const lines = chgLines();
+  if (!lines.length) return;
+  // Someone left in no trial is withdrawn from the event (as when it's done on the trial tabs).
+  const extra = [];
+  ch.draft.forEach((row, i) => {
+    const before = ch.base[i];
+    const inAny = r => c.trials.some(t => !isBlank(r[t.i]));
+    if (c.status >= 0 && inAny(before) && !inAny(row) && !/^withdrawn$/i.test(norm(row[c.status]))) {
+      row[c.status] = "Withdrawn";
+      extra.push(`${who(norm(before[c.id]), ["", norm(before[c.handler]), "", norm(before[c.pet])])} is in no trial now, so is marked Withdrawn.`);
+    }
+  });
+  ch.draft.forEach((row, i) => {
+    header.forEach((_, k) => {
+      if (norm(row[k]) === norm(ch.base[i][k])) return;
+      const cell = masterWs.getCell(i + 1, k + 1);
+      cell.value = chgValue(c, k, row[k], cell.value);
+      if (k === c.phone) cell.numFmt = "@";
+      cell.fill = LATE_FILL;
+    });
+  });
+  // Late entries go under the last row, with the Entry ID left blank: Update trial tabs gives each one an L number.
+  const rows = sheetRows(masterWs);
+  let last = rows.length;
+  while (last > 1 && (rows[last - 1] || []).every(isBlank)) last--;
+  ch.late.forEach(row => {
+    last++;
+    header.forEach((_, k) => {
+      const cell = masterWs.getCell(last, k + 1);
+      if (k !== c.id) cell.value = c.trials.some(t => t.i === k) ? (isBlank(row[k]) ? null : "x") : chgValue(c, k, row[k], null);
+      if (k === c.phone || k === c.id) cell.numFmt = "@";
+      cell.fill = LATE_FILL;
+    });
+  });
+  // "Same person" confirmed here: the update page won't ask about that handler again.
+  ch.confirm.forEach((conf, i) => {
+    const row = ch.draft.get(i), id = norm(ch.base[i][c.id]).toUpperCase();
+    if (conf.handler && row && id) settings.handlerOk = { ...(settings.handlerOk || {}), [id]: handlerKey([norm(row[c.handlerNo]), norm(row[c.handler])]) };
+  });
+  masterRules(masterWs);
+  const n = lines.length;
+  settings.steps.push(step(`${n} ${n === 1 ? "change" : "changes"} made with Make changes`));
+  await writeSettings(wb, settings);
+  const said = [...lines.map(l => l.text), ...extra];
+  await resume(wb, baseName, fileLabel, { notes: [{ type: "info", text: `${n} ${n === 1 ? "change is" : "changes are"} now on the ${MASTER}, highlighted yellow: ${said.join(" ")}`, fix: "Check the plan below, then choose Update trial tabs to put them on the trial tabs." }] });
+}
+
 /* ---------- Result and preview ---------- */
 let previewTabs = [];
 function showTab(i) {
@@ -2616,6 +3111,7 @@ function renderResult(o) {
   $("download").disabled = !!o.example;
   $("resultBallot").hidden = !!o.example || !current || !current.wb || !!current.unlockedOnly;
   $("resultOrder").hidden = $("resultBallot").hidden;
+  $("resultChanges").hidden = $("resultBallot").hidden;
   renderNameBox(!o.example && !!current && !!current.settings);
 }
 $("shortName").addEventListener("input", () => { if (current && current.settings) { current.settings.fileName = cleanShortName($("shortName").value); renderNamePreview(); } });

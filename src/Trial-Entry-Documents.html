@@ -210,6 +210,9 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
 .msg p { margin: 0; font-size: 15px; }
 .msg .fix { color: var(--muted); }
 .msg .fix b { color: var(--ink); }
+.msg ul.detail { margin: 2px 0 0; padding-left: 20px; font-size: 15px; display: grid; gap: 3px; overflow-wrap: anywhere; }
+.msg.todo { border-left-color: var(--accent); }
+.msg.todo .kind { color: var(--accent); }
 .stopdetails details { padding: 10px 12px; border-radius: 10px; background: var(--bg); }
 .stopdetails summary { cursor: pointer; font-size: 14px; color: var(--accent); font-weight: 700; }
 .stopdetails ul { margin: 8px 0 0; padding-left: 20px; font-size: 14px; display: grid; gap: 2px; overflow-wrap: anywhere; }
@@ -3890,7 +3893,7 @@ const shortName = () => (state && state.settings && cleanShortName(state.setting
 const docVersion = () => state && state.settings ? Number(state.settings.version) || 0 : 0;
 const docName = (what, ext) => fileNameFor(shortName(), what, docVersion(), ext);
 const docTitle = what => `${shortName()} ${what}`;
-const DOCS_TOOL = { name: "Trial Documents", version: "3.0" };
+const DOCS_TOOL = { name: "Trial Documents", version: "3.1" };
 const DAMAGE_NOTE = "This file may have been changed by a program other than Excel. Some trial information could be missing or altered. Apple Numbers or Google Sheets are the most common causes.";
 const DOC_WORDS = { catalogue: "running order", callboard: "callboard", timekeeper: "time stewards' sheets", judge: "judges' sheets", scoresheet: "judging sheets", certificate: "certificates" };
 let dirty = false, quiet = false;
@@ -3920,9 +3923,11 @@ function msgEl(m) {
   li.className = "msg " + m.type;
   const kind = document.createElement("span");
   kind.className = "kind";
-  kind.textContent = { stop: "Can't continue", warning: "Check this", info: "For your information" }[m.type] || "";
+  kind.textContent = m.kind || { stop: "Can't continue", warning: "Check this", info: "For your information", todo: "What to do" }[m.type] || "";
   const p = document.createElement("p"); p.textContent = m.text;
   li.append(kind, p);
+  // m.list: extra lines shown as bullets under the text (e.g. each detail that differs).
+  if (m.list && m.list.length) { const ul = document.createElement("ul"); ul.className = "detail"; m.list.forEach(t => { const i = document.createElement("li"); i.textContent = t; ul.append(i); }); li.append(ul); }
   if (m.fix) { const f = document.createElement("p"); f.className = "fix"; const b = document.createElement("b"); b.textContent = "What to do: "; f.append(b, m.fix); li.append(f); }
   return li;
 }
@@ -4019,16 +4024,33 @@ async function openWorkbook(wb, fileName, opts = {}) {
   // Forgot to run Update in Trial Lists? Then the trial tabs don't match the Master List.
   const plan = TL.planUpdate(read.entries, read2, read.trials, {});
   const pending = [];
-  if (read.late.length) pending.push(`${read.late.length} new ${read.late.length === 1 ? "entry is" : "entries are"} on the ${TL.MASTER} but not on any trial tab yet: ${read.late.map(e => TL.who("", e.values)).join("; ")}.`);
+  const entryById = new Map(read.entries.map(e => [e.id, e]));
+  const shown = v => { const t = String(v ?? "").trim(); return t ? `“${t}”` : "blank"; };
+  if (read.late.length) pending.push({ text: `${read.late.length} new ${read.late.length === 1 ? "entry is" : "entries are"} on the ${TL.MASTER} but not on any trial tab yet: ${read.late.map(e => TL.who("", e.values)).join("; ")}.` });
   plan.tabs.forEach(t => {
-    if (t.mode === "new") { pending.push(`${t.trial} has entries on the ${TL.MASTER} but no trial tab yet.`); return; }
+    if (t.mode === "new") { pending.push({ text: `${t.trial} has entries on the ${TL.MASTER} but no trial tab yet.` }); return; }
     const bits = [];
     if (t.removed.length) bits.push(`${t.removed.length} to remove: ${t.removed.map(r => `${TL.who(r.id, r.values)} ${r.why}`).join("; ")}`);
     if (t.added.length) bits.push(`${t.added.length} to add: ${t.added.map(e => TL.who(e.id, e.values)).join("; ")}`);
-    if (t.changed) bits.push(`${t.changed} ${t.changed === 1 ? "detail differs" : "details differ"}`);
-    if (bits.length) pending.push(`${t.name}: ${bits.join("; ")}.`);
+    // Each detail that differs, so the user can see exactly what changed and where.
+    const diffs = plan.diffs.filter(d => d.tab === t.name);
+    if (diffs.length) bits.push(`${diffs.length} ${diffs.length === 1 ? "detail differs" : "details differ"} from the ${TL.MASTER}`);
+    if (bits.length) pending.push({ text: `${t.name}: ${bits.join("; ")}${diffs.length ? ":" : "."}`,
+      list: diffs.map(d => `${TL.who(d.id, (entryById.get(d.id) || {}).values)}, ${d.field}: the trial tab has ${shown(d.was)}, the ${TL.MASTER} has ${shown(d.now)}.`) });
   });
-  if (pending.length) return showStop(`The ${TL.MASTER} has changes that aren't on the trial tabs yet`, pending.map(text => ({ type: "stop", text, fix: "" })).concat([{ type: "stop", text: "Documents made now would be out of date.", fix: `Drop the file into Trial Lists and choose Update trial tabs, then drop the new file here.${settings.locked ? " If it's locked, choose Make a late change there first." : ""}` }]));
+  if (pending.length) {
+    const anyDiffs = plan.diffs.length > 0;
+    const late = settings.locked ? ["This file is locked, so in Trial Lists choose Make a late change first."] : [];
+    return showStop(`The ${TL.MASTER} has changes that aren't on the trial tabs yet`,
+      pending.map(m => ({ type: "stop", text: m.text, list: m.list, fix: "" })).concat([{ type: "todo",
+        text: "Documents made now would be out of date, so the trial tabs need updating first.",
+        list: late.concat(anyDiffs ? [
+          `If the ${TL.MASTER} is right: drop the file into Trial Lists and choose Update trial tabs. The trial tab will be changed to match the ${TL.MASTER}.`,
+          `If the trial tab is right: drop the file into Trial Lists, choose Make changes and make the same change there first, then Update trial tabs. (Update copies from the ${TL.MASTER}, so a change made only on a trial tab would be lost.)`,
+          "Then drop the new file here."] : [
+          "Drop the file into Trial Lists and choose Update trial tabs, then drop the new file here."]),
+        fix: "" }]));
+  }
 
   // Which class each tab is for: its own name, or the trial Trial Lists worked out for a user's copy.
   const byName = new Map(read2.map(t => [t.name, t]));
