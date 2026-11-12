@@ -216,6 +216,8 @@ table.otable td.tick, table.otable th.tick { width: 34px; text-align: center; pa
 table.otable td.tick input, table.otable th.tick input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); cursor: pointer; }
 table.otable td.place { font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; width: 3em; }
 tr.moved td { background: var(--accent-soft); }
+td.also { font-size: 13px; color: var(--muted); }
+td.also span { display: block; font-family: var(--font-mono); white-space: nowrap; }
 @media (max-width: 560px) { table.otable td, table.otable th { padding: 6px 5px; font-size: 13px; } table.otable td.id { font-size: 11px; } .otools .sep { display: none; } }
 @media (prefers-reduced-motion: reduce) { table.otable tr.flash td { animation: none; } }
 /* Make changes */
@@ -443,9 +445,10 @@ tr.moved td { background: var(--accent-soft); }
         <button type="button" class="small" id="oPlaceGo">Move</button>
       </div>
       <p class="osel" id="orderSel" aria-live="polite"></p>
+      <p class="note"><b>Also in</b> shows each handler's place in the other trials (not other trials of the same level), e.g. <code>NWExc1 #4 of 12</code>, so you can avoid clashes between trials that run at the same time. It changes as you move dogs.</p>
       <div class="table-box">
         <table class="otable">
-          <thead><tr><th class="tick"><input type="checkbox" id="oAll" aria-label="Tick or untick every dog"></th><th>Place</th><th>Entry ID</th><th>Handler</th><th>Dog</th><th>Reactive</th></tr></thead>
+          <thead><tr><th class="tick"><input type="checkbox" id="oAll" aria-label="Tick or untick every dog"></th><th>Place</th><th>Entry ID</th><th>Handler</th><th>Dog</th><th>Reactive</th><th>Also in</th></tr></thead>
           <tbody id="orderRows"></tbody>
         </table>
       </div>
@@ -527,7 +530,7 @@ tr.moved td { background: var(--accent-soft); }
     <div class="tabs" id="tabs" role="tablist"></div>
     <div class="table-box">
       <table>
-        <thead><tr><th>Entry ID</th><th>Handler No</th><th>Handler</th><th>Phone</th><th>Dog No</th><th>Dog Pet Name</th><th>Dog Breed</th><th>Comments</th></tr></thead>
+        <thead><tr><th>Entry ID</th><th>Handler No</th><th>Handler</th><th title="Not in the spreadsheet: the handler's place in the other trials">Also in</th><th>Phone</th><th>Dog No</th><th>Dog Pet Name</th><th>Dog Breed</th><th>Comments</th></tr></thead>
         <tbody id="rows"></tbody>
       </table>
     </div>
@@ -555,7 +558,7 @@ tr.moved td { background: var(--accent-soft); }
       <li><b>Comments:</b> trial tabs show only reactivity: <code>D</code> dog-reactive, <code>H</code> people-reactive, <code>D + H</code> both. Check the Master List for other requests.</li>
       <li><b>Ballots:</b> if a trial has more entries than places, choose <b>Ballot a trial</b> after entries close. Type the maximum places (including judges' and stewards' dogs) and tick the judges and stewards. Places go first to them, then to dogs with fewer than 2 qualifying certificates at that level (Buried Hides: fewer than 3, for that medium), then by random draw among the rest. Qualifiers come from the “Qual@export” columns of the entries download. If the guaranteed places alone are more than the maximum, the page stops: contact SSANZ for guidance.</li>
       <li><b>After a ballot</b> the trial tab keeps the dogs with places, the <code>Waitlist</code> tab lists the rest in order, and the <code>Ballot</code> tab keeps the full ranked list and a record of every change, for the 12 months records must be kept. On the Master List a waitlisted dog shows “Waitlist 3” in that trial's column instead of x. When a place comes free (a withdrawal, a scratching, or you raise the maximum), the update page names the dog at the top of the waitlist: contact them, then choose <b>They accepted</b> or <b>They declined</b>. If they decline, it names the next one. Late entries in a balloted trial go on the bottom of its waitlist. A ballot can't be redrawn.</li>
-      <li><b>To change the running order</b> (helpers early, or moving dogs to avoid clashes), drop the file in here and choose <b>Change running order</b>. If a trial needs a ballot, draw it first, so only the dogs with places are in the order. Tick one or more dogs and move them to the top or bottom, up or down a number of places, or to a given place, then save and download. Each row moves whole, with its Entry ID and any highlighting, which avoids the mix-ups that cutting and pasting in Excel can cause. The new order is listed for you to check.</li>
+      <li><b>To change the running order</b> (helpers early, or moving dogs to avoid clashes), drop the file in here and choose <b>Change running order</b>. If a trial needs a ballot, draw it first, so only the dogs with places are in the order. Tick one or more dogs and move them to the top or bottom, up or down a number of places, or to a given place, then save and download. Each row moves whole, with its Entry ID and any highlighting, which avoids the mix-ups that cutting and pasting in Excel can cause. The new order is listed for you to check. The <b>Also in</b> column shows where each handler is in the other trials (for example <code>NWExc1 #4 of 12</code>), so a handler isn't due in two rings at once when levels run at the same time. Other trials of the same level aren't shown, as they never run together. The preview after each step shows the same column (it's only on the page, not in the spreadsheet).</li>
       <li><b>Tool Settings</b> holds what the tools need to carry on where you left off, including a copy of Sheet 1. Please don't edit or delete it.</li>
       <li><b>Once Trial Documents has started</b>, the Master List is locked too. To change entries after that, drop the file in here and choose <b>Make a late change</b>: the Make changes page opens.</li>
       <li><b>Edit your trial spreadsheet in Excel</b> or free Excel for the web (<a href="https://excel.cloud.microsoft" target="_blank" rel="noopener">excel.cloud.microsoft</a>). After editing in Excel for the web, use File → Save As → Download a copy. Keep the file for at least 12 months, stored securely and not on a shared computer.</li>
@@ -654,7 +657,7 @@ function excelSafe(wb) {
 /* =========================================================================
    Trial Lists: the logic (no spreadsheet library needed, so it can be tested on its own)
    ========================================================================= */
-const TOOL = { name: "Trial Lists", version: "5.9" };
+const TOOL = { name: "Trial Lists", version: "5.10" };
 const MASTER = "Master List";
 const SETTINGS_TAB = "Tool Settings";
 const ID_HEAD = "Entry ID", STATUS_HEAD = "Status";
@@ -886,6 +889,35 @@ function doubles(tabs) {
   });
   return out;
 }
+
+/* ---------- Handlers entered in other trials ----------
+   Some events run different levels at the same time (never two trials of the same level), so when ordering a
+   trial it helps to see where each handler is in the other trials. tabs: [{ name, trial, rows: [{ handlerNo,
+   handler }] }], each in running order. Each trial is read from its main tab (the one named exactly as the
+   trial), else its first tab. Handlers are matched by Handler Number, else by name, so a handler running a
+   different dog still counts. Trials of the same level (NWAdv1 and NWAdv2) are left out, as are the trial's
+   own copies. Returns Map tab name → for each row, [{ trial, place, of }] in tab order. */
+const levelOf = T => norm(T).replace(/[1-9]$/, "").toLowerCase();
+function alsoIn(tabs) {
+  const main = new Map();
+  tabs.filter(t => t.trial).forEach(t => { const k = t.trial.toLowerCase(); if (!main.has(k) || t.name.toLowerCase() === k) main.set(k, t); });
+  const key = r => lower(r.handlerNo || r.handler);
+  const where = new Map();
+  main.forEach(t => t.rows.forEach((r, i) => {
+    const k = key(r);
+    if (!k) return;
+    if (!where.has(k)) where.set(k, []);
+    where.get(k).push({ trial: t.trial, place: i + 1, of: t.rows.length });
+  }));
+  const out = new Map();
+  tabs.forEach(t => {
+    const lvl = levelOf(t.trial || t.name);
+    out.set(t.name, t.rows.map(r => (where.get(key(r)) || []).filter(x => levelOf(x.trial) !== lvl)));
+  });
+  return out;
+}
+/* "NWExc1 #4 of 12" */
+const alsoText = x => `${x.trial} #${x.place} of ${x.of}`;
 
 /* ---------- A new handler needs a new Handler Number ----------
    A different person must have their own SSANZ Handler Number, so a Handler name change has to come
@@ -1458,7 +1490,7 @@ if (typeof module !== "undefined") {
     buildMaster, readMaster, startTabs, doubles, readTrialTab, planUpdate, summaryLines, settingsRows, readSettings, stamp, who, snapshot, audit, applyAnswers,
     copyMatches, sheet1Changes, changeText, sheet1Problem, cellRef, handlerChecks, handlerNoProblem, handlerOpen, applyHandlerAnswers, handlerKey,
     defaultShortName, cleanShortName, versionText, fileNameFor, parseFileName,
-    BALLOT_RULES, STEWARD_DEFINITION, isBallotTab, waitlistTab, ballotTab, notEntered, onWaitlist, ballotClass, mulberry32, newSeed, ballotPlan, ballotRecord, ballotReview, ballotDecisions, groupLabel, moveRows };
+    BALLOT_RULES, STEWARD_DEFINITION, isBallotTab, waitlistTab, ballotTab, notEntered, onWaitlist, ballotClass, mulberry32, newSeed, ballotPlan, ballotRecord, ballotReview, ballotDecisions, groupLabel, moveRows, alsoIn, alsoText, levelOf };
 }
 
 if (typeof module === "undefined") {
@@ -2437,12 +2469,12 @@ async function writeBallotTabs(wb) {
    whole (every cell, its formatting and notes), so nothing can be split up or overwritten. */
 function orderRows(ws) {
   const rows = sheetRows(ws), h = (rows[0] || []).map(lower), at = k => h.indexOf(k);
-  const c = { id: at("entry id"), handler: at("handler"), pet: at("dog pet name"), dogNo: at("dog no"), comments: at("comments") };
+  const c = { id: at("entry id"), handlerNo: at("handler number"), handler: at("handler"), pet: at("dog pet name"), dogNo: at("dog no"), comments: at("comments") };
   const out = [];
   rows.forEach((r, i) => {
     if (i === 0 || !r || r.every(isBlank)) return;
     const v = k => c[k] < 0 ? "" : norm(r[c[k]]);
-    out.push({ key: i + 1, id: v("id").toUpperCase(), handler: v("handler"), dog: v("pet"), dogNo: v("dogNo"), flag: reactivity(v("comments")) });
+    out.push({ key: i + 1, id: v("id").toUpperCase(), handlerNo: v("handlerNo"), handler: v("handler"), dog: v("pet"), dogNo: v("dogNo"), flag: reactivity(v("comments")) });
   });
   return out;
 }
@@ -2492,8 +2524,16 @@ function refreshOrderSave() {
   $("orderSave").disabled = !any;
   $("orderSave").title = any ? "" : "Move at least one dog first";
 }
+/* The "Also in" cell: one line per other trial. */
+function alsoCell(list) {
+  const td = document.createElement("td"); td.className = "also";
+  list.forEach(x => { const sp = document.createElement("span"); sp.textContent = alsoText(x); td.append(sp); });
+  return td;
+}
 function renderOrder(flash = new Set()) {
   const o = current.orders[current.orderTab];
+  // Places in the other trials as they stand now, including moves not saved yet.
+  const also = alsoIn(Object.entries(current.orders).map(([name, x]) => ({ name, trial: x.trial, rows: x.order.map(k => x.rows.get(k)) }))).get(current.orderTab) || [];
   const tb = $("orderRows");
   tb.textContent = "";
   o.order.forEach((k, i) => {
@@ -2506,7 +2546,7 @@ function renderOrder(flash = new Set()) {
     cb.setAttribute("aria-label", `Tick place ${i + 1}: ${who(r.id, ["", r.handler, "", r.dog])}`);
     tick.append(cb);
     const cells = [[String(i + 1), "place"], [r.id, "id"], [r.handler, ""], [r.dog, ""], [r.flag, r.flag ? "flag" : ""]];
-    tr.append(tick, ...cells.map(([v, cls]) => { const td = document.createElement("td"); td.textContent = v; if (cls) td.className = cls; return td; }));
+    tr.append(tick, ...cells.map(([v, cls]) => { const td = document.createElement("td"); td.textContent = v; if (cls) td.className = cls; return td; }), alsoCell(also[i] || []));
     tr.addEventListener("click", ev => {
       if (ev.target !== cb) cb.checked = !cb.checked;
       pickRow(k, cb.checked, ev.shiftKey);
@@ -3071,11 +3111,12 @@ function showTab(i) {
   tb.textContent = "";
   const t = previewTabs[i];
   if (!t) return;
-  t.rows.forEach(r => {
+  const also = alsoIn(previewTabs.map(x => ({ name: x.name, trial: x.trial, rows: x.rows.map(r => ({ handlerNo: r.values[0], handler: r.values[1] })) }))).get(t.name) || [];
+  t.rows.forEach((r, n) => {
     const tr = document.createElement("tr");
     if (r.isNew) tr.className = "late";
     else if (r.moved) tr.className = "moved";
-    trialCells(r.id, r.values).forEach((v, k) => { const td = document.createElement("td"); td.textContent = v; if (TRIAL_HEADERS[k] === "Comments" && v) td.className = "flag"; if (k === 0) td.className = "id"; tr.appendChild(td); });
+    trialCells(r.id, r.values).forEach((v, k) => { const td = document.createElement("td"); td.textContent = v; if (TRIAL_HEADERS[k] === "Comments" && v) td.className = "flag"; if (k === 0) td.className = "id"; tr.appendChild(td); if (TRIAL_HEADERS[k] === "Handler") tr.appendChild(alsoCell(also[n] || [])); });
     tb.appendChild(tr);
   });
 }
