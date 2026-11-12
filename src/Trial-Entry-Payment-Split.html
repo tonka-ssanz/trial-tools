@@ -80,6 +80,11 @@ h1 { font-family: var(--font-display); font-size: clamp(30px, 6vw, 42px); line-h
 .owing { margin: 0; font-size: 15px; }
 .owing b { font-variant-numeric: tabular-nums; }
 
+.namebox { display: grid; gap: 6px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.namebox label { display: grid; gap: 3px; max-width: 340px; }
+.namebox label span { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+.namebox input { font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; min-width: 0; }
+.namebox input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .actions { display: flex; flex-wrap: wrap; gap: 10px; }
 button { font: inherit; font-weight: 700; border-radius: 10px; padding: 11px 18px; cursor: pointer; border: 1px solid var(--accent); }
 button.primary { background: var(--accent); color: var(--accent-ink); }
@@ -145,6 +150,11 @@ tr:last-child td { border-bottom: 0; }
     </div>
     <p class="owing" id="owing"></p>
 
+    <div class="namebox" id="nameBox" hidden>
+      <label for="shortName"><span>Start of the file name · e.g. Nov 26, or Nov 26 Taupō</span><input type="text" id="shortName" maxlength="40" autocomplete="off" spellcheck="false"></label>
+      <p class="note" id="namePreview"></p>
+    </div>
+
     <div class="actions">
       <button class="primary" id="download" type="button" disabled>Download spreadsheet with payment tabs</button>
     </div>
@@ -168,6 +178,7 @@ tr:last-child td { border-bottom: 0; }
       <li><b>Run this before the Email List tool</b> if you want to email just the people who owe. Drop the downloaded file into the Email List tool and pick the <code>Not Paid</code> or <code>Part Paid</code> tab when it asks.</li>
       <li><b>Using Google Sheets?</b> In your sheet choose File → Download → Microsoft Excel (.xlsx), drop that file here, then open the result in Google Sheets with File → Import.</li>
       <li><b>Several tabs?</b> The tool finds the tab with the “Amount Due” column. If more than one tab has it, you'll be asked which to use. All your tabs come back in the download.</li>
+      <li><b>File names:</b> the download is named like <code>Nov 26 Payments Version 01 (12 Nov)</code>. Type the start of the name before downloading (it starts as this month). Drop a Payments file in again and the next download is Version 02, and so on: always use the highest version number, unless you want to go back to an earlier copy.</li>
       <li><b>Running it again</b> on a file that already has these tabs replaces them rather than adding more.</li>
       <li>The file never leaves your computer. All the work happens in this page.</li>
     </ul>
@@ -177,6 +188,30 @@ tr:last-child td { border-bottom: 0; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
+/* ---------- File names ----------
+   Every file the tools save is named "<short name> <what> Version 04 (12 Nov)", e.g. "Nov 26 Trial Data Version 04 (12 Nov).xlsx".
+   The short name is chosen by the user (the trial's month by default). Two-digit versions keep files in order in a folder.
+   Keep the same in Payment Split, Email List, Trial Lists and Trial Documents. */
+const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const defaultShortName = (d = new Date()) => `${MONTHS_SHORT[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`;
+/* Characters a file name can't have are taken out; at most 40 characters. */
+const cleanShortName = v => String(v ?? "").replace(/[\\/:*?"<>|\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 40).trim();
+const versionText = n => "Version " + String(Math.max(1, Math.floor(Number(n)) || 1)).padStart(2, "0");
+const dayMonth = (d = new Date()) => `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
+/* fileNameFor("Nov 26", "Trial Data", 4, ".xlsx") → "Nov 26 Trial Data Version 04 (12 Nov).xlsx". No version (0) → no "Version" part. */
+function fileNameFor(short, what, version, ext, d = new Date()) {
+  return [cleanShortName(short) || defaultShortName(d), what, Number(version) > 0 ? versionText(version) : "", `(${dayMonth(d)})`].filter(Boolean).join(" ") + ext;
+}
+/* "Nov 26 Trial Data Version 04 (12 Nov) (1).xlsx" → { short: "Nov 26", what: "Trial Data", version: 4 }, or null if it isn't named
+   that way. whats: the kinds of file to look for. Browsers add " (1)", " (2)" to repeat downloads; those are ignored. */
+function parseFileName(name, whats) {
+  const base = String(name ?? "").replace(/\.[A-Za-z0-9]+$/, "").replace(/(\s*\(\d+\))+$/, "").trim();
+  for (const what of whats) {
+    const m = new RegExp(`^(.+?) ${what} Version (\\d+)(?: \\(\\d{1,2} [A-Za-z]{3}\\))?$`, "i").exec(base);
+    if (m) return { short: cleanShortName(m[1]), what, version: Number(m[2]) };
+  }
+  return null;
+}
 const DUE_HEADER = "amount due";
 const PAID_HEADER = "paid";
 const TOTAL_HEADER = "total cost";
@@ -246,10 +281,20 @@ function splitPayments(rows) {
   return out;
 }
 
-if (typeof module !== "undefined") { module.exports = { splitPayments, money, paidSomething }; }
+if (typeof module !== "undefined") { module.exports = { splitPayments, money, paidSomething, fileNameFor, parseFileName, cleanShortName, defaultShortName }; }
 else {
 const $ = id => document.getElementById(id);
-let current = null; // { wb, baseName }
+let current = null; // { wb, baseName, short, version }
+
+/* The file-name box: what the download will be called. */
+const WHAT = "Payments";
+function renderName() {
+  $("nameBox").hidden = !current;
+  if (!current) return;
+  if (document.activeElement !== $("shortName")) $("shortName").value = current.short;
+  $("namePreview").textContent = `Downloads as “${fileNameFor(cleanShortName($("shortName").value) || defaultShortName(), WHAT, current.version + 1, ".xlsx")}”. Use the same start as your other files for this trial (usually the trial's month).`;
+}
+$("shortName").addEventListener("input", () => { if (current) { current.short = cleanShortName($("shortName").value); renderName(); } });
 
 function cellText(cell) {
   const v = cell.value;
@@ -413,7 +458,10 @@ async function handleFile(file) {
     const split = splitPayments(rows);
     if (!split.entries) throw new Error("The 'Amount Due' column is there, but there are no entry rows under it.");
     writeTabs(wb, src, split);
-    current = { wb, baseName };
+    // The name and version carry on from the dropped file's name when it's one of ours ("Nov 26 Payments Version 02 (12 Nov)").
+    const named = parseFileName(file.name, [WHAT, "Emails", "Trial Data"]);
+    current = { wb, baseName, short: named ? named.short : defaultShortName(), version: named && named.what === WHAT ? named.version : 0 };
+    renderName();
     if (split.unclear) label += ` · ${split.unclear} entr${split.unclear === 1 ? "y" : "ies"} with an unreadable Amount Due put in Not Paid`;
     render(split, label, false);
     $("download").disabled = false;
@@ -438,7 +486,10 @@ $("download").addEventListener("click", async () => {
   try {
     const buf = await current.wb.xlsx.writeBuffer();
     const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    const filename = current.baseName + " (with Payments).xlsx";
+    current.short = cleanShortName($("shortName").value) || current.short || defaultShortName();
+    current.version += 1;
+    const filename = fileNameFor(current.short, WHAT, current.version, ".xlsx");
+    renderName();
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob); a.download = filename; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);

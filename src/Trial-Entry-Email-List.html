@@ -103,6 +103,11 @@ h1 { font-family: var(--font-display); font-size: clamp(30px, 6vw, 42px); line-h
 .stat.key b { color: var(--accent); }
 @media (max-width: 560px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
+.namebox { display: grid; gap: 6px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.namebox label { display: grid; gap: 3px; max-width: 340px; }
+.namebox label span { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+.namebox input { font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; min-width: 0; }
+.namebox input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .actions { display: flex; flex-wrap: wrap; gap: 10px; }
 button { font: inherit; font-weight: 700; border-radius: 10px; padding: 11px 18px; cursor: pointer; border: 1px solid var(--accent); }
 button.primary { background: var(--accent); color: var(--accent-ink); }
@@ -192,6 +197,11 @@ tr:last-child td { border-bottom: 0; }
       <div class="stat key"><b id="sUnique">0</b><span>unique people</span></div>
     </div>
 
+    <div class="namebox" id="nameBox" hidden>
+      <label for="shortName"><span>Start of the file name · e.g. Nov 26, or Nov 26 Taupō</span><input type="text" id="shortName" maxlength="40" autocomplete="off" spellcheck="false"></label>
+      <p class="note" id="namePreview"></p>
+    </div>
+
     <div class="actions">
       <button class="primary" id="download" type="button" disabled>Download spreadsheet with Emails tab</button>
       <button class="secondary" id="copy" type="button">Copy BCC list</button>
@@ -218,6 +228,7 @@ tr:last-child td { border-bottom: 0; }
       <li><b>Phone</b> comes from the download's “Entry Phone” column, written in international form with no spaces, e.g. 021 792 551 becomes +6421792551, whatever way it was typed. If one email has two different numbers, both are shown.</li>
       <li><b>Entered in</b> shows which trials each person is in (only the ticked ones, if you picked trials). Someone with two dogs gets one row listing both dogs' trials.</li>
       <li><b>Tab names</b> follow your choice: <code>Emails</code> for all entries, or e.g. <code>Emails NWAdv1</code> or <code>Emails Trial 1</code>. The top of the tab says exactly who is included. Drop the downloaded file in again to add a list for other trials alongside it.</li>
+      <li><b>File names:</b> the download is named like <code>Nov 26 Emails Version 01 (12 Nov)</code>. Type the start of the name before downloading (it starts as this month). Each download is the next version, and dropping an Emails file in again carries on from its number: always use the highest version number, unless you want to go back to an earlier copy.</li>
       <li><b>Running the same choice again</b> replaces that tab rather than adding a copy.</li>
       <li><b>Email just one payment group:</b> run Payment Split first, then pick the Paid, Part Paid or Not Paid tab here. You can still narrow it to certain trials.</li>
       <li><b>Using Google Sheets?</b> In your sheet choose File → Download → Microsoft Excel (.xlsx), drop that file here, then open the result in Google Sheets with File → Import.</li>
@@ -231,6 +242,30 @@ tr:last-child td { border-bottom: 0; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
+/* ---------- File names ----------
+   Every file the tools save is named "<short name> <what> Version 04 (12 Nov)", e.g. "Nov 26 Trial Data Version 04 (12 Nov).xlsx".
+   The short name is chosen by the user (the trial's month by default). Two-digit versions keep files in order in a folder.
+   Keep the same in Payment Split, Email List, Trial Lists and Trial Documents. */
+const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const defaultShortName = (d = new Date()) => `${MONTHS_SHORT[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`;
+/* Characters a file name can't have are taken out; at most 40 characters. */
+const cleanShortName = v => String(v ?? "").replace(/[\\/:*?"<>|\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 40).trim();
+const versionText = n => "Version " + String(Math.max(1, Math.floor(Number(n)) || 1)).padStart(2, "0");
+const dayMonth = (d = new Date()) => `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
+/* fileNameFor("Nov 26", "Trial Data", 4, ".xlsx") → "Nov 26 Trial Data Version 04 (12 Nov).xlsx". No version (0) → no "Version" part. */
+function fileNameFor(short, what, version, ext, d = new Date()) {
+  return [cleanShortName(short) || defaultShortName(d), what, Number(version) > 0 ? versionText(version) : "", `(${dayMonth(d)})`].filter(Boolean).join(" ") + ext;
+}
+/* "Nov 26 Trial Data Version 04 (12 Nov) (1).xlsx" → { short: "Nov 26", what: "Trial Data", version: 4 }, or null if it isn't named
+   that way. whats: the kinds of file to look for. Browsers add " (1)", " (2)" to repeat downloads; those are ignored. */
+function parseFileName(name, whats) {
+  const base = String(name ?? "").replace(/\.[A-Za-z0-9]+$/, "").replace(/(\s*\(\d+\))+$/, "").trim();
+  for (const what of whats) {
+    const m = new RegExp(`^(.+?) ${what} Version (\\d+)(?: \\(\\d{1,2} [A-Za-z]{3}\\))?$`, "i").exec(base);
+    if (m) return { short: cleanShortName(m[1]), what, version: Number(m[2]) };
+  }
+  return null;
+}
 const EMAIL_HEADER = "entry email";
 const NAME_HEADER = "entry full name";
 const PHONE_HEADERS = ["entry phone", "phone"];
@@ -367,11 +402,22 @@ function extractBallot(rows, trial, which) {
 const ballotTabName = (trial, which) => `Emails ${trial} ${which === "accepted" ? "accepted" : "waitlist"}`.slice(0, 31);
 const ballotTitle = (trial, which) => which === "accepted" ? `Emails for: everyone with a place in ${trial} after the ballot` : `Emails for: the ${trial} waitlist, in waitlist order`;
 
-if (typeof module !== "undefined") { module.exports = { extractEmails, phoneNumber, findTrialColumns, trialLabel, tabNameFor, selectionTitle, ballotTrials, extractBallot, ballotTabName, ballotTitle }; }
+if (typeof module !== "undefined") { module.exports = { extractEmails, phoneNumber, findTrialColumns, trialLabel, tabNameFor, selectionTitle, ballotTrials, extractBallot, ballotTabName, ballotTitle, fileNameFor, parseFileName, cleanShortName, defaultShortName }; }
 else {
 const $ = id => document.getElementById(id);
 let state = null; // { example, rows, trialCols, mode, ticked:Set, source, baseName, label, ballots:[trials], ballotPick:"accepted|NWAdv1" }
 let lastResult = null;
+
+/* The file-name box: what the download will be called. */
+const WHAT = "Emails";
+function renderName() {
+  const real = !!state && !state.example;
+  $("nameBox").hidden = !real;
+  if (!real) return;
+  if (document.activeElement !== $("shortName")) $("shortName").value = state.short;
+  $("namePreview").textContent = `Downloads as “${fileNameFor(cleanShortName($("shortName").value) || defaultShortName(), WHAT, state.version + 1, ".xlsx")}”. Use the same start as your other files for this trial (usually the trial's month).`;
+}
+$("shortName").addEventListener("input", () => { if (state && !state.example) { state.short = cleanShortName($("shortName").value); renderName(); } });
 
 function cellText(cell) {
   const v = cell.value;
@@ -683,7 +729,11 @@ async function handleFile(file) {
     const all = extractEmails(rows);
     if (!all.people.length) throw new Error("The 'Entry Email' column is there, but it's empty.");
     const trialCols = findTrialColumns(rows);
-    state = { example: false, rows, trialCols, mode: trialCols.length || ballots.length ? null : "all", ticked: new Set(), source, baseName, label, ballots, ballotPick: null };
+    // The name and version carry on from the dropped file's name when it's one of ours ("Nov 26 Emails Version 02 (12 Nov)").
+    const named = parseFileName(file.name, [WHAT, "Payments", "Trial Data"]);
+    state = { example: false, rows, trialCols, mode: trialCols.length || ballots.length ? null : "all", ticked: new Set(), source, baseName, label, ballots, ballotPick: null,
+      short: named ? named.short : defaultShortName(), version: named && named.what === WHAT ? named.version : 0 };
+    renderName();
     renderWho();
     update();
     showStatus(trialCols.length || ballots.length ? "Choose who should be on the list." : "");
@@ -729,7 +779,10 @@ $("download").addEventListener("click", async () => {
       : writeEmailsSheet(wb, lastResult.result, lastResult.sel, state.trialCols);
     const buf = await wb.xlsx.writeBuffer();
     const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    const filename = state.baseName + " (with Emails).xlsx";
+    state.short = cleanShortName($("shortName").value) || state.short || defaultShortName();
+    state.version += 1;
+    const filename = fileNameFor(state.short, WHAT, state.version, ".xlsx");
+    renderName();
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob); a.download = filename; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);

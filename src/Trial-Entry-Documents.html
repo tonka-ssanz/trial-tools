@@ -218,6 +218,8 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
 .excelhelp p { margin: 0; }
 .excelhelp ol { margin: 0; padding-left: 22px; display: grid; gap: 3px; }
 .savebar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); position: sticky; top: 8px; z-index: 5; }
+.savename { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--muted); margin-left: auto; }
+.savename input[type=text] { font-size: 14px; width: 11em; padding: 5px 8px; }
 .savebar.dirty { border-color: var(--warn); background: var(--warn-soft); }
 .savebar p { margin: 0; font-size: 14px; color: var(--muted); }
 .savebar.dirty p { color: var(--warn); font-weight: 700; }
@@ -243,7 +245,7 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
   <header>
     <p class="eyebrow">SSANZ trial tools</p>
     <h1>Trial Documents</h1>
-    <p class="lede">Drop in your trial spreadsheet from Trial Lists (the file ending “(in progress)”). Choose your organisation, give each class its level, date, session, venue and SSANZ trial # once, then download the catalogue running orders, callboards, time stewards' and judges' sheets as Word documents or PDFs (A4), the judging sheets as a PDF ready to print, and certificates for the pre-printed SSANZ cards.</p>
+    <p class="lede">Drop in your trial spreadsheet from Trial Lists (the file named like “Nov 26 Trial Data Version 04 (12 Nov)”). Choose your organisation, give each class its level, date, session, venue and SSANZ trial # once, then download the catalogue running orders, callboards, time stewards' and judges' sheets as Word documents or PDFs (A4), the judging sheets as a PDF ready to print, and certificates for the pre-printed SSANZ cards.</p>
   </header>
 
   <label class="drop" id="drop" for="file" tabindex="0">
@@ -271,6 +273,7 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
 
     <div class="savebar" id="saveBar" hidden>
       <p id="saveState"></p>
+      <label class="savename" for="shortName" title="Every file the tools make for this trial starts with this, e.g. Nov 26 or Nov 26 Taupō"><span>File names start</span><input type="text" id="shortName" maxlength="40" autocomplete="off" spellcheck="false"></label>
       <button class="primary small" type="button" id="saveProgress" disabled>Save progress</button>
     </div>
     <div class="resumebar" id="resumeBar" hidden>
@@ -440,6 +443,7 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
       <li><b>Sheet 1</b> (the original download) is always locked with a password, has a red tab and a reminder note in cell A1. If it has been changed anyway, the page lists each changed cell and offers <b>Put Sheet 1 back</b>.</li>
       <li><b>Balloted trials:</b> the Waitlist and Ballot tabs that Trial Lists makes are never used here, so waitlisted dogs aren't on any running order, callboard, sheet or certificate. If a waitlisted dog is given a place later, Trial Lists adds them to the trial tab and this page lists the classes to reprint.</li>
       <li><b>Your own copies</b> of a trial tab (e.g. “NWAdv1 Sat plan”) can be ticked like any other class. They use the same class settings as the trial they came from.</li>
+      <li><b>File names:</b> Save progress downloads your trial spreadsheet as the next version, e.g. <code>Nov 26 Trial Data Version 05 (12 Nov)</code>. <b>Always drop in the highest version number</b>, unless you want to go back to an earlier copy. Documents are named the same way and show the version of the trial spreadsheet they were made from, e.g. <code>Nov 26 Callboards Version 04 (12 Nov)</code>, so you can tell which printouts are out of date. To change the start of the names, use “File names start” next to Save progress.</li>
       <li><b>Edit your trial spreadsheet in Excel</b> or free Excel for the web (excel.cloud.microsoft). After editing in Excel for the web, use File → Save As → Download a copy. Keep the file for at least 12 months, stored securely and not on a shared computer.</li>
       <li><b>No Microsoft Word?</b> Running orders, callboards, time stewards' and judges' sheets also download as a PDF, laid out the same and ready to print. A PDF can't be edited, so change anything on this page and download again. Google Docs can open the downloaded .docx too (File → Open → Upload).</li>
       <li><b>Print single-sided:</b> callboards, time stewards' and judges' sheets are each used on their own on the day, so nothing should be on the back.</li>
@@ -3491,8 +3495,8 @@ function downloadGroup(g) {
   if (problems.length) return;
   const part = sets.filter(s => s.group === g);
   const colour = String(look.paperColours[g] || "").trim().replace(/[\\/:*?"<>|]/g, "");
-  const { bytes } = buildScorePdf(part, look.paper, `${state.baseName} ${doc.fileSuffix} ${g}`);
-  save(new Blob([bytes], { type: "application/pdf" }), `${state.baseName} ${doc.fileSuffix} ${g}${colour ? ` (${colour})` : ""} ${look.paper}.pdf`);
+  const { bytes } = buildScorePdf(part, look.paper, docTitle(`${doc.fileSuffix} ${g}`));
+  save(new Blob([bytes], { type: "application/pdf" }), docName(`${doc.fileSuffix} ${g}${colour ? ` (${colour})` : ""} ${look.paper}`, ".pdf"));
   const names = new Set(part.map(s => s.className));
   recordMade(doc.id, chosen().filter(t => names.has(t.name)));
 }
@@ -3611,15 +3615,15 @@ function downloadCertGroup(key) {
   const { groups, problems } = currentCert();
   const g = groups.find(x => x.key === key);
   if (problems.length || !g) return;
-  const { bytes } = buildCertPdf(g.certs, { nudge: look.certNudge }, `${state.baseName} ${doc.fileSuffix} ${g.label}`);
-  save(new Blob([bytes], { type: "application/pdf" }), `${state.baseName} ${doc.fileSuffix} ${g.label}.pdf`);
+  const { bytes } = buildCertPdf(g.certs, { nudge: look.certNudge }, docTitle(`${doc.fileSuffix} ${g.label}`));
+  save(new Blob([bytes], { type: "application/pdf" }), docName(`${doc.fileSuffix} ${g.label}`, ".pdf"));
   recordMade(doc.id, chosen().filter(t => g.classes.includes(t.name)));
 }
 $("certTest").addEventListener("click", () => {
   const all = state ? currentCert().groups.flatMap(g => g.certs) : [];
   const sample = all[0] || { handler: "Handler Name", dog: "Dog Name", date: "2 November 2026", host: look.host || "Host Club Name", judges: "Judge One, Judge Two" };
   const { bytes } = buildCertPdf([sample], { nudge: look.certNudge, test: true }, "Certificate test page");
-  save(new Blob([bytes], { type: "application/pdf" }), `${state && !state.isExample ? state.baseName + " " : ""}Certificate test page.pdf`);
+  save(new Blob([bytes], { type: "application/pdf" }), state && !state.isExample ? docName("Certificate Test Page", ".pdf") : "Certificate test page.pdf");
 });
 $("certHost").addEventListener("input", e => { look.host = e.target.value; $("host").value = look.host; renderPreview(); });
 document.querySelectorAll("input[name=certName]").forEach(r => r.addEventListener("change", e => { if (e.target.checked) { look.certNameChoice = e.target.value; renderPreview(); } }));
@@ -3850,7 +3854,43 @@ function showStatus(msg, isError) {
 }
 
 /* ---------- The working file: open, resume, save progress ---------- */
-const DOCS_TOOL = { name: "Trial Documents", version: "2.9" };
+/* ---------- File names ----------
+   Every file the tools save is named "<short name> <what> Version 04 (12 Nov)", e.g. "Nov 26 Trial Data Version 04 (12 Nov).xlsx".
+   The short name is chosen by the user (the trial's month by default). Two-digit versions keep files in order in a folder.
+   Keep the same in Payment Split, Email List, Trial Lists and Trial Documents. */
+const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const defaultShortName = (d = new Date()) => `${MONTHS_SHORT[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`;
+/* Characters a file name can't have are taken out; at most 40 characters. */
+const cleanShortName = v => String(v ?? "").replace(/[\\/:*?"<>|\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 40).trim();
+const versionText = n => "Version " + String(Math.max(1, Math.floor(Number(n)) || 1)).padStart(2, "0");
+const dayMonth = (d = new Date()) => `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
+/* fileNameFor("Nov 26", "Trial Data", 4, ".xlsx") → "Nov 26 Trial Data Version 04 (12 Nov).xlsx". No version (0) → no "Version" part. */
+function fileNameFor(short, what, version, ext, d = new Date()) {
+  return [cleanShortName(short) || defaultShortName(d), what, Number(version) > 0 ? versionText(version) : "", `(${dayMonth(d)})`].filter(Boolean).join(" ") + ext;
+}
+/* "Nov 26 Trial Data Version 04 (12 Nov) (1).xlsx" → { short: "Nov 26", what: "Trial Data", version: 4 }, or null if it isn't named
+   that way. whats: the kinds of file to look for. Browsers add " (1)", " (2)" to repeat downloads; those are ignored. */
+function parseFileName(name, whats) {
+  const base = String(name ?? "").replace(/\.[A-Za-z0-9]+$/, "").replace(/(\s*\(\d+\))+$/, "").trim();
+  for (const what of whats) {
+    const m = new RegExp(`^(.+?) ${what} Version (\\d+)(?: \\(\\d{1,2} [A-Za-z]{3}\\))?$`, "i").exec(base);
+    if (m) return { short: cleanShortName(m[1]), what, version: Number(m[2]) };
+  }
+  return null;
+}
+
+/* Files saved before file names had versions: take the name and version from the file's own name if it has them. */
+function ensureNaming(settings, name) {
+  const p = parseFileName(name, ["Trial Data"]);
+  if (!cleanShortName(settings.fileName)) settings.fileName = p ? p.short : defaultShortName();
+  if (!(Number(settings.version) >= 0) || settings.version === null) settings.version = p ? p.version : 0;
+}
+/* Documents are named after the trial spreadsheet they were made from: "Nov 26 Callboards Version 04 (12 Nov).pdf". */
+const shortName = () => (state && state.settings && cleanShortName(state.settings.fileName)) || (state && state.isExample ? "Example" : defaultShortName());
+const docVersion = () => state && state.settings ? Number(state.settings.version) || 0 : 0;
+const docName = (what, ext) => fileNameFor(shortName(), what, docVersion(), ext);
+const docTitle = what => `${shortName()} ${what}`;
+const DOCS_TOOL = { name: "Trial Documents", version: "3.0" };
 const DAMAGE_NOTE = "This file may have been changed by a program other than Excel. Some trial information could be missing or altered. Apple Numbers or Google Sheets are the most common causes.";
 const DOC_WORDS = { catalogue: "running order", callboard: "callboard", timekeeper: "time stewards' sheets", judge: "judges' sheets", scoresheet: "judging sheets", certificate: "certificates" };
 let dirty = false, quiet = false;
@@ -3868,6 +3908,8 @@ function renderSaveBar() {
     ? "Unsaved changes. Save progress to keep them in your trial spreadsheet."
     : state.settings && state.settings.docs ? `All changes saved (${state.settings.docs.savedAt}).` : "Nothing to save yet.";
   $("saveBar").classList.toggle("dirty", !!(real && dirty));
+  if (real && state.settings && document.activeElement !== $("shortName")) $("shortName").value = state.settings.fileName || "";
+  if (real && state.settings) $("saveProgress").title = `Saves as “${fileNameFor(cleanShortName($("shortName").value) || defaultShortName(), "Trial Data", (Number(state.settings.version) || 0) + 1, ".xlsx")}”`;
 }
 // window.mailtoOpening: set for a moment when an email link is clicked (Report a problem), which isn't leaving the page.
 window.addEventListener("beforeunload", e => { if (dirty && state && !state.isExample && !window.mailtoOpening) { e.preventDefault(); e.returnValue = ""; } });
@@ -3933,13 +3975,14 @@ async function openWorkbook(wb, fileName, opts = {}) {
   const settingsWs = wb.getWorksheet(TL.SETTINGS_TAB);
   if (!settingsWs) {
     if (wb.getWorksheet(TL.MASTER)) return showStop("Your saved settings are missing", [{ type: "stop", text: `This file has a ${TL.MASTER} but no ${TL.SETTINGS_TAB} tab. This often happens after editing in Numbers or Google Sheets.`, fix: "Go back to your most recent copy saved from Excel or downloaded from the tools, and make your changes again in Excel." }], { excel: true });
-    return showStop("This file hasn't been through Trial Lists yet", [{ type: "stop", text: "Trial Documents works on the trial spreadsheet made by Trial Lists (the file ending “(in progress)”).", fix: "Drop the entries download into Trial Lists first, download the trial spreadsheet it makes, then drop that file here." }]);
+    return showStop("This file hasn't been through Trial Lists yet", [{ type: "stop", text: "Trial Documents works on the trial spreadsheet made by Trial Lists (the file named like “Nov 26 Trial Data Version 04 (12 Nov)”).", fix: "Drop the entries download into Trial Lists first, download the trial spreadsheet it makes, then drop that file here." }]);
   }
   let settings;
   try { settings = TL.readSettings(sheetRows(settingsWs)); }
   catch (err) { return showStop("Your saved settings can't be used", [splitMsg(err)], { excel: true }); }
   const sourceWs = wb.getWorksheet(settings.sourceTab);
   if (!sourceWs) return showStop("Sheet 1 is missing", [{ type: "stop", text: `The original download (the tab “${settings.sourceTab}”) is missing from this file.`, fix: "Go back to your most recent copy downloaded from the tools. Never delete or rename Sheet 1." }], { excel: true });
+  ensureNaming(settings, fileName);
   const sheet1Now = sheetRows(sourceWs);
   if (TL.rowsFingerprint(sheet1Now) !== settings.sheet1Fingerprint) {
     // Changed: list each cell and offer to put it back from the copy in Tool Settings (files saved before Trial Lists 5.3 have no copy).
@@ -4182,6 +4225,11 @@ async function writeSettingsTab(wb, settings) {
   ws.getColumn(2).width = 90;
   ws.getCell("B8").alignment = { wrapText: true, vertical: "top" };
 }
+$("shortName").addEventListener("input", () => {
+  if (!state || state.isExample || !state.settings) return;
+  state.settings.fileName = cleanShortName($("shortName").value);
+  markDirty();
+});
 $("saveProgress").addEventListener("click", async () => {
   if (!state || !state.wb) return;
   const btn = $("saveProgress"); btn.disabled = true;
@@ -4199,15 +4247,18 @@ $("saveProgress").addEventListener("click", async () => {
     await lockSheet1(wb.getWorksheet(settings.sourceTab));
     const lockThese = [wb.getWorksheet(TL.MASTER), ...state.sheets.map(s => s.ws)].filter(Boolean);
     for (const ws of lockThese) await ws.protect("", {});
+    // Each save is the next version of the trial spreadsheet (Trial Lists numbers its downloads the same way).
+    settings.fileName = cleanShortName($("shortName").value) || cleanShortName(settings.fileName) || defaultShortName();
+    settings.version = (Number(settings.version) || 0) + 1;
     await writeSettingsTab(wb, settings);
     const buf = await wb.xlsx.writeBuffer();
-    const filename = `${state.baseName} (in progress).xlsx`;
+    const filename = fileNameFor(settings.fileName, "Trial Data", settings.version, ".xlsx");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })); a.download = filename; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     dirty = false;
     renderSaveBar();
-    $("saveState").textContent = `Saved as “${filename}”.${firstLock ? " The Master List and trial tabs are now locked. To change entries, use Make a late change in Trial Lists." : ""} Next time, drop this file in.`;
+    $("saveState").textContent = `Saved as “${filename}”.${firstLock ? " The Master List and trial tabs are now locked. To change entries, use Make a late change in Trial Lists." : ""} Next time, drop in this file: always use the highest version number, unless you want to go back to an earlier copy.`;
     $("fileName").textContent = `${state.fileName} · ${state.sheets.length} trial ${state.sheets.length === 1 ? "tab" : "tabs"} · Master List and trial tabs locked`;
   } catch (err) {
     $("saveState").textContent = "Saving didn't work: " + (err.message || err) + ". Try again; if it keeps happening, reload the page and drop the file in again.";
@@ -4233,8 +4284,8 @@ async function handleFile(file) {
   const ext = file.name.split(".").pop().toLowerCase();
   try {
     if (ext === "numbers" || ext === "xls" || ext === "ods") return showStop("This file isn't an Excel spreadsheet", [{ type: "stop", text: "This file isn't an Excel spreadsheet, so the tool can't read it.", fix: "Open it in Excel or Excel for the web and save it as .xlsx. If it came from Numbers, go back to the last copy you saved from Excel or downloaded from the tools." }], { excel: ext === "numbers" });
-    if (ext === "csv") return showStop("This is a CSV file", [{ type: "stop", text: "This is a CSV file. Only the first drop into Trial Lists can be a CSV.", fix: "Drop in your working .xlsx file instead, the one ending “(in progress)”." }]);
-    if (ext !== "xlsx") return showStop("This type of file can't be used", [{ type: "stop", text: `“${file.name}” isn't an Excel (.xlsx) file.`, fix: "Drop in your trial spreadsheet, the one ending “(in progress)”." }]);
+    if (ext === "csv") return showStop("This is a CSV file", [{ type: "stop", text: "This is a CSV file. Only the first drop into Trial Lists can be a CSV.", fix: "Drop in your trial spreadsheet (.xlsx) instead, the one named like “Nov 26 Trial Data Version 04”." }]);
+    if (ext !== "xlsx") return showStop("This type of file can't be used", [{ type: "stop", text: `“${file.name}” isn't an Excel (.xlsx) file.`, fix: "Drop in your trial spreadsheet, the one named like “Nov 26 Trial Data Version 04”." }]);
     if (typeof ExcelJS === "undefined") return showStop("The page didn't finish loading", [{ type: "stop", text: "The spreadsheet library didn't load.", fix: "Check your internet connection and reload the page." }]);
     const wb = new ExcelJS.Workbook();
     await wb.xlsx.load(await file.arrayBuffer());
@@ -4270,26 +4321,26 @@ async function downloadDocument(asPdf) {
     if (isCert(doc)) {
       const { groups, problems } = currentCert();
       if (problems.length || !groups.length) throw new Error("fix the points listed above first.");
-      const { bytes } = buildCertPdf(groups.flatMap(g => g.certs), { nudge: look.certNudge }, `${state.baseName} ${doc.fileSuffix}`);
-      save(new Blob([bytes], { type: "application/pdf" }), `${state.baseName} ${doc.fileSuffix}.pdf`);
+      const { bytes } = buildCertPdf(groups.flatMap(g => g.certs), { nudge: look.certNudge }, docTitle(doc.fileSuffix));
+      save(new Blob([bytes], { type: "application/pdf" }), docName(doc.fileSuffix, ".pdf"));
       recordMade(doc.id, chosen());
       return;
     }
     if (isPdf(doc)) {
       const { sets, problems } = currentScore();
       if (problems.length || !sets.length) throw new Error("fix the points listed above first.");
-      const { bytes } = buildScorePdf(sets, look.paper, `${state.baseName} ${doc.fileSuffix}`);
-      save(new Blob([bytes], { type: "application/pdf" }), `${state.baseName} ${doc.fileSuffix} ${look.paper}.pdf`);
+      const { bytes } = buildScorePdf(sets, look.paper, docTitle(doc.fileSuffix));
+      save(new Blob([bytes], { type: "application/pdf" }), docName(`${doc.fileSuffix} ${look.paper}`, ".pdf"));
       recordMade(doc.id, chosen());
       return;
     }
     if (missingElements(doc).length) throw new Error("choose the element for every search first (listed above).");
     if (asPdf) {
       const tables = printItems().map(it => ({ cls: it.cls, parts: it.parts, sub: it.sub, rows: it.rows, element: it.element }));
-      const name = `${state.baseName} ${doc.fileSuffix}`;
+      const name = docTitle(doc.fileSuffix);
       const { bytes } = buildTablePdf(tables, { titleColour: look.titleColour, headerColour: look.headerColour, eventName: look.eventName, eachOnNewPage: look.eachOnNewPage,
         logo: await logoForPdf(look.logo), title: name }, layoutFor(doc));
-      save(new Blob([bytes], { type: "application/pdf" }), `${name}.pdf`);
+      save(new Blob([bytes], { type: "application/pdf" }), docName(doc.fileSuffix, ".pdf"));
       recordMade(doc.id, chosen());
       return;
     }
@@ -4299,7 +4350,7 @@ async function downloadDocument(asPdf) {
     const zip = new JSZip();
     files.forEach(([path, content]) => zip.file(path, content));
     const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
-    save(blob, `${state.baseName} ${doc.fileSuffix}.docx`);
+    save(blob, docName(doc.fileSuffix, ".docx"));
     recordMade(doc.id, chosen());
   } catch (err) {
     $("actionNote").textContent = "The download didn't work: " + (err.message || err);

@@ -195,6 +195,8 @@ table.btable td.grp { font-size: 13px; color: var(--muted); }
 table.btable td.grp.g1, table.btable td.grp.g2 { color: var(--accent); font-weight: 700; }
 table.btable td.grp.g0 { color: var(--stop); font-weight: 700; }
 table.btable th.tick { text-align: center; }
+.namebox { display: grid; gap: 6px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.namebox .bfield { max-width: 340px; }
 .bsummary { margin: 0; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); font-size: 15px; }
 #order, #order > * { min-width: 0; }
 #orderTab { width: 100%; }
@@ -442,6 +444,11 @@ tr.moved td { background: var(--accent-soft); }
       <ul id="doublesList"></ul>
     </div>
 
+    <div class="namebox" id="nameBox" hidden>
+      <label class="bfield" for="shortName"><span>Start of the file name · e.g. Nov 26, or Nov 26 Taupō</span><input type="text" class="tx" id="shortName" maxlength="40" autocomplete="off" spellcheck="false"></label>
+      <p class="note" id="namePreview"></p>
+    </div>
+
     <div class="actions">
       <button type="button" id="resultBallot" hidden>Ballot a trial…</button>
       <button type="button" id="resultOrder" hidden>Change running order…</button>
@@ -467,7 +474,7 @@ tr.moved td { background: var(--accent-soft); }
   <section class="help">
     <h3>Good to know</h3>
     <ul>
-      <li><b>Your trial spreadsheet</b> is one file you keep adding to. Each download ends in “(in progress)”. Always drop the newest one back in.</li>
+      <li><b>Your trial spreadsheet</b> is one file you keep adding to. Each download is named like <code>Nov 26 Trial Data Version 04 (12 Nov)</code>: the start of the name (the trial's month unless you change it), the version number, which goes up by one with every download, and the date it was saved. <b>Always drop in the highest version number</b>, unless you want to go back to an earlier copy. Every file the tools make for the trial starts with the same name, and documents show the version they were made from.</li>
       <li><b>Sheet 1</b> is the website download, exactly as downloaded. It's locked with a password and has a red tab, with a reminder note in cell A1: you can see and copy it, but not type in it. If it does get changed (for example by another program), the tools list each changed cell and can put Sheet 1 back as downloaded.</li>
       <li><b>Make changes on the Master List:</b> add a late entry as a new row (leave Entry ID blank and put x in its trial columns), type <code>Withdrawn</code> in Status to withdraw an entry from the whole event (the row turns grey and struck through), delete an x to scratch it from one trial, or correct a name. Then drop the file back in here and choose <b>Update trial tabs</b>.</li>
       <li><b>A new handler needs a new Handler Number.</b> If the Handler on the Master List is changed (for example someone else is running the dog) but the Handler Number isn't, or the website notes in Comments say the Handler was edited but not the Handler SSANZ Number, the page asks about it before going on. Type the new handler's SSANZ Handler Number (it's put on the Master List for you, highlighted yellow), or confirm it's the same person and only the spelling of the name was corrected.</li>
@@ -568,7 +575,7 @@ tr.moved td { background: var(--accent-soft); }
 /* =========================================================================
    Trial Lists: the logic (no spreadsheet library needed, so it can be tested on its own)
    ========================================================================= */
-const TOOL = { name: "Trial Lists", version: "5.6" };
+const TOOL = { name: "Trial Lists", version: "5.7" };
 const MASTER = "Master List";
 const SETTINGS_TAB = "Tool Settings";
 const ID_HEAD = "Entry ID", STATUS_HEAD = "Status";
@@ -1301,6 +1308,31 @@ function ballotDecisions(review, choices = {}, max = review.max) {
   return { max: ok ? m : review.max, promote, decline, problems, free, left: free - promote.length };
 }
 
+/* ---------- File names ----------
+   Every file the tools save is named "<short name> <what> Version 04 (12 Nov)", e.g. "Nov 26 Trial Data Version 04 (12 Nov).xlsx".
+   The short name is chosen by the user (the trial's month by default). Two-digit versions keep files in order in a folder.
+   Keep the same in Payment Split, Email List, Trial Lists and Trial Documents. */
+const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const defaultShortName = (d = new Date()) => `${MONTHS_SHORT[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`;
+/* Characters a file name can't have are taken out; at most 40 characters. */
+const cleanShortName = v => String(v ?? "").replace(/[\\/:*?"<>|\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 40).trim();
+const versionText = n => "Version " + String(Math.max(1, Math.floor(Number(n)) || 1)).padStart(2, "0");
+const dayMonth = (d = new Date()) => `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
+/* fileNameFor("Nov 26", "Trial Data", 4, ".xlsx") → "Nov 26 Trial Data Version 04 (12 Nov).xlsx". No version (0) → no "Version" part. */
+function fileNameFor(short, what, version, ext, d = new Date()) {
+  return [cleanShortName(short) || defaultShortName(d), what, Number(version) > 0 ? versionText(version) : "", `(${dayMonth(d)})`].filter(Boolean).join(" ") + ext;
+}
+/* "Nov 26 Trial Data Version 04 (12 Nov) (1).xlsx" → { short: "Nov 26", what: "Trial Data", version: 4 }, or null if it isn't named
+   that way. whats: the kinds of file to look for. Browsers add " (1)", " (2)" to repeat downloads; those are ignored. */
+function parseFileName(name, whats) {
+  const base = String(name ?? "").replace(/\.[A-Za-z0-9]+$/, "").replace(/(\s*\(\d+\))+$/, "").trim();
+  for (const what of whats) {
+    const m = new RegExp(`^(.+?) ${what} Version (\\d+)(?: \\(\\d{1,2} [A-Za-z]{3}\\))?$`, "i").exec(base);
+    if (m) return { short: cleanShortName(m[1]), what, version: Number(m[2]) };
+  }
+  return null;
+}
+
 /* ---------- Tool Settings ---------- */
 /* settings object → rows for the Tool Settings tab: readable rows for people, then the data cells and check value. */
 function settingsRows(s) {
@@ -1346,6 +1378,7 @@ if (typeof module !== "undefined") {
   module.exports = { TOOL, MASTER, SETTINGS_TAB, TRIAL_HEADERS, VALUE_FIELDS, SHEET1_PASSWORD, SHEET1_NOTE, SHEET1_TAB_COLOUR, phoneNumber, reactivity, shuffle, fingerprint, rowsFingerprint, entryId, columns, looksLikeEntries,
     buildMaster, readMaster, startTabs, doubles, readTrialTab, planUpdate, summaryLines, settingsRows, readSettings, stamp, who, snapshot, audit, applyAnswers,
     copyMatches, sheet1Changes, changeText, sheet1Problem, cellRef, handlerChecks, handlerNoProblem, handlerOpen, applyHandlerAnswers, handlerKey,
+    defaultShortName, cleanShortName, versionText, fileNameFor, parseFileName,
     BALLOT_RULES, STEWARD_DEFINITION, isBallotTab, waitlistTab, ballotTab, notEntered, onWaitlist, ballotClass, mulberry32, newSeed, ballotPlan, ballotRecord, ballotReview, ballotDecisions, groupLabel, moveRows };
 }
 
@@ -1630,6 +1663,24 @@ async function writeSettings(wb, settings) {
   await lockSheet1(wb.getWorksheet(settings.sourceTab));
 }
 const step = what => ({ tool: TOOL.name, version: TOOL.version, what, at: stamp() });
+/* Files saved before file names had versions: take the name and version from the file's own name if it has them. */
+function ensureNaming(settings, name) {
+  const p = parseFileName(name, ["Trial Data"]);
+  if (!cleanShortName(settings.fileName)) settings.fileName = p ? p.short : defaultShortName();
+  if (!(Number(settings.version) >= 0) || settings.version === null) settings.version = p ? p.version : 0;
+}
+/* The file-name box beside Download. */
+function renderNameBox(show) {
+  $("nameBox").hidden = !show;
+  if (!show) return;
+  if (document.activeElement !== $("shortName")) $("shortName").value = current.settings.fileName || "";
+  renderNamePreview();
+}
+function renderNamePreview() {
+  const s = current.settings, short = cleanShortName($("shortName").value) || defaultShortName();
+  $("namePreview").textContent = `Downloads as “${fileNameFor(short, "Trial Data", (Number(s.version) || 0) + 1, ".xlsx")}”. Every file the tools make for this trial starts with this name` +
+    (Number(s.version) ? "." : ". Change it if you like, for example to the month of the trial or to tell two trials in one month apart.");
+}
 
 /* ---------- Handler checks on the page ----------
    One card per entry whose Handler changed without its Handler Number. answers is changed in place;
@@ -1746,7 +1797,7 @@ async function start(wb, sourceWs, rows, baseName, fileLabel, notes = [], handle
   tabs.forEach(t => writeTrialRows(newTrialTab(wb, t.name), t.rows));
   const settings = {
     app: "SSANZ trial tools", schema: 1, trialName: baseName, downloadName: fileLabel, sourceTab: sourceWs.name,
-    sheet1Fingerprint: rowsFingerprint(rows), sheet1: sheet1Copy(sourceWs), locked: false,
+    sheet1Fingerprint: rowsFingerprint(rows), sheet1: sheet1Copy(sourceWs), locked: false, fileName: defaultShortName(), version: 0,
     steps: [step(`Started: Master List and ${tabs.length} trial tabs made`)],
     tabs: Object.fromEntries(tabs.map(t => [t.name, { trial: t.trial, madeBy: TOOL.name, changed: stamp() }])),
     snap: snapshot(read.entries, tabs),
@@ -1779,6 +1830,7 @@ async function resume(wb, baseName, fileLabel, opts = {}) {
   catch (err) { return showStop("Your saved settings can't be used", [splitMsg(err)], { excel: true }); }
   const sourceWs = wb.getWorksheet(settings.sourceTab);
   if (!sourceWs) return showStop("Sheet 1 is missing", [{ type: "stop", text: `The original download (the tab “${settings.sourceTab}”) is missing from this file.`, fix: "Go back to your most recent copy downloaded from this tool. Never delete or rename Sheet 1." }], { excel: true });
+  ensureNaming(settings, fileLabel);
   const sheet1Now = sheetRows(sourceWs);
   if (rowsFingerprint(sheet1Now) !== settings.sheet1Fingerprint) {
     // Changed: list each cell and offer to put it back from the copy in Tool Settings (files saved before 5.3 have no copy).
@@ -2564,7 +2616,9 @@ function renderResult(o) {
   $("download").disabled = !!o.example;
   $("resultBallot").hidden = !!o.example || !current || !current.wb || !!current.unlockedOnly;
   $("resultOrder").hidden = $("resultBallot").hidden;
+  renderNameBox(!o.example && !!current && !!current.settings);
 }
+$("shortName").addEventListener("input", () => { if (current && current.settings) { current.settings.fileName = cleanShortName($("shortName").value); renderNamePreview(); } });
 
 /* ---------- Dropping a file ---------- */
 function chooseTab(matches) {
@@ -2612,7 +2666,7 @@ async function handleFile(file) {
       const text = await file.text();
       const rows = Papa.parse(text.replace(/^﻿/, ""), { skipEmptyLines: false }).data;
       while (rows.length && rows[rows.length - 1].every(isBlank)) rows.pop();
-      if (!looksLikeEntries(rows)) return showStop("This doesn't look like an entries download", [{ type: "stop", text: "Couldn't find Handler, Dog Pet Name and trial columns (like NWAdv1) in the first row.", fix: "Check this is the trial entries download from the website. If you already have a trial spreadsheet, drop in that .xlsx file instead (the one ending “(in progress)”)." }]);
+      if (!looksLikeEntries(rows)) return showStop("This doesn't look like an entries download", [{ type: "stop", text: "Couldn't find Handler, Dog Pet Name and trial columns (like NWAdv1) in the first row.", fix: "Check this is the trial entries download from the website. If you already have a trial spreadsheet, drop in that .xlsx file instead (the one named like “Nov 26 Trial Data Version 04”)." }]);
       const wb = new ExcelJS.Workbook();
       const src = wb.addWorksheet("Entries");
       rows.forEach((r, i) => src.addRow(i === 0 ? r : r.map(csvValue)));
@@ -2644,17 +2698,23 @@ drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) h
 drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("file").click(); } });
 
 $("download").addEventListener("click", async () => {
-  if (!current || !current.wb) return;
+  if (!current || !current.wb || !current.settings) return;
   const btn = $("download");
   btn.disabled = true;
   try {
+    // Each download is the next version: the number and name are saved in Tool Settings, so the next tool carries on from them.
+    const s = current.settings;
+    s.fileName = cleanShortName($("shortName").value) || cleanShortName(s.fileName) || defaultShortName();
+    s.version = (Number(s.version) || 0) + 1;
+    await writeSettings(current.wb, s);
     const buf = await current.wb.xlsx.writeBuffer();
     const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    const filename = current.baseName + " (in progress).xlsx";
+    const filename = fileNameFor(s.fileName, "Trial Data", s.version, ".xlsx");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob); a.download = filename; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-    $("actionNote").textContent = "Saved as “" + filename + "”. Next time, drop this file in (not an older copy).";
+    renderNameBox(true);
+    $("actionNote").textContent = `Saved as “${filename}”. Next time, drop in this file: always use the highest version number, unless you want to go back to an earlier copy.`;
   } catch (err) {
     $("actionNote").textContent = "The download didn't work: " + (err.message || err) + ". Try again; if it keeps happening, reload the page and drop the file in again.";
   } finally { btn.disabled = false; }

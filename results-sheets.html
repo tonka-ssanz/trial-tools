@@ -198,7 +198,7 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 
   <label class="drop" id="drop" for="file" tabindex="0">
     <strong>Drop your files here</strong>
-    <span>or click to choose. You need two: your trial spreadsheet (the file ending “(in progress)”, after Save progress in Trial Documents) and the SSANZ results files zip for the sport (Nosework or Buried Hides), downloaded with the links below. Drop them together or one at a time.</span>
+    <span>or click to choose. You need two: your trial spreadsheet (the latest “Trial Data Version” file, after Save progress in Trial Documents) and the SSANZ results files zip for the sport (Nosework or Buried Hides), downloaded with the links below. Drop them together or one at a time.</span>
     <input type="file" id="file" multiple accept=".xlsx,.zip,.gz,.gzip,.tgz,.tar,application/zip,application/gzip,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
   </label>
 
@@ -715,7 +715,7 @@ function readTrial(wb) {
   if (!st) {
     if (wb.sheets.some(s => /org\.\s*name/i.test(String((s.rows[5] || [])[5] ?? "")) || s.rows.some(r => (r || []).some(v => norm(v) === SHEET_LABELS.org))))
       throw new Error("This is a results sheet, not a trial spreadsheet.|It's been added as the results sheet for its level. Now drop your trial spreadsheet too.");
-    throw new Error("This file hasn't been through Trial Lists and Trial Documents yet.|Drop the trial spreadsheet: the file ending “(in progress)” that downloads when you choose Save progress in Trial Documents.");
+    throw new Error("This file hasn't been through Trial Lists and Trial Documents yet.|Drop the trial spreadsheet: the latest “Trial Data Version” file, which downloads when you choose Save progress in Trial Documents.");
   }
   const settings = readSettings(st.rows);
   const docs = settings.docs;
