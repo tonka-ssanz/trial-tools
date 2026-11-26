@@ -21,8 +21,9 @@ Steps 1 and 2 can be used at any time on an entries download. Steps 3 to 5 work 
 
 ## How it works
 
-- **Static pages only.** Each page is a single HTML file with its styles and script inline. There is no server code, database, build step on the server, login, cookies, browser storage or analytics.
+- **Static pages only.** Each page is a single HTML file with its styles and script inline. There is no server code, database, build step on the server, login, cookies or analytics, and no browser storage apart from the brief hand-over below.
 - **All processing happens in the visitor's browser.** Files are read with the File API and results are downloaded as files the page creates (`blob:` links). No data leaves the computer, so the pages never see or keep anyone's entries.
+- **Continuing to the next step without re-dropping the file.** Trial Lists ("Download and continue to Trial Documents"), Trial Documents ("Save and continue to Results Sheets", "Save and open in Trial Lists for late changes") and the Trial Documents stops that point to Trial Lists download the spreadsheet as usual, then replace the page with the next step in the same tab. While the page switches, the .xlsx waits in that tab's `sessionStorage` (one key, `ssanzTrialToolsHandover`); the next page reads it and deletes it straight away and opens it as if it had been dropped in. A left-over copy older than 5 minutes is deleted unread the next time any of these pages opens in the tab, and sessionStorage is cleared when the tab closes. If storage fails (too big, or blocked), the next page opens and asks for the file that just downloaded. The code is the `HANDOVER` block, kept identical in the three pages.
 - **Saving progress lives in the user's own spreadsheet**, not on a server. Trial Lists adds a "Tool Settings" tab holding the tools' settings as JSON (with a check value, so edits made outside the tools are noticed). Later tools read it back, so users can stop between steps and carry on later.
 - **Libraries** are loaded from cdnjs, pinned to these versions:
   - ExcelJS 4.4.0 (reading and writing .xlsx): Payment Split, Email List, Trial Lists, Trial Documents
@@ -87,7 +88,7 @@ python3 build/build-toolkit.py strip . src     # the reverse: recover src/ from 
 
 ## Data and privacy
 
-The entries download contains personal details (names, email addresses, dog details and payment status). The tools are designed so that this never leaves the user's computer: no upload, no server, no storage in the browser. Users are told to keep the trial spreadsheet for at least 12 months, stored securely and not on a shared computer.
+The entries download contains personal details (names, email addresses, dog details and payment status). The tools are designed so that this never leaves the user's computer: no upload, no server, and nothing kept in the browser (the hand-over between steps holds the file in the tab only while the page switches). Users are told to keep the trial spreadsheet for at least 12 months, stored securely and not on a shared computer.
 
 The example data shown on each page before a file is dropped is made up.
 

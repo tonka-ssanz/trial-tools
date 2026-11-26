@@ -514,7 +514,7 @@ td.also span { display: block; font-family: var(--font-mono); white-space: nowra
     </div>
 
     <div class="namebox" id="nameBox" hidden>
-      <label class="bfield" for="shortName"><span>Start of the file name · e.g. Nov 26, or Nov 26 Taupō</span><input type="text" class="tx" id="shortName" maxlength="40" autocomplete="off" spellcheck="false"></label>
+      <label class="bfield" for="shortName" id="shortNameField"><span>Start of the file name · e.g. Nov 26, or Nov 26 Taupō</span><input type="text" class="tx" id="shortName" maxlength="40" autocomplete="off" spellcheck="false"></label>
       <p class="note" id="namePreview"></p>
     </div>
 
@@ -522,7 +522,8 @@ td.also span { display: block; font-family: var(--font-mono); white-space: nowra
       <button type="button" id="resultBallot" hidden>Ballot a trial…</button>
       <button type="button" id="resultOrder" hidden>Change running order…</button>
       <button type="button" id="resultChanges" hidden>Make changes…</button>
-      <button class="primary" id="download" type="button" disabled>Download trial spreadsheet</button>
+      <button id="download" type="button" disabled>Download trial spreadsheet</button>
+      <button class="primary" id="continueDocs" type="button" disabled hidden>Download and continue to Trial Documents →</button>
     </div>
     <p class="note" id="actionNote">Drop a file to enable the download.</p>
 
@@ -544,7 +545,8 @@ td.also span { display: block; font-family: var(--font-mono); white-space: nowra
   <section class="help">
     <h3>Good to know</h3>
     <ul>
-      <li><b>Your trial spreadsheet</b> is one file you keep adding to. Each download is named like <code>Nov 26 Trial Data Version 04 (12 Nov)</code>: the start of the name (the trial's month unless you change it), the version number, which goes up by one with every download, and the date it was saved. <b>Always drop in the highest version number</b>, unless you want to go back to an earlier copy. Every file the tools make for the trial starts with the same name, and documents show the version they were made from.</li>
+      <li><b>Download and continue to Trial Documents</b> downloads your trial spreadsheet as usual (keep it: it's your saved copy), then opens Trial Documents in this tab with the file already in, so you don't drop it in again. Only the downloaded copy is kept: if you close the tab or the browser, drop in the highest version from your downloads next time.</li>
+      <li><b>Your trial spreadsheet</b> is one file you keep adding to. Each download is named like <code>Nov 26 Trial Data Version 04 (12 Nov)</code>: the start of the name (the trial's month unless you change it before the first download; it's set once and carries forward to every tool), the version number, which goes up by one with every download, and the date it was saved. <b>Always drop in the highest version number</b>, unless you want to go back to an earlier copy. Every file the tools make for the trial starts with the same name, and documents show the version they were made from.</li>
       <li><b>Sheet 1</b> is the website download, exactly as downloaded. It's locked with a password and has a red tab, with a reminder note in cell A1: you can see and copy it, but not type in it. If it does get changed (for example by another program), the tools list each changed cell and can put Sheet 1 back as downloaded.</li>
       <li><b>Make changes</b> (the button appears after you drop your trial spreadsheet in here) is the easy way to change entries. Find an entry by handler, dog or Entry ID, then correct its details, tick or untick trials to scratch it, enter it in another trial or move it, or tick <b>Withdrawn from the whole event</b>. <b>Add a late entry</b> opens a blank form (Handler Number and Dog No are needed). If you change a handler's or dog's name, you're asked to type the new Handler Number or Dog No, or to tick that it's the same person or dog with the spelling corrected. Choose <b>Save changes</b>: the changes go on the Master List, highlighted yellow, then choose <b>Update trial tabs</b> and download. Someone left in no trial is marked Withdrawn.</li>
       <li><b>You can still edit the Master List in Excel</b> if you prefer, for example to add payment notes: add a late entry as a new row (leave Entry ID blank and put x in its trial columns), type <code>Withdrawn</code> in Status, delete an x to scratch a dog from one trial, or correct a name. Then drop the file back in here and choose <b>Update trial tabs</b>.</li>
@@ -643,6 +645,81 @@ td.also span { display: block; font-family: var(--font-mono); white-space: nowra
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
+/* ---------- Hand-over between steps: Trial Lists ⇄ Trial Documents → Results Sheets ----------
+   Keep this block identical in trial-lists, trial-documents and results-sheets.
+   "Continue" downloads the spreadsheet as usual (the backup to keep), then opens the next step in the
+   same browser tab. A page can't keep anything in memory when it's replaced, so the spreadsheet waits
+   in this tab's sessionStorage for the moment of the switch. The next page reads it and deletes it at
+   once. It's never sent anywhere and other tabs can't see it. Anything left over (for example if the
+   next page didn't load) is deleted when the tab is closed, or when one of these tools next opens in it. */
+const HANDOVER = (() => {
+  const KEY = "ssanzTrialToolsHandover", MAX_AGE_MS = 5 * 60 * 1000;
+  const PAGES = { lists: ["trial-lists.html", "Trial Lists"], documents: ["trial-documents.html", "Trial Documents"], results: ["results-sheets.html", "Results Sheets"] };
+  const XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  const toB64 = buf => {
+    const u = new Uint8Array(buf); let s = "";
+    for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
+    return btoa(s);
+  };
+  const fromB64 = b64 => { const s = atob(b64), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; };
+  const store = () => { try { return window.sessionStorage; } catch (e) { return null; } };
+  const clear = () => { const st = store(); try { if (st) st.removeItem(KEY); } catch (e) { /* nothing to clear */ } };
+  // Throw away anything left over and too old, before doing anything else.
+  (() => { const st = store(); if (!st) return; try { const o = JSON.parse(st.getItem(KEY) || "null"); if (o && !(Date.now() - o.at < MAX_AGE_MS)) clear(); } catch (e) { clear(); } })();
+
+  /* Hand the spreadsheet to another step and replace this page with it.
+     buf: the .xlsx bytes; name: its file name; to: "lists" | "documents" | "results";
+     downloaded: true when the same file has just been downloaded (the wait lets the download start first). */
+  function send(buf, name, to, from, downloaded) {
+    const page = PAGES[to]; if (!page) return;
+    const st = store();
+    let ok = false;
+    if (st) {
+      try { st.setItem(KEY, JSON.stringify({ at: Date.now(), name, from, downloaded: !!downloaded, b64: toB64(buf) })); ok = true; }
+      catch (e) { ok = false; }
+    }
+    // Too big, or the browser blocks storage: open the next step anyway and say which file to drop in.
+    if (!ok && st) { try { st.setItem(KEY, JSON.stringify({ at: Date.now(), name, from, downloaded: !!downloaded, failed: true })); } catch (e) { /* nothing more to do */ } }
+    setTimeout(() => { window.location.href = page[0]; }, downloaded ? 1200 : 0);
+  }
+
+  /* On arrival: returns { file, from, downloaded } (file is null if the hand-over didn't work), or null if nothing was handed over. */
+  function take() {
+    const st = store(); if (!st) return null;
+    let o = null;
+    try { o = JSON.parse(st.getItem(KEY) || "null"); } catch (e) { o = null; }
+    clear();
+    if (!o || !(Date.now() - o.at < MAX_AGE_MS)) return null;
+    let file = null;
+    if (!o.failed && o.b64) { try { file = new File([fromB64(o.b64)], o.name, { type: XLSX }); } catch (e) { file = null; } }
+    return { file, name: o.name, from: o.from, downloaded: o.downloaded };
+  }
+
+  /* A note under the drop zone saying where the file came from. extra: a sentence to add, e.g. what to do next. */
+  function note(h, extra) {
+    const drop = document.getElementById("drop"); if (!drop) return;
+    const old = document.getElementById("handoverNote"); if (old) old.remove();
+    const p = document.createElement("p");
+    p.id = "handoverNote"; p.setAttribute("role", "status");
+    p.style.cssText = "margin:0;padding:10px 14px;border-radius:10px;border-left:4px solid var(--accent,#2f6b4f);background:var(--accent-soft,#e3efe8);color:var(--ink,#1d2420);font-size:15px;";
+    const fromName = (PAGES[h.from] || [, "the last step"])[1];
+    if (h.file) {
+      const b = document.createElement("b"); b.textContent = `“${h.name}”`;
+      p.append(`Carried over from ${fromName}: `, b, ". " + (h.downloaded
+        ? "A copy was also downloaded as your backup: keep it, and drop it in here if you come back later."
+        : "You don't need to drop it in.") + (extra ? " " + extra : ""));
+    } else {
+      const b = document.createElement("b"); b.textContent = `“${h.name}”`;
+      p.append(`The file couldn't be carried over from ${fromName}. Drop in `, b, h.downloaded ? " from your downloads folder (it has just downloaded)." : ".");
+    }
+    drop.insertAdjacentElement("afterend", p);
+    // Gone as soon as another file is dropped or chosen.
+    const rm = () => p.remove(), input = document.getElementById("file");
+    drop.addEventListener("drop", rm, { once: true });
+    if (input) input.addEventListener("change", rm, { once: true });
+  }
+  return { send, take, note, PAGES };
+})();
 /* Make a file re-saved by the spreadsheet library open cleanly in Excel. The website's entries download has no
    theme and no default row height; re-saved as they are, Excel says it "found a problem with some content" and
    repairs the file. Keep the same in every tool that saves a spreadsheet. */
@@ -1791,16 +1868,21 @@ function ensureNaming(settings, name) {
   if (!(Number(settings.version) >= 0) || settings.version === null) settings.version = p ? p.version : 0;
 }
 /* The file-name box beside Download. */
+// The start of the file names is chosen once, before the trial spreadsheet is first downloaded. After that it's
+// saved in Tool Settings and every tool uses it, so it's shown but can't be changed.
+const nameIsSet = () => Number(current.settings.version) > 0;
 function renderNameBox(show) {
   $("nameBox").hidden = !show;
   if (!show) return;
+  $("shortNameField").hidden = nameIsSet();
   if (document.activeElement !== $("shortName")) $("shortName").value = current.settings.fileName || "";
   renderNamePreview();
 }
 function renderNamePreview() {
-  const s = current.settings, short = cleanShortName($("shortName").value) || defaultShortName();
-  $("namePreview").textContent = `Downloads as “${fileNameFor(short, "Trial Data", (Number(s.version) || 0) + 1, ".xlsx")}”. Every file the tools make for this trial starts with this name` +
-    (Number(s.version) ? "." : ". Change it if you like, for example to the month of the trial or to tell two trials in one month apart.");
+  const s = current.settings, short = nameIsSet() ? (cleanShortName(s.fileName) || defaultShortName()) : (cleanShortName($("shortName").value) || defaultShortName());
+  $("namePreview").textContent = `Downloads as “${fileNameFor(short, "Trial Data", (Number(s.version) || 0) + 1, ".xlsx")}”. ` + (nameIsSet()
+    ? `Every file the tools make for this trial starts with “${short}”, as chosen when this trial spreadsheet was first made.`
+    : "Every file the tools make for this trial will start with this name. Change it now if you like, for example to the month of the trial or to tell two trials in one month apart: it's set once, when you first download.");
 }
 
 /* ---------- Handler checks on the page ----------
@@ -3161,12 +3243,14 @@ function renderResult(o) {
   });
   $("doubles").hidden = !dbl.length;
   $("download").disabled = !!o.example;
+  $("continueDocs").disabled = !!o.example;
+  $("continueDocs").hidden = !!o.example;
   $("resultBallot").hidden = !!o.example || !current || !current.wb || !!current.unlockedOnly;
   $("resultOrder").hidden = $("resultBallot").hidden;
   $("resultChanges").hidden = $("resultBallot").hidden;
   renderNameBox(!o.example && !!current && !!current.settings);
 }
-$("shortName").addEventListener("input", () => { if (current && current.settings) { current.settings.fileName = cleanShortName($("shortName").value); renderNamePreview(); } });
+$("shortName").addEventListener("input", () => { if (current && current.settings && !nameIsSet()) { current.settings.fileName = cleanShortName($("shortName").value); renderNamePreview(); } });
 
 /* ---------- Dropping a file ---------- */
 function chooseTab(matches) {
@@ -3245,14 +3329,14 @@ const drop = $("drop");
 drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
 drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("file").click(); } });
 
-$("download").addEventListener("click", async () => {
-  if (!current || !current.wb || !current.settings) return;
-  const btn = $("download");
-  btn.disabled = true;
+// Download the trial spreadsheet as the next version. Returns { buf, filename }, or null if it didn't work.
+async function downloadSpreadsheet() {
+  if (!current || !current.wb || !current.settings) return null;
   try {
     // Each download is the next version: the number and name are saved in Tool Settings, so the next tool carries on from them.
     const s = current.settings;
-    s.fileName = cleanShortName($("shortName").value) || cleanShortName(s.fileName) || defaultShortName();
+    if (!(Number(s.version) > 0)) s.fileName = cleanShortName($("shortName").value) || cleanShortName(s.fileName) || defaultShortName();
+    else s.fileName = cleanShortName(s.fileName) || defaultShortName();
     s.version = (Number(s.version) || 0) + 1;
     await writeSettings(current.wb, s);
     const buf = await excelSafe(current.wb).xlsx.writeBuffer();
@@ -3263,9 +3347,25 @@ $("download").addEventListener("click", async () => {
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     renderNameBox(true);
     $("actionNote").textContent = `Saved as “${filename}”. Next time, drop in this file: always use the highest version number, unless you want to go back to an earlier copy.`;
+    return { buf, filename };
   } catch (err) {
     $("actionNote").textContent = "The download didn't work: " + (err.message || err) + ". Try again; if it keeps happening, reload the page and drop the file in again.";
-  } finally { btn.disabled = false; }
+    return null;
+  }
+}
+$("download").addEventListener("click", async () => {
+  const btn = $("download");
+  btn.disabled = true;
+  try { await downloadSpreadsheet(); } finally { btn.disabled = false; }
+});
+// Continue: the same download (the backup to keep), then Trial Documents opens in this tab with the file already in.
+$("continueDocs").addEventListener("click", async () => {
+  const btn = $("continueDocs");
+  btn.disabled = true; $("download").disabled = true;
+  const done = await downloadSpreadsheet();
+  if (!done) { btn.disabled = false; $("download").disabled = false; return; }
+  $("actionNote").textContent = `Saved as “${done.filename}”. Opening Trial Documents…`;
+  HANDOVER.send(done.buf, done.filename, "documents", "lists", true);
 });
 
 /* Example: made-up entries only. */
@@ -3283,6 +3383,8 @@ $("download").addEventListener("click", async () => {
     stats: [read.entries.length, tabs.length, read.entries.filter(e => e.values[5].includes("D")).length, read.entries.filter(e => e.values[5].includes("H")).length],
     labels: ["dogs marked D", "dogs marked H"] });
 })();
+/* Arrived from Trial Documents with the file: open it as if it had been dropped in. */
+(() => { const h = HANDOVER.take(); if (!h) return; HANDOVER.note(h); if (h.file) handleFile(h.file); })();
 }
 
 </script>

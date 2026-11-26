@@ -221,11 +221,10 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
 .excelhelp p { margin: 0; }
 .excelhelp ol { margin: 0; padding-left: 22px; display: grid; gap: 3px; }
 .savebar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); position: sticky; top: 8px; z-index: 5; }
-.savename { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--muted); margin-left: auto; }
-.savename input[type=text] { font-size: 14px; width: 11em; padding: 5px 8px; }
 .savebar.dirty { border-color: var(--warn); background: var(--warn-soft); }
 .savebar p { margin: 0; font-size: 14px; color: var(--muted); }
 .savebar.dirty p { color: var(--warn); font-weight: 700; }
+.savebtns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .resumebar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 15px; }
 .resumebar p { margin: 0; }
 .colours { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px 12px; }
@@ -276,8 +275,11 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
 
     <div class="savebar" id="saveBar" hidden>
       <p id="saveState"></p>
-      <label class="savename" for="shortName" title="Every file the tools make for this trial starts with this, e.g. Nov 26 or Nov 26 Taupō"><span>File names start</span><input type="text" id="shortName" maxlength="40" autocomplete="off" spellcheck="false"></label>
-      <button class="primary small" type="button" id="saveProgress" disabled>Save progress</button>
+      <div class="savebtns">
+        <button class="small" type="button" id="toLists" disabled title="Saves progress, then opens Trial Lists with this file, for late entries, withdrawals and other changes">Save and open in Trial Lists for late changes</button>
+        <button class="small" type="button" id="saveProgress" disabled>Save progress</button>
+        <button class="primary small" type="button" id="continueResults" disabled title="Saves progress (the spreadsheet downloads as your backup), then opens Results Sheets with this file">Save and continue to Results Sheets →</button>
+      </div>
     </div>
     <div class="resumebar" id="resumeBar" hidden>
       <p id="resumedText"></p>
@@ -419,6 +421,7 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
   <section class="help">
     <h3>Good to know</h3>
     <ul>
+      <li><b>Save and continue to Results Sheets</b> saves progress (your trial spreadsheet downloads as usual: keep it), then opens Results Sheets in this tab with the file already in. <b>Save and open in Trial Lists for late changes</b> does the same for late entries, withdrawals and other changes. Anything not saved is lost if the tab or browser closes, so choose Save progress before you take a break.</li>
       <li><b>Before any download</b> the page checks that every ticked class has its date, venue (location) and a judge for every search. If any are blank it lists them, so you can fill them in first or download anyway.</li>
       <li><b>Row order</b> is never changed. Each table lists the dogs exactly as they appear on the tab. The only exceptions are the certificate list and the certificates, which are in alphabetical order of handler.</li>
       <li><b>Which sheet is which:</b> callboards, time stewards' and judges' sheets each have their name in bold at the top centre of every page (CALLBOARD, TIME STEWARD SHEET, JUDGE’S SHEET), between the logo and the event name, so the piles can't get mixed up. On the time stewards' and judges' sheets the big heading is the level and element (e.g. “Advanced 1 – Interior”), with the day, date and session underneath in smaller print and the judge on the right. Each judge's sheet ends with a thank-you note asking the judge to do their debrief video and pack up, then head back to the results room to sign certificates.</li>
@@ -446,7 +449,7 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
       <li><b>Sheet 1</b> (the original download) is always locked with a password, has a red tab and a reminder note in cell A1. If it has been changed anyway, the page lists each changed cell and offers <b>Put Sheet 1 back</b>.</li>
       <li><b>Balloted trials:</b> the Waitlist and Ballot tabs that Trial Lists makes are never used here, so waitlisted dogs aren't on any running order, callboard, sheet or certificate. If a waitlisted dog is given a place later, Trial Lists adds them to the trial tab and this page lists the classes to reprint.</li>
       <li><b>Your own copies</b> of a trial tab (e.g. “NWAdv1 Sat plan”) can be ticked like any other class. They use the same class settings as the trial they came from.</li>
-      <li><b>File names:</b> Save progress downloads your trial spreadsheet as the next version, e.g. <code>Nov 26 Trial Data Version 05 (12 Nov)</code>. <b>Always drop in the highest version number</b>, unless you want to go back to an earlier copy. Documents are named the same way and show the version of the trial spreadsheet they were made from, e.g. <code>Nov 26 Callboards Version 04 (12 Nov)</code>, so you can tell which printouts are out of date. To change the start of the names, use “File names start” next to Save progress.</li>
+      <li><b>File names:</b> Save progress downloads your trial spreadsheet as the next version, e.g. <code>Nov 26 Trial Data Version 05 (12 Nov)</code>. <b>Always drop in the highest version number</b>, unless you want to go back to an earlier copy. Documents are named the same way and show the version of the trial spreadsheet they were made from, e.g. <code>Nov 26 Callboards Version 04 (12 Nov)</code>, so you can tell which printouts are out of date. The start of the names is set once in Trial Lists, when the trial spreadsheet is first made, and carries forward from there.</li>
       <li><b>Edit your trial spreadsheet in Excel</b> or free Excel for the web (excel.cloud.microsoft). After editing in Excel for the web, use File → Save As → Download a copy. Keep the file for at least 12 months, stored securely and not on a shared computer.</li>
       <li><b>No Microsoft Word?</b> Running orders, callboards, time stewards' and judges' sheets also download as a PDF, laid out the same and ready to print. A PDF can't be edited, so change anything on this page and download again. Google Docs can open the downloaded .docx too (File → Open → Upload).</li>
       <li><b>Print single-sided:</b> callboards, time stewards' and judges' sheets are each used on their own on the day, so nothing should be on the back.</li>
@@ -469,6 +472,81 @@ dialog.missing label { display: flex; gap: 8px; align-items: center; font-size: 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
+/* ---------- Hand-over between steps: Trial Lists ⇄ Trial Documents → Results Sheets ----------
+   Keep this block identical in trial-lists, trial-documents and results-sheets.
+   "Continue" downloads the spreadsheet as usual (the backup to keep), then opens the next step in the
+   same browser tab. A page can't keep anything in memory when it's replaced, so the spreadsheet waits
+   in this tab's sessionStorage for the moment of the switch. The next page reads it and deletes it at
+   once. It's never sent anywhere and other tabs can't see it. Anything left over (for example if the
+   next page didn't load) is deleted when the tab is closed, or when one of these tools next opens in it. */
+const HANDOVER = (() => {
+  const KEY = "ssanzTrialToolsHandover", MAX_AGE_MS = 5 * 60 * 1000;
+  const PAGES = { lists: ["trial-lists.html", "Trial Lists"], documents: ["trial-documents.html", "Trial Documents"], results: ["results-sheets.html", "Results Sheets"] };
+  const XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  const toB64 = buf => {
+    const u = new Uint8Array(buf); let s = "";
+    for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
+    return btoa(s);
+  };
+  const fromB64 = b64 => { const s = atob(b64), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; };
+  const store = () => { try { return window.sessionStorage; } catch (e) { return null; } };
+  const clear = () => { const st = store(); try { if (st) st.removeItem(KEY); } catch (e) { /* nothing to clear */ } };
+  // Throw away anything left over and too old, before doing anything else.
+  (() => { const st = store(); if (!st) return; try { const o = JSON.parse(st.getItem(KEY) || "null"); if (o && !(Date.now() - o.at < MAX_AGE_MS)) clear(); } catch (e) { clear(); } })();
+
+  /* Hand the spreadsheet to another step and replace this page with it.
+     buf: the .xlsx bytes; name: its file name; to: "lists" | "documents" | "results";
+     downloaded: true when the same file has just been downloaded (the wait lets the download start first). */
+  function send(buf, name, to, from, downloaded) {
+    const page = PAGES[to]; if (!page) return;
+    const st = store();
+    let ok = false;
+    if (st) {
+      try { st.setItem(KEY, JSON.stringify({ at: Date.now(), name, from, downloaded: !!downloaded, b64: toB64(buf) })); ok = true; }
+      catch (e) { ok = false; }
+    }
+    // Too big, or the browser blocks storage: open the next step anyway and say which file to drop in.
+    if (!ok && st) { try { st.setItem(KEY, JSON.stringify({ at: Date.now(), name, from, downloaded: !!downloaded, failed: true })); } catch (e) { /* nothing more to do */ } }
+    setTimeout(() => { window.location.href = page[0]; }, downloaded ? 1200 : 0);
+  }
+
+  /* On arrival: returns { file, from, downloaded } (file is null if the hand-over didn't work), or null if nothing was handed over. */
+  function take() {
+    const st = store(); if (!st) return null;
+    let o = null;
+    try { o = JSON.parse(st.getItem(KEY) || "null"); } catch (e) { o = null; }
+    clear();
+    if (!o || !(Date.now() - o.at < MAX_AGE_MS)) return null;
+    let file = null;
+    if (!o.failed && o.b64) { try { file = new File([fromB64(o.b64)], o.name, { type: XLSX }); } catch (e) { file = null; } }
+    return { file, name: o.name, from: o.from, downloaded: o.downloaded };
+  }
+
+  /* A note under the drop zone saying where the file came from. extra: a sentence to add, e.g. what to do next. */
+  function note(h, extra) {
+    const drop = document.getElementById("drop"); if (!drop) return;
+    const old = document.getElementById("handoverNote"); if (old) old.remove();
+    const p = document.createElement("p");
+    p.id = "handoverNote"; p.setAttribute("role", "status");
+    p.style.cssText = "margin:0;padding:10px 14px;border-radius:10px;border-left:4px solid var(--accent,#2f6b4f);background:var(--accent-soft,#e3efe8);color:var(--ink,#1d2420);font-size:15px;";
+    const fromName = (PAGES[h.from] || [, "the last step"])[1];
+    if (h.file) {
+      const b = document.createElement("b"); b.textContent = `“${h.name}”`;
+      p.append(`Carried over from ${fromName}: `, b, ". " + (h.downloaded
+        ? "A copy was also downloaded as your backup: keep it, and drop it in here if you come back later."
+        : "You don't need to drop it in.") + (extra ? " " + extra : ""));
+    } else {
+      const b = document.createElement("b"); b.textContent = `“${h.name}”`;
+      p.append(`The file couldn't be carried over from ${fromName}. Drop in `, b, h.downloaded ? " from your downloads folder (it has just downloaded)." : ".");
+    }
+    drop.insertAdjacentElement("afterend", p);
+    // Gone as soon as another file is dropped or chosen.
+    const rm = () => p.remove(), input = document.getElementById("file");
+    drop.addEventListener("drop", rm, { once: true });
+    if (input) input.addEventListener("change", rm, { once: true });
+  }
+  return { send, take, note, PAGES };
+})();
 /* Make a file re-saved by the spreadsheet library open cleanly in Excel. The website's entries download has no
    theme and no default row height; re-saved as they are, Excel says it "found a problem with some content" and
    repairs the file. Keep the same in every tool that saves a spreadsheet. */
@@ -3917,13 +3995,14 @@ function markDirty() {
 function renderSaveBar() {
   const real = state && !state.isExample && state.wb;
   $("saveProgress").disabled = !real;
+  $("continueResults").disabled = !real;
+  $("toLists").disabled = !real;
   $("saveBar").hidden = !real;
   $("saveState").textContent = !real ? "" : dirty
     ? "Unsaved changes. Save progress to keep them in your trial spreadsheet."
     : state.settings && state.settings.docs ? `All changes saved (${state.settings.docs.savedAt}).` : "Nothing to save yet.";
   $("saveBar").classList.toggle("dirty", !!(real && dirty));
-  if (real && state.settings && document.activeElement !== $("shortName")) $("shortName").value = state.settings.fileName || "";
-  if (real && state.settings) $("saveProgress").title = `Saves as “${fileNameFor(cleanShortName($("shortName").value) || defaultShortName(), "Trial Data", (Number(state.settings.version) || 0) + 1, ".xlsx")}”`;
+  if (real && state.settings) $("saveProgress").title = `Saves as “${fileNameFor(shortName(), "Trial Data", (Number(state.settings.version) || 0) + 1, ".xlsx")}”`;
 }
 // window.mailtoOpening: set for a moment when an email link is clicked (Report a problem), which isn't leaving the page.
 window.addEventListener("beforeunload", e => { if (dirty && state && !state.isExample && !window.mailtoOpening) { e.preventDefault(); e.returnValue = ""; } });
@@ -3991,7 +4070,7 @@ async function openWorkbook(wb, fileName, opts = {}) {
   const settingsWs = wb.getWorksheet(TL.SETTINGS_TAB);
   if (!settingsWs) {
     if (wb.getWorksheet(TL.MASTER)) return showStop("Your saved settings are missing", [{ type: "stop", text: `This file has a ${TL.MASTER} but no ${TL.SETTINGS_TAB} tab. This often happens after editing in Numbers or Google Sheets.`, fix: "Go back to your most recent copy saved from Excel or downloaded from the tools, and make your changes again in Excel." }], { excel: true });
-    return showStop("This file hasn't been through Trial Lists yet", [{ type: "stop", text: "Trial Documents works on the trial spreadsheet made by Trial Lists (the file named like “Nov 26 Trial Data Version 04 (12 Nov)”).", fix: "Drop the entries download into Trial Lists first, download the trial spreadsheet it makes, then drop that file here." }]);
+    return showStop("This file hasn't been through Trial Lists yet", [{ type: "stop", text: "Trial Documents works on the trial spreadsheet made by Trial Lists (the file named like “Nov 26 Trial Data Version 04 (12 Nov)”).", fix: "Drop the entries download into Trial Lists first, download the trial spreadsheet it makes, then drop that file here." }], { actions: openInListsAction() });
   }
   let settings;
   try { settings = TL.readSettings(sheetRows(settingsWs)); }
@@ -4025,13 +4104,13 @@ async function openWorkbook(wb, fileName, opts = {}) {
   const skip = new Set([settings.sourceTab, TL.MASTER, TL.SETTINGS_TAB].map(s => String(s).toLowerCase()));
   const sheets = wb.worksheets.filter(w => !skip.has(w.name.toLowerCase()) && !TL.isBallotTab(w.name)).map(w => ({ ws: w, rows: sheetRows(w) }))
     .filter(s => (s.rows[0] || []).some(h => String(h ?? "").trim().toLowerCase() === "entry id"));
-  if (!sheets.length) return showStop("No trial tabs found", [{ type: "stop", text: "This file has no trial tabs with an Entry ID column.", fix: "Drop the file into Trial Lists to make the trial tabs, then drop the new file here." }]);
+  if (!sheets.length) return showStop("No trial tabs found", [{ type: "stop", text: "This file has no trial tabs with an Entry ID column.", fix: "Drop the file into Trial Lists to make the trial tabs, then drop the new file here." }], { actions: openInListsAction() });
   const read2 = sheets.map(s => TL.readTrialTab(s.ws.name, s.rows, read.trials, read.entries));
 
   // Changes made on the trial tabs need confirming in Trial Lists first.
   const check = TL.audit(read.entries, read2, settings.snap);
   if (check.questions.length) return showStop("Some changes on the trial tabs need confirming first", check.questions.map(q => ({ type: "stop", text: q.text.replace(/\s*(Have they|Was this|Is this)[^?]*\?$/, ""), fix: "" }))
-    .concat([{ type: "stop", text: "Documents made now could be out of date.", fix: `Drop the file into Trial Lists. It will ask you about each change and update the ${TL.MASTER} to match. Then drop the new file here.` }]));
+    .concat([{ type: "stop", text: "Documents made now could be out of date.", fix: `Drop the file into Trial Lists. It will ask you about each change and update the ${TL.MASTER} to match. Then drop the new file here.` }]), { actions: openInListsAction() });
   // Forgot to run Update in Trial Lists? Then the trial tabs don't match the Master List.
   const plan = TL.planUpdate(read.entries, read2, read.trials, {});
   const pending = [];
@@ -4060,7 +4139,7 @@ async function openWorkbook(wb, fileName, opts = {}) {
           `If the trial tab is right: drop the file into Trial Lists, choose Make changes and make the same change there first, then Update trial tabs. (Update copies from the ${TL.MASTER}, so a change made only on a trial tab would be lost.)`,
           "Then drop the new file here."] : [
           "Drop the file into Trial Lists and choose Update trial tabs, then drop the new file here."]),
-        fix: "" }]));
+        fix: "" }]), { actions: openInListsAction() });
   }
 
   // Which class each tab is for: its own name, or the trial Trial Lists worked out for a user's copy.
@@ -4258,14 +4337,9 @@ async function writeSettingsTab(wb, settings) {
   ws.getColumn(2).width = 90;
   ws.getCell("B8").alignment = { wrapText: true, vertical: "top" };
 }
-$("shortName").addEventListener("input", () => {
-  if (!state || state.isExample || !state.settings) return;
-  state.settings.fileName = cleanShortName($("shortName").value);
-  markDirty();
-});
-$("saveProgress").addEventListener("click", async () => {
-  if (!state || !state.wb) return;
-  const btn = $("saveProgress"); btn.disabled = true;
+// Save progress: returns { buf, filename } once the spreadsheet has downloaded, or null if it didn't work.
+async function saveProgress() {
+  if (!state || !state.wb) return null;
   try {
     const { wb, settings } = state;
     const firstLock = !settings.locked;
@@ -4281,7 +4355,8 @@ $("saveProgress").addEventListener("click", async () => {
     const lockThese = [wb.getWorksheet(TL.MASTER), ...state.sheets.map(s => s.ws)].filter(Boolean);
     for (const ws of lockThese) await ws.protect("", {});
     // Each save is the next version of the trial spreadsheet (Trial Lists numbers its downloads the same way).
-    settings.fileName = cleanShortName($("shortName").value) || cleanShortName(settings.fileName) || defaultShortName();
+    // The start of the file names was set in Trial Lists and carries forward in Tool Settings.
+    settings.fileName = cleanShortName(settings.fileName) || defaultShortName();
     settings.version = (Number(settings.version) || 0) + 1;
     await writeSettingsTab(wb, settings);
     const buf = await excelSafe(wb).xlsx.writeBuffer();
@@ -4293,10 +4368,33 @@ $("saveProgress").addEventListener("click", async () => {
     renderSaveBar();
     $("saveState").textContent = `Saved as “${filename}”.${firstLock ? " The Master List and trial tabs are now locked. To change entries, use Make a late change in Trial Lists." : ""} Next time, drop in this file: always use the highest version number, unless you want to go back to an earlier copy.`;
     $("fileName").textContent = `${state.fileName} · ${state.sheets.length} trial ${state.sheets.length === 1 ? "tab" : "tabs"} · Master List and trial tabs locked`;
+    return { buf, filename };
   } catch (err) {
     $("saveState").textContent = "Saving didn't work: " + (err.message || err) + ". Try again; if it keeps happening, reload the page and drop the file in again.";
-  } finally { btn.disabled = false; }
+    return null;
+  }
+}
+const SAVE_BTNS = ["saveProgress", "continueResults", "toLists"];
+$("saveProgress").addEventListener("click", async () => {
+  SAVE_BTNS.forEach(id => { $(id).disabled = true; });
+  try { await saveProgress(); } finally { SAVE_BTNS.forEach(id => { $(id).disabled = false; }); }
 });
+// Save, then open the next step (or Trial Lists, for late changes) in this tab with the file already in.
+async function saveAndGo(to, label) {
+  SAVE_BTNS.forEach(id => { $(id).disabled = true; });
+  const done = await saveProgress();
+  if (!done) { SAVE_BTNS.forEach(id => { $(id).disabled = false; }); return; }
+  $("saveState").textContent = `Saved as “${done.filename}”. Opening ${label}…`;
+  HANDOVER.send(done.buf, done.filename, to, "documents", true);
+}
+$("continueResults").addEventListener("click", () => saveAndGo("results", "Results Sheets"));
+$("toLists").addEventListener("click", () => saveAndGo("lists", "Trial Lists"));
+// From a stop that sends the user to Trial Lists: open the same file there (unchanged, so nothing new to download).
+let lastFile = null;
+const openInListsAction = () => lastFile ? [{ label: "Open this file in Trial Lists →", primary: true, onclick: async () => {
+  try { HANDOVER.send(await lastFile.arrayBuffer(), lastFile.name, "lists", "documents", false); }
+  catch (err) { showStatus("The file couldn't be opened in Trial Lists. Open Trial Lists and drop the file in there."); }
+} }] : [];
 
 /* Record which documents were made from which version of each tab, for the reprint list. */
 function recordMade(docId, tabs) {
@@ -4323,6 +4421,7 @@ async function handleFile(file) {
     const wb = new ExcelJS.Workbook();
     await wb.xlsx.load(await file.arrayBuffer());
     if (run !== busy) return;
+    lastFile = file;
     await openWorkbook(wb, file.name);
   } catch (err) {
     showStop("Something went wrong", [{ type: "stop", text: String(err.message || err), fix: "Drop the file in again. If it happens again, go back to your most recent downloaded copy." }]);
@@ -4416,6 +4515,8 @@ state.tabs.forEach(t => {
 });
 quiet = true; renderAll(); quiet = false; renderSaveBar();
 $("fileName").textContent = "This preview uses made-up tabs so you can see how it works. Drop a real file above to replace it.";
+/* Arrived from Trial Lists with the file: open it as if it had been dropped in. */
+(() => { const h = HANDOVER.take(); if (!h) return; HANDOVER.note(h); if (h.file) handleFile(h.file); })();
 }
 
 </script>
