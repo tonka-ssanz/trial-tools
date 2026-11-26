@@ -255,7 +255,7 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
       <li><b>Judges:</b> each search's judge goes in the column for its element (Container, Interior, Exterior, Vehicle). At Excellent and Premium, a second search of the same element (e.g. Exterior 2) goes under Other Search 1, then Other Search 2. Check them in step 2.</li>
       <li><b>The SSANZ sheet is not changed:</b> only the boxes a person is allowed to type in are filled. Its password lock, formulas, colours and Printable Version stay exactly as SSANZ made them, and Excel works out the totals when you open the file.</li>
       <li><b>Open and save the results sheet in Excel</b> (desktop or free Excel for the web). Apple Numbers and Google Sheets can lose the lock and formulas.</li>
-      <li><b>Privacy:</b> everything happens in your browser. Nothing is uploaded or stored.</li>
+      <li><b>Privacy:</b> everything happens in your browser. Nothing is uploaded or kept. When you continue here from Trial Documents, your spreadsheet waits in this browser tab for a moment and is deleted as soon as this page opens it.</li>
     </ul>
   </section>
 </div>
@@ -263,6 +263,81 @@ button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 "use strict";
+/* ---------- Hand-over between steps: Trial Lists ⇄ Trial Documents → Results Sheets ----------
+   Keep this block identical in trial-lists, trial-documents and results-sheets.
+   "Continue" downloads the spreadsheet as usual (the backup to keep), then opens the next step in the
+   same browser tab. A page can't keep anything in memory when it's replaced, so the spreadsheet waits
+   in this tab's sessionStorage for the moment of the switch. The next page reads it and deletes it at
+   once. It's never sent anywhere and other tabs can't see it. Anything left over (for example if the
+   next page didn't load) is deleted when the tab is closed, or when one of these tools next opens in it. */
+const HANDOVER = (() => {
+  const KEY = "ssanzTrialToolsHandover", MAX_AGE_MS = 5 * 60 * 1000;
+  const PAGES = { lists: ["trial-lists.html", "Trial Lists"], documents: ["trial-documents.html", "Trial Documents"], results: ["results-sheets.html", "Results Sheets"] };
+  const XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  const toB64 = buf => {
+    const u = new Uint8Array(buf); let s = "";
+    for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
+    return btoa(s);
+  };
+  const fromB64 = b64 => { const s = atob(b64), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; };
+  const store = () => { try { return window.sessionStorage; } catch (e) { return null; } };
+  const clear = () => { const st = store(); try { if (st) st.removeItem(KEY); } catch (e) { /* nothing to clear */ } };
+  // Throw away anything left over and too old, before doing anything else.
+  (() => { const st = store(); if (!st) return; try { const o = JSON.parse(st.getItem(KEY) || "null"); if (o && !(Date.now() - o.at < MAX_AGE_MS)) clear(); } catch (e) { clear(); } })();
+
+  /* Hand the spreadsheet to another step and replace this page with it.
+     buf: the .xlsx bytes; name: its file name; to: "lists" | "documents" | "results";
+     downloaded: true when the same file has just been downloaded (the wait lets the download start first). */
+  function send(buf, name, to, from, downloaded) {
+    const page = PAGES[to]; if (!page) return;
+    const st = store();
+    let ok = false;
+    if (st) {
+      try { st.setItem(KEY, JSON.stringify({ at: Date.now(), name, from, downloaded: !!downloaded, b64: toB64(buf) })); ok = true; }
+      catch (e) { ok = false; }
+    }
+    // Too big, or the browser blocks storage: open the next step anyway and say which file to drop in.
+    if (!ok && st) { try { st.setItem(KEY, JSON.stringify({ at: Date.now(), name, from, downloaded: !!downloaded, failed: true })); } catch (e) { /* nothing more to do */ } }
+    setTimeout(() => { window.location.href = page[0]; }, downloaded ? 1200 : 0);
+  }
+
+  /* On arrival: returns { file, from, downloaded } (file is null if the hand-over didn't work), or null if nothing was handed over. */
+  function take() {
+    const st = store(); if (!st) return null;
+    let o = null;
+    try { o = JSON.parse(st.getItem(KEY) || "null"); } catch (e) { o = null; }
+    clear();
+    if (!o || !(Date.now() - o.at < MAX_AGE_MS)) return null;
+    let file = null;
+    if (!o.failed && o.b64) { try { file = new File([fromB64(o.b64)], o.name, { type: XLSX }); } catch (e) { file = null; } }
+    return { file, name: o.name, from: o.from, downloaded: o.downloaded };
+  }
+
+  /* A note under the drop zone saying where the file came from. extra: a sentence to add, e.g. what to do next. */
+  function note(h, extra) {
+    const drop = document.getElementById("drop"); if (!drop) return;
+    const old = document.getElementById("handoverNote"); if (old) old.remove();
+    const p = document.createElement("p");
+    p.id = "handoverNote"; p.setAttribute("role", "status");
+    p.style.cssText = "margin:0;padding:10px 14px;border-radius:10px;border-left:4px solid var(--accent,#2f6b4f);background:var(--accent-soft,#e3efe8);color:var(--ink,#1d2420);font-size:15px;";
+    const fromName = (PAGES[h.from] || [, "the last step"])[1];
+    if (h.file) {
+      const b = document.createElement("b"); b.textContent = `“${h.name}”`;
+      p.append(`Carried over from ${fromName}: `, b, ". " + (h.downloaded
+        ? "A copy was also downloaded as your backup: keep it, and drop it in here if you come back later."
+        : "You don't need to drop it in.") + (extra ? " " + extra : ""));
+    } else {
+      const b = document.createElement("b"); b.textContent = `“${h.name}”`;
+      p.append(`The file couldn't be carried over from ${fromName}. Drop in `, b, h.downloaded ? " from your downloads folder (it has just downloaded)." : ".");
+    }
+    drop.insertAdjacentElement("afterend", p);
+    // Gone as soon as another file is dropped or chosen.
+    const rm = () => p.remove(), input = document.getElementById("file");
+    drop.addEventListener("drop", rm, { once: true });
+    if (input) input.addEventListener("change", rm, { once: true });
+  }
+  return { send, take, note, PAGES };
+})();
 /* =========================================================================
    Settings
    ========================================================================= */
@@ -1175,6 +1250,8 @@ if (typeof JSZip === "undefined") {
   $("drop").setAttribute("aria-disabled", "true");
 }
 render();
+/* Arrived from Trial Documents with the trial spreadsheet: add it as if it had been dropped in. The SSANZ zip still needs adding. */
+(() => { const h = HANDOVER.take(); if (!h) return; HANDOVER.note(h, "Now add the SSANZ results zip for the sport (links below)."); if (h.file) addFiles([h.file]); })();
 </script>
 
 </body>
